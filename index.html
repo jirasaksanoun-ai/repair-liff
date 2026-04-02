@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>แจ้งซ่อม</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+<script>
+const LIFF_ID     = '2009669941-3KAQDhQ4';
+const GAS_URL     = 'https://script.google.com/macros/s/YOUR_DEPLOY_ID/exec';
+
+async function init() {
+  await liff.init({ liffId: LIFF_ID });
+
+  if (!liff.isLoggedIn()) {
+    liff.login({ redirectUri: location.href });
+    return;
+  }
+
+  const profile = await liff.getProfile();
+  const uid     = profile.userId;
+  const name    = profile.displayName;
+  const pic     = profile.pictureUrl;
+
+  // ส่ง UID + profile ไปที่ GAS Web App ใน URL
+  const params = new URLSearchParams({
+    page:    'report',
+    uid:     uid,
+    name:    encodeURIComponent(name),
+    pic:     encodeURIComponent(pic || '')
+  });
+
+  window.location.href = GAS_URL + '?' + params.toString();
+}
+
+init();
+</script>
+<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#555">
+  <div style="text-align:center">
+    <div style="width:36px;height:36px;border:3px solid #ddd;border-top-color:#27ACB2;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px"></div>
+    <div>กำลังเข้าสู่ระบบ...</div>
+  </div>
+</div>
+<style>
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</body>
+</html>
