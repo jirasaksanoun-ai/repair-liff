@@ -3,104 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>แจ้งซ่อม</title>
+<title>LIFF Debug</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:sans-serif; background:#f0f4f8; }
-  #loading {
-    display:flex; flex-direction:column; align-items:center;
-    justify-content:center; height:100vh; gap:12px; color:#555;
-  }
-  .spinner {
-    width:40px; height:40px; border:4px solid #ddd;
-    border-top-color:#27ACB2; border-radius:50%;
-    animation:spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform:rotate(360deg); } }
-  #err {
-    color:#842029; background:#f8d7da; padding:12px 16px;
-    border-radius:10px; font-size:0.85rem; display:none;
-    max-width:320px; text-align:center; line-height:1.6;
-  }
-  /* iframe เต็มจอ ซ่อนไว้ก่อน */
-  #gasFrame {
-    display:none; position:fixed; inset:0;
-    width:100%; height:100%; border:none;
+  body { font-family: sans-serif; padding: 20px; background: #f0f4f8; }
+  .box { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+  .label { color: #888; font-size: 0.75rem; margin-bottom: 4px; }
+  .value { font-weight: bold; word-break: break-all; font-size: 0.9rem; }
+  .ok  { color: #0a3622; }
+  .err { color: #842029; }
+  .warn { color: #856404; }
+  button {
+    width: 100%; padding: 14px; background: #27ACB2; color: white;
+    border: none; border-radius: 10px; font-size: 1rem; cursor: pointer; margin-top: 8px;
   }
 </style>
 </head>
 <body>
 
-<div id="loading">
-  <div class="spinner"></div>
-  <div id="msg">กำลังเชื่อมต่อ LINE...</div>
-  <div id="err"></div>
-</div>
+<div class="box"><div class="label">1. LIFF init</div><div class="value" id="r_init">รอ...</div></div>
+<div class="box"><div class="label">2. isInClient (อยู่ใน LINE App จริงๆ?)</div><div class="value" id="r_client">รอ...</div></div>
+<div class="box"><div class="label">3. isLoggedIn</div><div class="value" id="r_login">รอ...</div></div>
+<div class="box"><div class="label">4. userId</div><div class="value" id="r_uid">รอ...</div></div>
+<div class="box"><div class="label">5. displayName</div><div class="value" id="r_name">รอ...</div></div>
+<div class="box"><div class="label">6. URL ปัจจุบัน</div><div class="value" id="r_url"></div></div>
+<div class="box"><div class="label">7. context</div><div class="value" id="r_ctx"></div></div>
 
-<!-- iframe โหลด GAS ไว้รอ -->
-<iframe id="gasFrame"
-  src="https://script.google.com/macros/s/AKfycbzlHkbIDRMgtWjMoTYWs4FFcmO7guzDhozvxdTSMKlzKpthViYoaryh9Jr0exu-dIN2bQ/exec?page=report">
-</iframe>
+<button onclick="doLogin()">🔑 กด Login</button>
+<button onclick="doProfile()" style="background:#1a2942;margin-top:8px">👤 getProfile</button>
 
 <script>
 var LIFF_ID = '2009669941-3KAQDhQ4';
-var GAS_ORIGIN = 'https://script.googleusercontent.com'; // origin จริงของ GAS iframe
 
-function setMsg(t) { document.getElementById('msg').textContent = t; }
-function showErr(t) {
-  document.getElementById('err').textContent = t;
-  document.getElementById('err').style.display = 'block';
-  document.querySelector('.spinner').style.display = 'none';
-  setMsg('');
+function set(id, text, cls) {
+  var el = document.getElementById(id);
+  el.textContent = text;
+  if (cls) el.className = 'value ' + cls;
 }
+
+document.getElementById('r_url').textContent = window.location.href;
 
 async function init() {
   try {
-    setMsg('กำลัง init LIFF...');
     await liff.init({ liffId: LIFF_ID });
+    set('r_init', '✅ สำเร็จ', 'ok');
 
-    if (!liff.isLoggedIn()) {
-      setMsg('กำลัง login...');
-      liff.login({ redirectUri: window.location.href.split('?')[0] });
-      return;
+    var inClient = liff.isInClient();
+    set('r_client', inClient ? '✅ ใช่ อยู่ใน LINE App' : '❌ ไม่ใช่ — เปิดจาก browser ภายนอก', inClient ? 'ok' : 'err');
+
+    var loggedIn = liff.isLoggedIn();
+    set('r_login', loggedIn ? '✅ true' : '❌ false', loggedIn ? 'ok' : 'err');
+
+    try {
+      var ctx = liff.getContext();
+      set('r_ctx', ctx ? JSON.stringify(ctx) : 'null', ctx ? 'ok' : 'warn');
+    } catch(e) {
+      set('r_ctx', 'error: ' + e.message, 'err');
     }
 
-    setMsg('กำลังดึงโปรไฟล์...');
-    var profile = await liff.getProfile();
-
-    if (!profile || !profile.userId) {
-      showErr('ดึงโปรไฟล์ไม่สำเร็จ\nกรุณาปิดแล้วเปิดใหม่');
-      return;
+    if (loggedIn) {
+      await doProfile();
+    } else {
+      set('r_uid',  'ยังไม่ได้ login', 'warn');
+      set('r_name', 'ยังไม่ได้ login', 'warn');
     }
-
-    setMsg('เปิดฟอร์ม...');
-
-    var frame = document.getElementById('gasFrame');
-
-    // รอให้ iframe โหลดเสร็จก่อน แล้วค่อยส่ง postMessage
-    frame.onload = function() {
-      // ส่ง profile ไปให้ GAS ผ่าน postMessage
-      frame.contentWindow.postMessage({
-        type:    'LIFF_PROFILE',
-        uid:     profile.userId,
-        name:    profile.displayName || '',
-        pic:     profile.pictureUrl  || ''
-      }, '*');
-
-      // แสดง iframe ซ่อน loading
-      document.getElementById('loading').style.display = 'none';
-      frame.style.display = 'block';
-    };
-
-    // ถ้า iframe โหลดแล้ว (กรณี cache) ให้ส่งทันที
-    if (frame.contentDocument && frame.contentDocument.readyState === 'complete') {
-      frame.onload();
-    }
-
   } catch(e) {
-    showErr('เกิดข้อผิดพลาด:\n' + e.message);
-    console.error(e);
+    set('r_init', '❌ ' + e.message, 'err');
+  }
+}
+
+function doLogin() {
+  liff.login({ redirectUri: window.location.href.split('?')[0] });
+}
+
+async function doProfile() {
+  try {
+    var p = await liff.getProfile();
+    set('r_uid',  p.userId,      'ok');
+    set('r_name', p.displayName, 'ok');
+  } catch(e) {
+    set('r_uid',  '❌ ' + e.message, 'err');
+    set('r_name', '❌ ' + e.message, 'err');
   }
 }
 
