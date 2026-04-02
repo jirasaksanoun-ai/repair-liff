@@ -6,55 +6,62 @@
 <title>แจ้งซ่อม</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
-  body { margin:0; display:flex; align-items:center; justify-content:center;
-         height:100vh; font-family:sans-serif; background:#f0f4f8; }
-  .box { text-align:center; padding:24px; }
-  .spinner { width:40px; height:40px; border:4px solid #ddd;
-             border-top-color:#27ACB2; border-radius:50%;
-             animation:spin 0.8s linear infinite; margin:0 auto 16px; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:sans-serif; background:#f0f4f8; }
+  #loading {
+    display:flex; flex-direction:column; align-items:center;
+    justify-content:center; height:100vh; gap:12px; color:#555;
+  }
+  .spinner {
+    width:40px; height:40px; border:4px solid #ddd;
+    border-top-color:#27ACB2; border-radius:50%;
+    animation:spin 0.8s linear infinite;
+  }
   @keyframes spin { to { transform:rotate(360deg); } }
-  #msg { color:#555; font-size:0.95rem; }
-  #err { color:#842029; background:#f8d7da; padding:12px 16px;
-         border-radius:10px; font-size:0.85rem; display:none;
-         max-width:300px; word-break:break-all; }
+  #err {
+    color:#842029; background:#f8d7da; padding:12px 16px;
+    border-radius:10px; font-size:0.85rem; display:none;
+    max-width:320px; text-align:center; line-height:1.6;
+  }
+  /* iframe เต็มจอ ซ่อนไว้ก่อน */
+  #gasFrame {
+    display:none; position:fixed; inset:0;
+    width:100%; height:100%; border:none;
+  }
 </style>
 </head>
 <body>
-<div class="box">
+
+<div id="loading">
   <div class="spinner"></div>
   <div id="msg">กำลังเชื่อมต่อ LINE...</div>
   <div id="err"></div>
 </div>
 
+<!-- iframe โหลด GAS ไว้รอ -->
+<iframe id="gasFrame"
+  src="https://script.google.com/macros/s/YOUR_DEPLOY_ID/exec?page=report">
+</iframe>
+
 <script>
-// ===== ตั้งค่า =====
 var LIFF_ID = '2009669941-3KAQDhQ4';
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbzlHkbIDRMgtWjMoTYWs4FFcmO7guzDhozvxdTSMKlzKpthViYoaryh9Jr0exu-dIN2bQ/exec';
-// ===================
+var GAS_ORIGIN = 'https://script.googleusercontent.com'; // origin จริงของ GAS iframe
 
-function setMsg(text) {
-  document.getElementById('msg').textContent = text;
-}
-
-function showErr(text) {
-  var el = document.getElementById('err');
-  el.textContent = text;
-  el.style.display = 'block';
+function setMsg(t) { document.getElementById('msg').textContent = t; }
+function showErr(t) {
+  document.getElementById('err').textContent = t;
+  document.getElementById('err').style.display = 'block';
   document.querySelector('.spinner').style.display = 'none';
-  document.getElementById('msg').style.display = 'none';
+  setMsg('');
 }
 
 async function init() {
   try {
     setMsg('กำลัง init LIFF...');
-    
     await liff.init({ liffId: LIFF_ID });
-    setMsg('LIFF init สำเร็จ');
 
-    // ถ้ายังไม่ได้ login — ให้ login แล้วหยุดรอ redirect กลับมา
     if (!liff.isLoggedIn()) {
-      setMsg('กำลัง redirect ไปหน้า login...');
-      // redirectUri = หน้านี้เอง เพื่อให้กลับมา init ใหม่
+      setMsg('กำลัง login...');
       liff.login({ redirectUri: window.location.href.split('?')[0] });
       return;
     }
@@ -63,24 +70,36 @@ async function init() {
     var profile = await liff.getProfile();
 
     if (!profile || !profile.userId) {
-      showErr('ดึงโปรไฟล์ไม่สำเร็จ กรุณาลองใหม่');
+      showErr('ดึงโปรไฟล์ไม่สำเร็จ\nกรุณาปิดแล้วเปิดใหม่');
       return;
     }
 
-    setMsg('เข้าสู่ระบบสำเร็จ กำลังเปิดฟอร์ม...');
+    setMsg('เปิดฟอร์ม...');
 
-    // สร้าง URL ไป GAS พร้อม profile
-    var target = GAS_URL
-      + '?page=report'
-      + '&uid='  + encodeURIComponent(profile.userId)
-      + '&name=' + encodeURIComponent(profile.displayName || '')
-      + '&pic='  + encodeURIComponent(profile.pictureUrl  || '');
+    var frame = document.getElementById('gasFrame');
 
-    // ใช้ replace เพื่อไม่ให้กด back กลับมาหน้านี้
-    window.location.replace(target);
+    // รอให้ iframe โหลดเสร็จก่อน แล้วค่อยส่ง postMessage
+    frame.onload = function() {
+      // ส่ง profile ไปให้ GAS ผ่าน postMessage
+      frame.contentWindow.postMessage({
+        type:    'LIFF_PROFILE',
+        uid:     profile.userId,
+        name:    profile.displayName || '',
+        pic:     profile.pictureUrl  || ''
+      }, '*');
+
+      // แสดง iframe ซ่อน loading
+      document.getElementById('loading').style.display = 'none';
+      frame.style.display = 'block';
+    };
+
+    // ถ้า iframe โหลดแล้ว (กรณี cache) ให้ส่งทันที
+    if (frame.contentDocument && frame.contentDocument.readyState === 'complete') {
+      frame.onload();
+    }
 
   } catch(e) {
-    showErr('Error: ' + e.message + '\n\nURL: ' + window.location.search);
+    showErr('เกิดข้อผิดพลาด:\n' + e.message);
     console.error(e);
   }
 }
