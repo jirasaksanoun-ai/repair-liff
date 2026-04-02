@@ -2,92 +2,325 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LIFF Debug</title>
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>แจ้งซ่อม</title>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
-  body { font-family: sans-serif; padding: 20px; background: #f0f4f8; }
-  .box { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-  .label { color: #888; font-size: 0.75rem; margin-bottom: 4px; }
-  .value { font-weight: bold; word-break: break-all; font-size: 0.9rem; }
-  .ok  { color: #0a3622; }
-  .err { color: #842029; }
-  .warn { color: #856404; }
-  button {
-    width: 100%; padding: 14px; background: #27ACB2; color: white;
-    border: none; border-radius: 10px; font-size: 1rem; cursor: pointer; margin-top: 8px;
-  }
+:root{
+  --blue:#1A73E8;--blue-dark:#1557B0;--blue-light:#EAF2FF;
+  --green:#34A853;--orange:#F57C00;--red:#EA4335;
+  --gray:#F5F7FA;--border:#E2E8F0;--text:#1A202C;--muted:#718096;
+  --radius:16px;--shadow:0 4px 24px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans Thai',sans-serif;background:#F0F4FF;min-height:100vh;color:var(--text)}
+
+#loading{
+  position:fixed;inset:0;background:#fff;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;z-index:999;
+  transition:opacity .4s;
+}
+.spinner{
+  width:48px;height:48px;border:4px solid var(--blue-light);
+  border-top-color:var(--blue);border-radius:50%;
+  animation:spin .8s linear infinite;margin-bottom:16px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.header{
+  background:linear-gradient(135deg,var(--blue) 0%,#4B9BFF 100%);
+  padding:32px 24px 48px;color:#fff;position:relative;overflow:hidden;
+}
+.header-icon{font-size:2.5rem;margin-bottom:8px;display:block;}
+.header h1{font-size:1.5rem;font-weight:700;}
+
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);margin:0 16px;padding:24px;}
+.main-card{margin-top:-24px;position:relative;z-index:10}
+
+.steps{display:flex;margin-bottom:24px;gap:8px}
+.step{flex:1;text-align:center;padding:10px 4px;border-radius:12px;font-size:.75rem;font-weight:600;color:var(--muted);background:var(--gray);transition:.3s;}
+.step.active{background:var(--blue-light);color:var(--blue)}
+.step.done{background:var(--green);color:#fff}
+.step-num{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;margin-bottom:4px;font-weight:700;background:currentColor;color:#fff;}
+
+.form-section{display:none}
+.form-section.active{display:block}
+
+.field-group{margin-bottom:20px}
+label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase}
+input,select,textarea{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:12px;font-size:.95rem;font-family:inherit;background:#fff;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(26,115,232,.12);}
+textarea{resize:none;min-height:100px}
+
+.search-row{display:flex;gap:10px}
+.search-row input{flex:1}
+
+.info-card{background:var(--blue-light);border-radius:12px;padding:16px;display:none;}
+.info-card.show{display:block}
+.info-row{display:flex;justify-content:space-between;padding:6px 0;font-size:.9rem}
+.info-row span:first-child{color:var(--muted)}
+.info-row span:last-child{font-weight:600;color:var(--blue-dark)}
+.badge{display:inline-block;background:var(--blue);color:#fff;padding:2px 10px;border-radius:999px;font-size:.75rem;margin-top:6px;}
+
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-outline{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+.btn-success{background:var(--green);color:#fff}
+.btn-row{display:flex;gap:12px;margin-top:8px}
+.btn-row .btn{flex:1}
+
+.upload-box{border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;color:var(--muted);}
+.upload-box input{display:none}
+.upload-preview{display:none;border-radius:12px;overflow:hidden;margin-top:12px}
+.upload-preview img{width:100%;max-height:200px;object-fit:cover}
+
+.alert{padding:12px 16px;border-radius:10px;font-size:.9rem;margin-bottom:16px;display:none;}
+.alert.show{display:block}
+.alert-error{background:#FDECEA;color:var(--red);border:1px solid #F5C6C2}
+
+.success-screen{display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;}
+.success-screen.show{display:flex}
+.success-icon{font-size:4rem;margin-bottom:16px;}
+.ticket-badge{background:var(--blue-light);color:var(--blue);padding:8px 20px;border-radius:999px;font-size:1.1rem;font-weight:700;margin:16px 0;}
 </style>
 </head>
 <body>
 
-<div class="box"><div class="label">1. LIFF init</div><div class="value" id="r_init">รอ...</div></div>
-<div class="box"><div class="label">2. isInClient (อยู่ใน LINE App จริงๆ?)</div><div class="value" id="r_client">รอ...</div></div>
-<div class="box"><div class="label">3. isLoggedIn</div><div class="value" id="r_login">รอ...</div></div>
-<div class="box"><div class="label">4. userId</div><div class="value" id="r_uid">รอ...</div></div>
-<div class="box"><div class="label">5. displayName</div><div class="value" id="r_name">รอ...</div></div>
-<div class="box"><div class="label">6. URL ปัจจุบัน</div><div class="value" id="r_url"></div></div>
-<div class="box"><div class="label">7. context</div><div class="value" id="r_ctx"></div></div>
+<div id="loading">
+  <div class="spinner"></div>
+  <p>กำลังเชื่อมต่อ LINE...</p>
+</div>
 
-<button onclick="doLogin()">🔑 กด Login</button>
-<button onclick="doProfile()" style="background:#1a2942;margin-top:8px">👤 getProfile</button>
+<div class="header">
+  <span class="header-icon">🔧</span>
+  <h1>ระบบแจ้งซ่อม</h1>
+  <p>Repair Request System</p>
+</div>
+
+<div class="card main-card">
+  <div class="steps" id="stepBar">
+    <div class="step active" id="s1"><div class="step-num">1</div><br>ค้นหา</div>
+    <div class="step" id="s2"><div class="step-num">2</div><br>รายละเอียด</div>
+    <div class="step" id="s3"><div class="step-num">3</div><br>ส่ง</div>
+  </div>
+
+  <div class="form-section active" id="sec1">
+    <div class="field-group">
+      <label>🔍 รหัสพนักงาน (ID)</label>
+      <div class="search-row">
+        <input id="inputId" type="text" placeholder="กรอกรหัสพนักงาน" inputmode="numeric">
+        <button class="btn btn-primary" style="width:auto;padding:12px 20px" onclick="searchUser()">ค้นหา</button>
+      </div>
+    </div>
+    <div class="alert alert-error" id="alertSearch"></div>
+    <div class="info-card" id="infoCard">
+      <div class="info-row"><span>ชื่อ-นามสกุล</span><span id="iName"></span></div>
+      <div class="info-row"><span>ตำแหน่ง</span><span id="iPos"></span></div>
+      <div class="info-row"><span>หน่วยงาน</span><span id="iDept"></span></div>
+      <div class="info-row"><span>Site</span><span id="iSite"></span></div>
+      <span class="badge" id="iBadge"></span>
+    </div>
+    <div class="btn-row" id="nextBtn1" style="display:none;margin-top:20px">
+      <button class="btn btn-primary" onclick="goStep(2)">ถัดไป →</button>
+    </div>
+  </div>
+
+  <div class="form-section" id="sec2">
+    <div class="field-group">
+      <label>🔧 ประเภทปัญหา</label>
+      <select id="selIssue">
+        <option value="">-- เลือกประเภทปัญหา --</option>
+        <option>ไฟฟ้า / แสงสว่าง</option>
+        <option>ประปา / ท่อน้ำ</option>
+        <option>เครื่องปรับอากาศ</option>
+        <option>คอมพิวเตอร์ / IT</option>
+        <option>อื่นๆ</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>📝 รายละเอียดเพิ่มเติม</label>
+      <textarea id="txtDetail" placeholder="อธิบายปัญหาที่พบ..."></textarea>
+    </div>
+    <div class="field-group">
+      <label>📷 รูปภาพ (ถ้ามี)</label>
+      <div class="upload-box" onclick="document.getElementById('imgInput').click()">
+        <div style="font-size:2rem">📸</div>
+        <p style="margin-top:8px;font-size:.85rem">แตะเพื่ออัพโหลดรูป</p>
+        <input type="file" id="imgInput" accept="image/*" onchange="previewImg(this)">
+      </div>
+      <div class="upload-preview" id="preview">
+        <img id="previewImg" src="">
+      </div>
+    </div>
+    <div class="alert alert-error" id="alertForm"></div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(1)">← ย้อนกลับ</button>
+      <button class="btn btn-primary" onclick="goStep(3)">ถัดไป →</button>
+    </div>
+  </div>
+
+  <div class="form-section" id="sec3">
+    <h3 style="font-size:1rem;margin-bottom:16px;color:var(--muted)">📋 สรุปข้อมูลการแจ้งซ่อม</h3>
+    <div class="info-card show" id="confirmCard">
+      <div class="info-row"><span>ผู้แจ้ง</span><span id="cName"></span></div>
+      <div class="info-row"><span>ปัญหา</span><span id="cIssue"></span></div>
+    </div>
+    <div class="alert alert-error" id="alertSubmit"></div>
+    <div class="btn-row" style="margin-top:20px">
+      <button class="btn btn-outline" onclick="goStep(2)">← แก้ไข</button>
+      <button class="btn btn-success" id="btnSubmit" onclick="submitForm()">✅ แจ้งซ่อม</button>
+    </div>
+  </div>
+
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">✅</div>
+    <h2>แจ้งซ่อมสำเร็จ!</h2>
+    <p>ช่างจะติดต่อกลับผ่าน LINE ของคุณ</p>
+    <div class="ticket-badge" id="ticketDisplay">TK00000</div>
+  </div>
+</div>
 
 <script>
-var LIFF_ID = '2009669941-3KAQDhQ4';
+// ⚠️ เปลี่ยนเป็น URL ของ Google Apps Script ของคุณ (ลงท้ายด้วย /exec)
+const API_URL = 'https://script.google.com/macros/s/AKfycbzIHkbIDRMgtWjMoTYWs4FFcmO7guzDhozvxdTSMKlzKpthViYoaryh9Jr0exu-dIN2bQ/exec'; 
 
-function set(id, text, cls) {
-  var el = document.getElementById(id);
-  el.textContent = text;
-  if (cls) el.className = 'value ' + cls;
+// ⚠️ LIFF ID ของคุณ
+const LIFF_ID = '2009669941-oojQ8hNu'; 
+
+let lineUid = '';
+let userData = null;
+let imgBase64 = '';
+
+function hideLoading() {
+  document.getElementById('loading').style.opacity = '0';
+  setTimeout(() => document.getElementById('loading').style.display = 'none', 400);
 }
 
-document.getElementById('r_url').textContent = window.location.href;
-
-async function init() {
+// เมื่อเว็บไม่ได้อยู่ใน iframe แล้ว LIFF จะทำงานได้สมบูรณ์แบบ 100%
+async function initApp() {
   try {
     await liff.init({ liffId: LIFF_ID });
-    set('r_init', '✅ สำเร็จ', 'ok');
-
-    var inClient = liff.isInClient();
-    set('r_client', inClient ? '✅ ใช่ อยู่ใน LINE App' : '❌ ไม่ใช่ — เปิดจาก browser ภายนอก', inClient ? 'ok' : 'err');
-
-    var loggedIn = liff.isLoggedIn();
-    set('r_login', loggedIn ? '✅ true' : '❌ false', loggedIn ? 'ok' : 'err');
-
-    try {
-      var ctx = liff.getContext();
-      set('r_ctx', ctx ? JSON.stringify(ctx) : 'null', ctx ? 'ok' : 'warn');
-    } catch(e) {
-      set('r_ctx', 'error: ' + e.message, 'err');
-    }
-
-    if (loggedIn) {
-      await doProfile();
+    if (liff.isLoggedIn()) {
+      const profile = await liff.getProfile();
+      lineUid = profile.userId;
+      console.log("LINE UID:", lineUid);
     } else {
-      set('r_uid',  'ยังไม่ได้ login', 'warn');
-      set('r_name', 'ยังไม่ได้ login', 'warn');
+      liff.login({ redirectUri: location.href });
     }
-  } catch(e) {
-    set('r_init', '❌ ' + e.message, 'err');
+  } catch (err) {
+    console.error('LIFF Init Error:', err);
+    lineUid = 'U_DEV_NOLIFF';
   }
+  hideLoading();
 }
 
-function doLogin() {
-  liff.login({ redirectUri: window.location.href.split('?')[0] });
-}
-
-async function doProfile() {
+async function searchUser() {
+  const id = document.getElementById('inputId').value.trim();
+  if (!id) return showAlert('alertSearch','กรุณากรอกรหัสพนักงาน');
+  
+  const btn = document.querySelector('#sec1 .btn-primary');
+  btn.innerHTML = 'กำลังค้นหา...';
+  
   try {
-    var p = await liff.getProfile();
-    set('r_uid',  p.userId,      'ok');
-    set('r_name', p.displayName, 'ok');
-  } catch(e) {
-    set('r_uid',  '❌ ' + e.message, 'err');
-    set('r_name', '❌ ' + e.message, 'err');
+    // 🚀 ย้ายจาก google.script.run มาใช้ fetch API ทันสมัย
+    const response = await fetch(`${API_URL}?action=getUserById&id=${id}`);
+    const res = await response.json();
+    
+    if (res.found) {
+      userData = res;
+      document.getElementById('iName').textContent = res.firstName + ' ' + res.lastName;
+      document.getElementById('iPos').textContent = res.position;
+      document.getElementById('iDept').textContent = res.department;
+      document.getElementById('iSite').textContent = res.site;
+      document.getElementById('iBadge').textContent = 'ID: ' + res.id;
+      document.getElementById('infoCard').classList.add('show');
+      document.getElementById('nextBtn1').style.display = 'flex';
+      document.getElementById('alertSearch').classList.remove('show');
+    } else {
+      showAlert('alertSearch','❌ ไม่พบรหัสพนักงานในระบบ');
+    }
+  } catch (err) {
+    showAlert('alertSearch', 'การเชื่อมต่อขัดข้อง');
+  }
+  btn.innerHTML = 'ค้นหา';
+}
+
+function goStep(n) {
+  if (n === 2 && !userData) return;
+  if (n === 3) {
+    document.getElementById('cName').textContent = userData.firstName;
+    document.getElementById('cIssue').textContent = document.getElementById('selIssue').value;
+  }
+  document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec' + n).classList.add('active');
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById('s' + i);
+    el.classList.remove('active','done');
+    if (i < n) el.classList.add('done');
+    else if (i === n) el.classList.add('active');
   }
 }
 
-init();
+function previewImg(input) {
+  if (!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    imgBase64 = e.target.result;
+    document.getElementById('previewImg').src = imgBase64;
+    document.getElementById('preview').style.display = 'block';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+async function submitForm() {
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.innerHTML = 'กำลังส่ง...';
+
+  const payload = {
+    action: 'submitRepair', // บอก API ว่าจะทำอะไร
+    data: {
+      uid: lineUid,
+      fullName: userData.firstName + ' ' + userData.lastName,
+      department: userData.department,
+      site: userData.site,
+      issue: document.getElementById('selIssue').value + ' — ' + document.getElementById('txtDetail').value,
+      imgBefore: imgBase64
+    }
+  };
+
+  try {
+    // 🚀 ย้ายจาก google.script.run มาใช้ fetch (ส่งเป็น text/plain ป้องกัน CORS Error ใน GAS)
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+      body: JSON.stringify(payload)
+    });
+    const res = await response.json();
+
+    if (res.success) {
+      document.getElementById('stepBar').style.display = 'none';
+      document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+      document.getElementById('ticketDisplay').textContent = res.ticketId;
+      document.getElementById('successScreen').classList.add('show');
+    } else {
+      showAlert('alertSubmit', '❌ ' + res.error);
+      btn.disabled = false;
+      btn.innerHTML = '✅ แจ้งซ่อม';
+    }
+  } catch (err) {
+    showAlert('alertSubmit', 'การเชื่อมต่อขัดข้อง');
+    btn.disabled = false;
+    btn.innerHTML = '✅ แจ้งซ่อม';
+  }
+}
+
+function showAlert(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.classList.add('show');
+}
+
+window.onload = initApp;
 </script>
 </body>
 </html>
