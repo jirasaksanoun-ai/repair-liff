@@ -3,233 +3,285 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Admin Dashboard — ระบบแจ้งซ่อม</title>
+<title>Admin Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root{
-  --blue:#1A73E8;--blue-dark:#1557B0;--blue-light:#EAF2FF;
-  --green:#34A853;--orange:#F57C00;--red:#EA4335;--purple:#7C3AED;
-  --gray:#F5F7FA;--sidebar-bg:#0F172A;--sidebar-w:260px;
-  --border:#E2E8F0;--text:#1A202C;--muted:#718096;
-  --radius:12px;--shadow:0 2px 12px rgba(0,0,0,.08);
-}
+:root{--blue:#1A73E8;--blue-dark:#1557B0;--blue-light:#EAF2FF;--green:#34A853;--orange:#F57C00;--red:#EA4335;--purple:#7C3AED;--gray:#F5F7FA;--sidebar-bg:#0F172A;--sidebar-w:260px;--border:#E2E8F0;--text:#1A202C;--muted:#718096;--radius:12px;--shadow:0 4px 15px rgba(0,0,0,.05);}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Noto Sans Thai',sans-serif;background:#F0F4FF;color:var(--text);display:flex;min-height:100vh}
+body{font-family:'Noto Sans Thai',sans-serif;background:#F4F7FE;color:var(--text);display:flex;min-height:100vh}
 
-#loading{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;}
+/* Login Screen */
+#loginScreen{position:fixed;inset:0;background:#F4F7FE;display:flex;align-items:center;justify-content:center;z-index:99999;}
+.login-box{background:#fff;padding:40px;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,.08);text-align:center;width:90%;max-width:400px;}
+.login-box h2{margin-bottom:8px;color:var(--blue-dark);}
+.login-box p{color:var(--muted);font-size:0.9rem;margin-bottom:24px;}
+.login-box input{width:100%;padding:14px;border:2px solid var(--border);border-radius:12px;font-size:1rem;margin-bottom:16px;text-align:center;}
+.login-box input:focus{outline:none;border-color:var(--blue);}
+.login-box button{width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:bold;cursor:pointer;transition:.2s;}
+.login-box button:hover{background:var(--blue-dark);}
+
+#loading{position:fixed;inset:0;background:rgba(255,255,255,0.8);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9999;}
 .spinner{width:48px;height:48px;border:4px solid var(--blue-light);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.sidebar{width:var(--sidebar-w);background:var(--sidebar-bg);padding:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .3s;}
+.sidebar{width:var(--sidebar-w);background:var(--sidebar-bg);padding:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;}
 .sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px;}
 .logo-icon{width:40px;height:40px;background:var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
 .logo-text h2{font-size:.95rem;color:#fff;font-weight:700}
 .logo-text p{font-size:.7rem;color:rgba(255,255,255,.5)}
 .nav{flex:1;padding:16px 12px;overflow-y:auto}
-.nav-section-title{font-size:.65rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;padding:12px 8px 6px;font-weight:600}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.6);font-size:.88rem;margin-bottom:4px;transition:.2s;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:12px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.6);font-size:.9rem;margin-bottom:8px;transition:.2s;}
 .nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
 .nav-item.active{background:var(--blue);color:#fff}
-.nav-item .icon{font-size:1.1rem;width:24px;text-align:center}
+.sidebar-footer{padding:16px;border-top:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.4);font-size:0.8rem;text-align:center;}
+.sidebar-footer span{display:block;color:#fff;font-weight:bold;margin-top:4px;}
 
 .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
-.topbar h1{font-size:1.1rem;font-weight:700;}
-.btn-icon{width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:70px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar h1{font-size:1.2rem;font-weight:700;}
+.btn-icon{width:40px;height:40px;border:1px solid var(--border);border-radius:10px;background:#fff;cursor:pointer;font-size:1.1rem;transition:.2s;}
 .content{padding:24px;flex:1}
-
-.tab-view{display:none}
+.tab-view{display:none; animation:fadeIn .3s;}
 .tab-view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
+/* Cards & Layout */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.kpi-card{background:#fff;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);position:relative;}
-.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
-.kpi-card.blue::before{background:var(--blue)}
-.kpi-card.green::before{background:var(--green)}
-.kpi-card.orange::before{background:var(--orange)}
-.kpi-card.purple::before{background:var(--purple)}
-.kpi-icon{font-size:1.8rem;margin-bottom:10px}
-.kpi-value{font-size:2rem;font-weight:800;line-height:1}
-.kpi-label{font-size:.8rem;color:var(--muted);margin-top:6px}
+.kpi-card{background:#fff;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border-top:4px solid transparent;}
+.kpi-card.blue{border-top-color:var(--blue)} .kpi-card.green{border-top-color:var(--green)}
+.kpi-card.orange{border-top-color:var(--orange)} .kpi-card.purple{border-top-color:var(--purple)}
+.kpi-icon{font-size:2rem;margin-bottom:8px}
+.kpi-value{font-size:2.2rem;font-weight:800;line-height:1}
+.kpi-label{font-size:.85rem;color:var(--muted);margin-top:8px;text-transform:uppercase;}
 
-.filter-bar{background:#fff;border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow);margin-bottom:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
-.filter-bar input,.filter-bar select{padding:8px 14px;border:2px solid var(--border);border-radius:8px;font-size:.88rem;}
+.filter-bar{background:#fff;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:20px;display:flex;gap:12px;align-items:center;}
+.filter-bar input,.filter-bar select{padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:.9rem;flex:1;}
 
+/* Tables & Pagination */
 .table-wrap{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-.table-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
 table{width:100%;border-collapse:collapse}
-th{padding:12px 16px;background:var(--gray);font-size:.78rem;text-align:left;color:var(--muted);font-weight:600;white-space:nowrap}
-td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:.88rem;vertical-align:middle}
+th{padding:14px 16px;background:var(--gray);font-size:.8rem;text-align:left;color:var(--muted);text-transform:uppercase;}
+td{padding:14px 16px;border-bottom:1px solid var(--border);font-size:.9rem;}
 tr:hover td{background:#FAFBFF}
-
-.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:600}
+.badge{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:bold;}
 .badge-open{background:#EAF2FF;color:var(--blue)}
 .badge-inprogress{background:#FFF3E0;color:var(--orange)}
 .badge-waiting{background:#F3E8FF;color:var(--purple)}
 .badge-completed{background:#E6F4EA;color:var(--green)}
+.action-btn{padding:6px 12px;border-radius:6px;font-size:.8rem;border:none;cursor:pointer;margin:2px;font-weight:bold;}
+.action-btn.primary{background:var(--blue-light);color:var(--blue)}
+.action-btn.warning{background:#FFF3E0;color:var(--orange)}
+.action-btn.view{background:var(--gray);color:var(--text)}
 
-.action-btn{padding:6px 12px;border-radius:6px;font-size:.78rem;border:1px solid var(--border);background:#fff;cursor:pointer;margin:2px;white-space:nowrap;}
-.action-btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
-.action-btn.warning{background:var(--orange);color:#fff;border-color:var(--orange)}
+.pagination{display:flex;justify-content:flex-end;padding:16px;gap:8px;align-items:center;background:#fff;border-top:1px solid var(--border);}
+.page-btn{padding:6px 12px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;font-size:0.9rem;}
+.page-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.page-info{font-size:0.9rem;color:var(--muted);}
 
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center}
+/* Chart Grids */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.chart-card{background:#fff;padding:24px;border-radius:var(--radius);box-shadow:var(--shadow);}
+.chart-card h3{font-size:1rem;color:var(--text);margin-bottom:20px;}
+
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center}
 .modal-backdrop.show{display:flex}
-.modal{background:#fff;border-radius:20px;padding:28px;width:90%;max-width:480px;max-height:90vh;overflow-y:auto;}
-.modal h2{font-size:1.1rem;font-weight:700;margin-bottom:20px;}
+.modal{background:#fff;border-radius:24px;padding:32px;width:90%;max-width:500px;max-height:90vh;overflow-y:auto;}
+.modal h2{font-size:1.3rem;margin-bottom:24px;}
 .field-group{margin-bottom:16px}
-.modal label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:6px;}
-.modal input,.modal textarea,.modal select{width:100%;padding:10px 14px;border:2px solid var(--border);border-radius:10px;}
-.modal-footer{display:flex;gap:10px;margin-top:20px}
-.modal-footer .btn{flex:1;padding:12px;border:none;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;}
+.modal label{display:block;font-size:.85rem;font-weight:600;color:var(--muted);margin-bottom:8px;}
+.modal input,.modal textarea{width:100%;padding:12px;border:2px solid var(--border);border-radius:10px;}
+.modal-footer{display:flex;gap:12px;margin-top:24px}
+.modal-footer .btn{flex:1;padding:14px;border:none;border-radius:12px;font-size:1rem;font-weight:bold;cursor:pointer;}
 .btn-cancel{background:var(--gray);color:var(--text)}
 .btn-confirm{background:var(--blue);color:#fff}
 
-.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.88rem}
+.detail-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:.95rem}
 .detail-row span:first-child{color:var(--muted)}
-.detail-row span:last-child{font-weight:600;text-align:right;max-width:60%;word-break:break-word}
-
-@media(max-width:768px){ .sidebar{transform:translateX(-100%)} .main{margin-left:0} .kpi-grid{grid-template-columns:repeat(2,1fr)} }
+.detail-row span:last-child{font-weight:bold;text-align:right;}
 </style>
 </head>
 <body>
 
-<div id="loading">
-  <div class="spinner"></div>
-  <p>กำลังโหลด Dashboard...</p>
+<!-- Login Screen -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h2>Admin Login</h2>
+    <p>เข้าสู่ระบบจัดการงานซ่อม</p>
+    <div class="alert alert-error" id="loginError" style="display:none; color:red; font-size:0.8rem; margin-bottom:10px;"></div>
+    <input type="password" id="adminIdInput" placeholder="รหัสผ่าน Admin">
+    <button onclick="login()">เข้าสู่ระบบ</button>
+  </div>
 </div>
 
-<nav class="sidebar" id="sidebar">
-  <div class="sidebar-logo"><div class="logo-icon">🔧</div><div class="logo-text"><h2>RepairSys</h2><p>Admin Panel</p></div></div>
+<div id="loading"><div class="spinner"></div></div>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar" style="display:none;">
+  <div class="sidebar-logo"><div class="logo-icon">🔧</div><div class="logo-text"><h2>RepairSys</h2><p>Admin Panel v4.0</p></div></div>
   <div class="nav">
-    <div class="nav-section-title">เมนูหลัก</div>
-    <div class="nav-item active" onclick="switchTab('tasks')" id="nav-tasks"><span class="icon">📋</span> Task Management</div>
-    <div class="nav-item" onclick="switchTab('cost')" id="nav-cost"><span class="icon">💰</span> Cost Summary</div>
+    <div class="nav-item active" onclick="switchTab('tasks')" id="nav-tasks">📋 Task Management</div>
+    <div class="nav-item" onclick="switchTab('kqi')" id="nav-kqi">🎯 KQI & Cost Dashboard</div>
+  </div>
+  <div class="sidebar-footer">
+    Site ปัจจุบัน: <span id="displaySite">-</span>
+    <button onclick="logout()" style="margin-top:10px; background:transparent; color:#F57C00; border:none; cursor:pointer; text-decoration:underline;">ออกจากระบบ</button>
   </div>
 </nav>
 
-<div class="main">
+<!-- Main Content -->
+<div class="main" id="mainContent" style="display:none;">
   <div class="topbar">
-    <div style="display:flex;align-items:center;gap:12px">
-      <button class="btn-icon" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
-      <h1 id="pageTitle">Task Management</h1>
-    </div>
-    <div class="topbar-actions"><button class="btn-icon" onclick="refreshData()" title="Refresh">🔄</button></div>
+    <h1>ระบบจัดการงานซ่อม</h1>
+    <button class="btn-icon" onclick="fetchData()">🔄</button>
   </div>
 
   <div class="content">
+    
+    <!-- 📋 TAB: TASKS -->
     <div class="tab-view active" id="tab-tasks">
-      <div class="kpi-grid" id="miniKpi">
-        <div class="kpi-card blue"><div class="kpi-icon">📋</div><div class="kpi-value" id="kTotalTickets">—</div><div class="kpi-label">Tickets ทั้งหมด</div></div>
-        <div class="kpi-card orange"><div class="kpi-icon">🕐</div><div class="kpi-value" id="kOpenTickets">—</div><div class="kpi-label">รอดำเนินการ</div></div>
-        <div class="kpi-card purple"><div class="kpi-icon">🔧</div><div class="kpi-value" id="kInProgress">—</div><div class="kpi-label">กำลังซ่อม</div></div>
-        <div class="kpi-card green"><div class="kpi-icon">✅</div><div class="kpi-value" id="kCompleted">—</div><div class="kpi-label">เสร็จสิ้น</div></div>
+      <div class="kpi-grid">
+        <div class="kpi-card blue"><div class="kpi-icon">📝</div><div class="kpi-value" id="kTotal">—</div><div class="kpi-label">Tickets ทั้งหมด</div></div>
+        <div class="kpi-card orange"><div class="kpi-icon">⏳</div><div class="kpi-value" id="kWait">—</div><div class="kpi-label">รอดำเนินการ</div></div>
+        <div class="kpi-card purple"><div class="kpi-icon">🔧</div><div class="kpi-value" id="kProg">—</div><div class="kpi-label">กำลังซ่อม</div></div>
+        <div class="kpi-card green"><div class="kpi-icon">✅</div><div class="kpi-value" id="kComp">—</div><div class="kpi-label">เสร็จสิ้น</div></div>
       </div>
 
       <div class="filter-bar">
-        <input id="searchInput" type="text" placeholder="🔍 ค้นหา Ticket / ผู้แจ้ง..." oninput="renderTable()">
-        <select id="filterStatus" onchange="renderTable()">
+        <input id="searchInput" type="text" placeholder="🔍 ค้นหา Ticket / ผู้แจ้ง..." oninput="currentPage=1; renderTable();">
+        <select id="filterStatus" onchange="currentPage=1; renderTable();">
           <option value="All">ทุกสถานะ</option><option value="Open">Open</option><option value="In Progress">In Progress</option>
           <option value="Waiting for Review">Waiting for Review</option><option value="Completed">Completed</option>
         </select>
       </div>
 
       <div class="table-wrap">
-        <div class="table-head"><h3>รายการแจ้งซ่อม</h3><span class="records-count" id="recordCount">— รายการ</span></div>
-        <div style="overflow-x:auto">
-          <table>
-            <thead><tr><th>Ticket ID</th><th>วันที่แจ้ง</th><th>ผู้แจ้ง</th><th>หน่วยงาน</th><th>ปัญหา</th><th>สถานะ</th><th>การดำเนินการ</th></tr></thead>
-            <tbody id="ticketTable"></tbody>
-          </table>
+        <table>
+          <thead><tr><th>Ticket ID</th><th>วันที่</th><th>ผู้แจ้ง</th><th>ปัญหา</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+          <tbody id="ticketTable"></tbody>
+        </table>
+        <!-- Pagination -->
+        <div class="pagination">
+          <span class="page-info" id="pageInfo">หน้า 1 / 1</span>
+          <button class="page-btn" id="btnPrev" onclick="changePage(-1)">ก่อนหน้า</button>
+          <button class="page-btn" id="btnNext" onclick="changePage(1)">ถัดไป</button>
         </div>
       </div>
     </div>
 
-    <div class="tab-view" id="tab-cost">
-       <div class="table-wrap" style="margin-top:20px">
-        <div class="table-head"><h3>รายละเอียดค่าใช้จ่าย</h3></div>
-        <div style="overflow-x:auto">
-          <table>
-            <thead><tr><th>Ticket ID</th><th>วันที่</th><th>หน่วยงาน</th><th>รายละเอียดการซ่อม</th><th>ค่าใช้จ่าย (บาท)</th></tr></thead>
-            <tbody id="costTable"></tbody>
-          </table>
-        </div>
+    <!-- 🎯 TAB: KQI & COST -->
+    <div class="tab-view" id="tab-kqi">
+      <div class="filter-bar">
+        <select id="kYear" onchange="renderCharts()"><option value="All">ทุกปี</option></select>
+        <select id="kMonth" onchange="renderCharts()">
+          <option value="All">ทุกเดือน</option><option value="0">มกราคม</option><option value="1">กุมภาพันธ์</option>
+          <option value="2">มีนาคม</option><option value="3">เมษายน</option><option value="4">พฤษภาคม</option>
+          <option value="5">มิถุนายน</option><option value="6">กรกฎาคม</option><option value="7">สิงหาคม</option>
+          <option value="8">กันยายน</option><option value="9">ตุลาคม</option><option value="10">พฤศจิกายน</option><option value="11">ธันวาคม</option>
+        </select>
+        <select id="kDept" onchange="renderCharts()"><option value="All">ทุกหน่วยงาน</option></select>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card green"><div class="kpi-icon">🎯</div><div class="kpi-value" id="dKqi">0%</div><div class="kpi-label">KQI ความพึงพอใจ (เป้า 100%)</div></div>
+        <div class="kpi-card blue"><div class="kpi-icon">💰</div><div class="kpi-value" id="dCost">฿0</div><div class="kpi-label">ค่าใช้จ่ายรวม</div></div>
+        <div class="kpi-card purple"><div class="kpi-icon">📈</div><div class="kpi-value" id="dTotalTicket">0</div><div class="kpi-label">จำนวนงานทั้งหมด</div></div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card"><h3>📊 ค่าใช้จ่ายแยกตามหน่วยงาน (บาท)</h3><canvas id="costChart" height="250"></canvas></div>
+        <div class="chart-card"><h3>donut KQI สัดส่วนความพึงพอใจ</h3><canvas id="kqiChart" height="250"></canvas></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modal: Detail -->
+<!-- Modals -->
 <div class="modal-backdrop" id="modalDetail">
   <div class="modal">
-    <h2>🔍 รายละเอียด Ticket</h2>
+    <h2>🔍 รายละเอียด</h2>
     <div id="detailContent"></div>
     <div class="modal-footer"><button class="btn btn-cancel" onclick="closeModal('modalDetail')">ปิด</button></div>
   </div>
 </div>
 
-<!-- Modal: Accept Job -->
 <div class="modal-backdrop" id="modalAccept">
   <div class="modal">
-    <h2>🔧 รับงาน & นัดหมาย</h2>
+    <h2>✋ รับงานซ่อม</h2>
     <input type="hidden" id="acceptTicketId">
     <div class="field-group"><label>ชื่อช่าง</label><input id="acceptAdmin" type="text"></div>
     <div class="field-group"><label>วันนัดหมาย</label><input id="acceptAppoint" type="date"></div>
     <div class="field-group"><label>คาดว่าเสร็จ</label><input id="acceptExpect" type="date"></div>
-    <div class="modal-footer">
-      <button class="btn btn-cancel" onclick="closeModal('modalAccept')">ยกเลิก</button>
-      <button class="btn btn-confirm" onclick="confirmAccept()">✅ รับงาน</button>
-    </div>
+    <div class="modal-footer"><button class="btn btn-cancel" onclick="closeModal('modalAccept')">ยกเลิก</button><button class="btn btn-confirm" onclick="confirmAccept()">บันทึก</button></div>
   </div>
 </div>
 
-<!-- Modal: Close Job -->
 <div class="modal-backdrop" id="modalClose">
   <div class="modal">
-    <h2>✅ ปิดงาน</h2>
+    <h2>🔒 ปิดงานซ่อม</h2>
     <input type="hidden" id="closeTicketId">
     <div class="field-group"><label>รายละเอียดการซ่อม</label><textarea id="closeDetail"></textarea></div>
     <div class="field-group"><label>ค่าใช้จ่าย (บาท)</label><input id="closeCost" type="number" value="0"></div>
-    
-    <!-- 📸 เพิ่มส่วนอัปโหลดรูปภาพ -->
     <div class="field-group">
-      <label>📷 รูปถ่ายหลังซ่อมเสร็จ (ถ้ามี)</label>
-      <input type="file" id="closeImgInput" accept="image/*" onchange="previewCloseImg(this)" style="padding:6px; border:1px dashed var(--blue);">
-      <img id="closeImgPreview" src="" style="display:none; width:100%; max-height:200px; object-fit:cover; margin-top:10px; border-radius:8px;">
+      <label>📷 รูปถ่ายหลังซ่อม (ถ้ามี)</label>
+      <input type="file" id="closeImgInput" accept="image/*" onchange="previewCloseImg(this)" style="padding:4px; border:1px dashed var(--blue);">
+      <img id="closeImgPreview" src="" style="display:none; width:100%; border-radius:8px; margin-top:10px;">
     </div>
-
-    <div class="modal-footer">
-      <button class="btn btn-cancel" onclick="closeModal('modalClose')">ยกเลิก</button>
-      <button class="btn btn-confirm" style="background:var(--green)" onclick="confirmClose()">✅ ปิดงาน</button>
-    </div>
+    <div class="modal-footer"><button class="btn btn-cancel" onclick="closeModal('modalClose')">ยกเลิก</button><button class="btn btn-confirm" style="background:var(--green)" onclick="confirmClose()">ปิดงาน</button></div>
   </div>
 </div>
 
 <script>
-// ⚠️ สำคัญมาก: เปลี่ยนเป็นลิงก์ Web App (ลงท้าย /exec) ของคุณ
+// ⚠️ ใส่ลิงก์ API ของคุณ
 const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8fhFOUdu9MHKnk23jnOhuKQ7sG_32FCEmu3mLgNPqiH_kp_Q/exec'; 
 
+let adminData = null;
 let allTickets = [];
 let closeImgBase64 = '';
+let costChartInst, kqiChartInst;
 
-function fmtDate(d) {
-  if (!d) return '-';
-  try { return new Date(d).toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'}); }
-  catch { return d; }
+// Pagination variables
+let currentPage = 1;
+const itemsPerPage = 8;
+
+// เช็ค Login ค้าง
+window.onload = () => {
+  const saved = sessionStorage.getItem('adminData');
+  if (saved) { adminData = JSON.parse(saved); showDashboard(); fetchData(); }
+};
+
+function showLoading(show) { document.getElementById('loading').style.display = show ? 'flex' : 'none'; }
+
+async function login() {
+  const id = document.getElementById('adminIdInput').value.trim();
+  if(!id) return;
+  showLoading(true);
+  try {
+    const res = await fetch(`${API_URL}?action=loginAdmin&id=${id}`, { redirect: "follow" });
+    const json = await res.json();
+    if(json.success) {
+      adminData = json;
+      sessionStorage.setItem('adminData', JSON.stringify(adminData));
+      showDashboard();
+      fetchData();
+    } else {
+      const errEl = document.getElementById('loginError');
+      errEl.textContent = json.error; errEl.style.display = 'block';
+    }
+  } catch(e) { alert('ระบบขัดข้อง'); }
+  showLoading(false);
 }
 
-async function refreshData() {
-  document.getElementById('loading').style.display = 'flex';
-  try {
-    const res = await fetch(API_URL + '?action=getTickets');
-    const json = await res.json();
-    allTickets = json.data || [];
-    renderTable();
-    renderCost();
-  } catch(err) {
-    alert("โหลดข้อมูลล้มเหลว: " + err.message);
-  }
-  document.getElementById('loading').style.opacity = '0';
-  setTimeout(() => document.getElementById('loading').style.display = 'none', 400);
+function showDashboard() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('sidebar').style.display = 'flex';
+  document.getElementById('mainContent').style.display = 'flex';
+  document.getElementById('displaySite').textContent = adminData.site;
+}
+
+function logout() {
+  sessionStorage.removeItem('adminData');
+  location.reload();
 }
 
 function switchTab(tab) {
@@ -237,67 +289,152 @@ function switchTab(tab) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   document.getElementById('nav-' + tab).classList.add('active');
-  document.getElementById('pageTitle').textContent = tab === 'tasks' ? 'Task Management' : 'Cost Summary';
+  if(tab === 'kqi') renderCharts();
+}
+
+async function fetchData() {
+  showLoading(true);
+  try {
+    const res = await fetch(`${API_URL}?action=getTickets&site=${adminData.site}`, { redirect: "follow" });
+    const json = await res.json();
+    allTickets = json.data || [];
+    
+    // Set Dropdowns
+    const years = [...new Set(allTickets.map(t => new Date(t['Created_Date']).getFullYear()))].filter(y=>!isNaN(y)).sort();
+    const depts = [...new Set(allTickets.map(t => t['Department']))].filter(Boolean).sort();
+    
+    let yrHtml = '<option value="All">ทุกปี</option>'; years.forEach(y => yrHtml+=`<option value="${y}">${y}</option>`);
+    document.getElementById('kYear').innerHTML = yrHtml;
+    
+    let dpHtml = '<option value="All">ทุกหน่วยงาน</option>'; depts.forEach(d => dpHtml+=`<option value="${d}">${d}</option>`);
+    document.getElementById('kDept').innerHTML = dpHtml;
+
+    renderTable();
+  } catch(e) { console.error(e); }
+  showLoading(false);
 }
 
 function renderTable() {
   const search = document.getElementById('searchInput').value.toLowerCase();
   const status = document.getElementById('filterStatus').value;
+  
+  // กรองข้อมูล
   const filtered = allTickets.filter(t => {
     return (status === 'All' || t['Status'] === status) &&
       (!search || String(t['Ticket_ID']||'').toLowerCase().includes(search) || String(t['User_Name']||'').toLowerCase().includes(search));
   });
 
-  document.getElementById('recordCount').textContent = filtered.length + ' รายการ';
-  document.getElementById('kTotalTickets').textContent = allTickets.length;
-  document.getElementById('kOpenTickets').textContent  = allTickets.filter(t => t['Status'] === 'Open').length;
-  document.getElementById('kInProgress').textContent   = allTickets.filter(t => t['Status'] === 'In Progress').length;
-  document.getElementById('kCompleted').textContent    = allTickets.filter(t => t['Status'] === 'Completed').length;
+  document.getElementById('kTotal').textContent = allTickets.length;
+  document.getElementById('kWait').textContent = allTickets.filter(t => t['Status'] === 'Open').length;
+  document.getElementById('kProg').textContent = allTickets.filter(t => t['Status'] === 'In Progress').length;
+  document.getElementById('kComp').textContent = allTickets.filter(t => t['Status'] === 'Completed').length;
+
+  // Pagination Logic
+  const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
+  if(currentPage > totalPages) currentPage = totalPages;
+  if(currentPage < 1) currentPage = 1;
+  
+  const startIdx = (currentPage - 1) * itemsPerPage;
+  const paginated = filtered.slice(startIdx, startIdx + itemsPerPage);
+
+  document.getElementById('pageInfo').textContent = `หน้า ${currentPage} / ${totalPages}`;
+  document.getElementById('btnPrev').disabled = currentPage === 1;
+  document.getElementById('btnNext').disabled = currentPage === totalPages;
 
   const tbody = document.getElementById('ticketTable');
-  tbody.innerHTML = filtered.map(t => {
-    let badge = `<span class="badge badge-${t['Status'].replace(/ /g,'').toLowerCase()}">${t['Status']}</span>`;
-    if(t['Status']==='Waiting for Review') badge = `<span class="badge badge-waiting">รอประเมิน</span>`;
+  tbody.innerHTML = paginated.map(t => {
+    const s = t['Status'];
+    const badge = `<span class="badge badge-${s==='Waiting for Review'?'waiting':s.replace(/ /g,'').toLowerCase()}">${s==='Waiting for Review'?'รอประเมิน':s}</span>`;
     
-    let actions = `<button class="action-btn" onclick="showDetail('${t['Ticket_ID']}')">🔍</button>`;
-    if (t['Status'] === 'Open') actions += `<button class="action-btn primary" onclick="openAccept('${t['Ticket_ID']}')">✋ รับงาน</button>`;
-    if (t['Status'] === 'In Progress') actions += `<button class="action-btn warning" onclick="openClose('${t['Ticket_ID']}')">🔒 ปิดงาน</button>`;
+    let actions = `<button class="action-btn view" onclick="showDetail('${t['Ticket_ID']}')">รายละเอียด</button>`;
+    if (s === 'Open') actions += `<button class="action-btn primary" onclick="openAccept('${t['Ticket_ID']}')">รับงาน</button>`;
+    if (s === 'In Progress') actions += `<button class="action-btn warning" onclick="openClose('${t['Ticket_ID']}')">ปิดงาน</button>`;
     
-    return `<tr><td><b>${t['Ticket_ID']}</b></td><td>${fmtDate(t['Created_Date'])}</td><td>${t['User_Name']||'-'}</td><td>${t['Department']||'-'}</td><td>${t['Issue']||'-'}</td><td>${badge}</td><td>${actions}</td></tr>`;
-  }).join('');
+    const dt = new Date(t['Created_Date']);
+    return `<tr><td><b>${t['Ticket_ID']}</b></td><td>${dt.toLocaleDateString('th-TH')}</td><td>${t['User_Name']||'-'}<br><small style="color:#888">${t['Department']||'-'}</small></td><td>${t['Issue']||'-'}</td><td>${badge}</td><td>${actions}</td></tr>`;
+  }).join('') || '<tr><td colspan="6" style="text-align:center;">ไม่มีข้อมูล</td></tr>';
 }
 
-function renderCost() {
-  const withCost = allTickets.filter(t => Number(t['Cost']) > 0 && t['Status'] === 'Completed');
-  document.getElementById('costTable').innerHTML = withCost.map(t => `
-    <tr><td><b>${t['Ticket_ID']}</b></td><td>${fmtDate(t['Closed_Date'])}</td><td>${t['Department'] || '-'}</td><td>${(t['Fix_Detail'] || '-')}</td><td><b style="color:var(--orange)">฿${Number(t['Cost']).toLocaleString('th-TH')}</b></td></tr>
-  `).join('') || '<tr><td colspan="5" style="text-align:center;">ไม่มีข้อมูล</td></tr>';
+function changePage(dir) { currentPage += dir; renderTable(); }
+
+function renderCharts() {
+  const fYear = document.getElementById('kYear').value;
+  const fMonth = document.getElementById('kMonth').value;
+  const fDept = document.getElementById('kDept').value;
+
+  const data = allTickets.filter(t => {
+    if(t['Status'] !== 'Completed') return false;
+    const d = new Date(t['Closed_Date'] || t['Created_Date']);
+    if(isNaN(d)) return false;
+    const matchY = fYear === 'All' || d.getFullYear().toString() === fYear;
+    const matchM = fMonth === 'All' || d.getMonth().toString() === fMonth;
+    const matchD = fDept === 'All' || t['Department'] === fDept;
+    return matchY && matchM && matchD;
+  });
+
+  document.getElementById('dTotalTicket').textContent = data.length;
+
+  // KQI Calculation (นับคำว่า "พึงพอใจ" จาก Rating)
+  let satisCount = 0;
+  data.forEach(t => { if(String(t['Rating']).includes('พึงพอใจ')) satisCount++; });
+  const kqiPercent = data.length ? Math.round((satisCount / data.length) * 100) : 0;
+  document.getElementById('dKqi').textContent = kqiPercent + '%';
+
+  // Cost & Chart grouping
+  let totalCost = 0;
+  const costMap = {};
+  data.forEach(t => {
+    const c = Number(t['Cost']) || 0;
+    const dp = t['Department'] || 'Other';
+    totalCost += c;
+    costMap[dp] = (costMap[dp] || 0) + c;
+  });
+  document.getElementById('dCost').textContent = '฿' + totalCost.toLocaleString('th-TH');
+
+  // Draw Charts
+  if(costChartInst) costChartInst.destroy();
+  costChartInst = new Chart(document.getElementById('costChart'), {
+    type: 'bar',
+    data: { labels: Object.keys(costMap), datasets: [{ label: 'ค่าใช้จ่าย', data: Object.values(costMap), backgroundColor: '#1A73E8', borderRadius: 6 }] },
+    options: { plugins:{legend:{display:false}} }
+  });
+
+  if(kqiChartInst) kqiChartInst.destroy();
+  kqiChartInst = new Chart(document.getElementById('kqiChart'), {
+    type: 'doughnut',
+    data: { labels: ['พึงพอใจ', 'ควรปรับปรุง'], datasets: [{ data: [satisCount, data.length - satisCount], backgroundColor: ['#34A853', '#EA4335'] }] },
+    options: { cutout: '70%', plugins:{legend:{position:'bottom'}} }
+  });
 }
 
 function showDetail(id) {
   const t = allTickets.find(x => x['Ticket_ID'] === id);
   if(!t) return;
+  
+  // ⚠️ ตัดดาวออก แสดงแค่คะแนนความพึงพอใจ และข้อเสนอแนะ
+  const dt = new Date(t['Created_Date']);
+  const ratingClean = String(t['Rating']||'-').split('(')[0].trim(); // ตัดดาวทิ้ง
+  
   const fields = [
-    ['Ticket ID', t['Ticket_ID']], ['สถานะ', t['Status']], ['วันที่แจ้ง', fmtDate(t['Created_Date'])],
+    ['Ticket ID', t['Ticket_ID']], ['สถานะ', t['Status']], ['วันที่แจ้ง', dt.toLocaleDateString('th-TH')],
     ['ผู้แจ้ง', t['User_Name']], ['หน่วยงาน', t['Department']], ['ปัญหา', t['Issue']],
-    ['ช่าง', t['Admin_Name']], ['คาดเสร็จ', fmtDate(t['Expect_Date'])],
-    ['รายละเอียดซ่อม', t['Fix_Detail']], ['ค่าใช้จ่าย', t['Cost'] ? '฿'+Number(t['Cost']).toLocaleString('th-TH') : '-'],
-    ['คะแนน', t['Rating']],
-    // 📸 แสดงรูปภาพ
-    ['รูปก่อนซ่อม', t['Img_Before'] ? `<img src="${t['Img_Before']}" style="width:100%; border-radius:8px; margin-top:8px; border:1px solid #ccc;">` : '-'],
-    ['รูปหลังซ่อม', t['Img_After'] ? `<img src="${t['Img_After']}" style="width:100%; border-radius:8px; margin-top:8px; border:1px solid #ccc;">` : '-']
+    ['ช่าง', t['Admin_Name']], ['รายละเอียดซ่อม', t['Fix_Detail']], 
+    ['ค่าใช้จ่าย', t['Cost'] ? '฿'+Number(t['Cost']).toLocaleString('th-TH') : '-'],
+    ['ความพึงพอใจ', ratingClean], ['ความคิดเห็น', t['Feedback']],
+    ['รูปก่อนซ่อม', t['Img_Before'] ? `<img src="${t['Img_Before']}" style="width:100%; border-radius:8px; margin-top:8px;">` : '-'],
+    ['รูปหลังซ่อม', t['Img_After'] ? `<img src="${t['Img_After']}" style="width:100%; border-radius:8px; margin-top:8px;">` : '-']
   ];
   
   document.getElementById('detailContent').innerHTML = fields
     .filter(([,v]) => v && v !== '-' && v !== 'undefined')
     .map(([l,v]) => {
-        if(l.includes('รูป')) return `<div style="padding:12px 0; border-bottom:1px solid var(--border);"><div style="color:var(--muted); font-size:.8rem; font-weight:bold; margin-bottom:4px;">${l}</div>${v}</div>`;
+        if(l.includes('รูป')) return `<div style="padding:12px 0; border-bottom:1px solid var(--border);"><div style="color:var(--muted); font-size:.85rem; font-weight:bold;">${l}</div>${v}</div>`;
         return `<div class="detail-row"><span>${l}</span><span>${v}</span></div>`;
     }).join('');
   document.getElementById('modalDetail').classList.add('show');
 }
 
-function openAccept(id) { document.getElementById('acceptTicketId').value = id; document.getElementById('modalAccept').classList.add('show'); }
+function openAccept(id) { document.getElementById('acceptTicketId').value = id; document.getElementById('acceptAdmin').value = adminData.name; document.getElementById('modalAccept').classList.add('show'); }
 function openClose(id) { document.getElementById('closeTicketId').value = id; document.getElementById('modalClose').classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
@@ -313,16 +450,18 @@ function previewCloseImg(input) {
 }
 
 async function sendPost(payload, modalId) {
+  showLoading(true);
   try {
-    const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+    const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), redirect: "follow" });
     const json = await res.json();
-    if (json.success) { closeModal(modalId); refreshData(); } else { alert('Error: ' + json.error); }
-  } catch(err) { alert('เชื่อมต่อขัดข้อง: ' + err.message); }
+    if (json.success) { closeModal(modalId); fetchData(); } else { alert('Error: ' + json.error); }
+  } catch(err) { alert('เชื่อมต่อขัดข้อง'); }
+  showLoading(false);
 }
 
 function confirmAccept() {
   const admin = document.getElementById('acceptAdmin').value, app = document.getElementById('acceptAppoint').value, exp = document.getElementById('acceptExpect').value;
-  if(!admin || !app || !exp) return alert("กรอกให้ครบ");
+  if(!admin || !app || !exp) return alert("กรอกข้อมูลให้ครบ");
   sendPost({ action: 'acceptJob', data: { ticketId: document.getElementById('acceptTicketId').value, adminName: admin, appointDate: app, expectDate: exp }}, 'modalAccept');
 }
 
@@ -331,8 +470,6 @@ function confirmClose() {
   if(!detail) return alert("กรอกรายละเอียด");
   sendPost({ action: 'closeJob', data: { ticketId: document.getElementById('closeTicketId').value, fixDetail: detail, cost: cost, imgAfter: closeImgBase64 }}, 'modalClose');
 }
-
-window.onload = refreshData;
 </script>
 </body>
 </html>
