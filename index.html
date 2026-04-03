@@ -4,347 +4,854 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>แจ้งซ่อมออนไลน์</title>
-<!-- 🌟 เพิ่ม Font Prompt จาก Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
 :root {
-  --primary: #4F46E5;
-  --primary-hover: #4338CA;
-  --primary-light: #EEF2FF;
-  --secondary: #10B981;
-  --bg: #F3F4F6;
-  --surface: #FFFFFF;
-  --text-main: #111827;
-  --text-muted: #6B7280;
-  --border: #E5E7EB;
-  --radius-lg: 24px;
-  --radius-md: 16px;
-  --radius-sm: 12px;
-  --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-  --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --c-bg: #0A0E1A;
+  --c-surface: #111827;
+  --c-surface2: #1A2235;
+  --c-border: rgba(255,255,255,0.08);
+  --c-border2: rgba(255,255,255,0.14);
+  --c-accent: #3B82F6;
+  --c-accent2: #6366F1;
+  --c-green: #10B981;
+  --c-text: #F1F5F9;
+  --c-muted: #64748B;
+  --c-muted2: #94A3B8;
+  --c-glass: rgba(255,255,255,0.04);
+  --c-glass2: rgba(255,255,255,0.07);
+  --c-error: #F87171;
+  --c-error-bg: rgba(248,113,113,0.1);
+  --r: 16px;
+  --r2: 24px;
+  --r3: 12px;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { 
-  font-family: 'Prompt', sans-serif; 
-  background-color: var(--bg); 
-  color: var(--text-main); 
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:'Sarabun',sans-serif;
+  background:var(--c-bg);
+  color:var(--c-text);
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
 }
 
-/* ── Loading Screen ── */
-#loading {
-  position: fixed; inset: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999;
-  transition: opacity 0.5s ease;
+body::before{
+  content:'';
+  position:fixed;
+  top:-200px;left:-200px;
+  width:600px;height:600px;
+  background:radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%);
+  pointer-events:none;z-index:0;
 }
-.loader {
-  width: 50px; height: 50px; border: 4px solid var(--primary-light);
-  border-top-color: var(--primary); border-radius: 50%;
-  animation: spin 1s linear infinite; margin-bottom: 16px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-#loading p { font-weight: 500; color: var(--primary); letter-spacing: 0.5px; }
-
-/* ── Header Area ── */
-.header-bg {
-  background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
-  padding: 40px 24px 80px; color: #fff; text-align: center;
-  border-bottom-left-radius: 32px; border-bottom-right-radius: 32px;
-  position: relative; overflow: hidden;
-}
-.header-bg::before {
-  content: ''; position: absolute; top: -50px; right: -50px;
-  width: 150px; height: 150px; background: rgba(255, 255, 255, 0.1); border-radius: 50%;
-}
-.header-bg::after {
-  content: ''; position: absolute; bottom: -30px; left: -30px;
-  width: 100px; height: 100px; background: rgba(255, 255, 255, 0.1); border-radius: 50%;
-}
-.header-icon {
-  width: 60px; height: 60px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px);
-  border-radius: 20px; display: flex; align-items: center; justify-content: center;
-  font-size: 28px; margin: 0 auto 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  position: relative; z-index: 1;
-}
-.header-bg h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; position: relative; z-index: 1; }
-.header-bg p { font-size: 0.9rem; opacity: 0.9; position: relative; z-index: 1; font-weight: 300; }
-
-/* ── Main Card ── */
-.container { padding: 0 20px; margin-top: -50px; position: relative; z-index: 10; padding-bottom: 40px; }
-.card {
-  background: var(--surface); border-radius: var(--radius-lg);
-  box-shadow: var(--shadow); padding: 30px 24px;
+body::after{
+  content:'';
+  position:fixed;
+  bottom:-100px;right:-100px;
+  width:400px;height:400px;
+  background:radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%);
+  pointer-events:none;z-index:0;
 }
 
-/* ── Modern Stepper ── */
-.stepper { display: flex; justify-content: space-between; margin-bottom: 32px; position: relative; }
-.stepper::before {
-  content: ''; position: absolute; top: 16px; left: 10%; right: 10%;
-  height: 3px; background: var(--border); z-index: 0; border-radius: 2px;
+/* ── LOADING ── */
+#loading{
+  position:fixed;inset:0;
+  background:var(--c-bg);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  z-index:9999;transition:opacity 0.6s ease;
 }
-.step {
-  position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1;
+.loader-ring{
+  width:52px;height:52px;
+  border:3px solid rgba(59,130,246,0.2);
+  border-top-color:var(--c-accent);
+  border-radius:50%;
+  animation:spin 0.9s linear infinite;
+  margin-bottom:20px;
 }
-.step-circle {
-  width: 34px; height: 34px; border-radius: 50%; background: var(--surface);
-  border: 3px solid var(--border); display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 0.85rem; color: var(--text-muted); transition: all 0.3s;
-}
-.step.active .step-circle { border-color: var(--primary); background: var(--primary); color: #fff; box-shadow: 0 0 0 4px var(--primary-light); }
-.step.done .step-circle { border-color: var(--secondary); background: var(--secondary); color: #fff; }
-.step-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); transition: 0.3s; }
-.step.active .step-label { color: var(--primary); }
-.step.done .step-label { color: var(--secondary); }
-
-/* ── Form Sections & Animations ── */
-.form-section { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.form-section.active { display: block; }
-@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ── Input Groups ── */
-.field-group { margin-bottom: 24px; }
-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 8px; }
-.required { color: var(--red); }
-input, select, textarea {
-  width: 100%; padding: 16px; border: 1.5px solid var(--border); border-radius: var(--radius-md);
-  font-size: 1rem; font-family: inherit; background: #F9FAFB; color: var(--text-main);
-  transition: all 0.2s ease; appearance: none;
-}
-input:focus, select:focus, textarea:focus {
-  outline: none; border-color: var(--primary); background: var(--surface);
-  box-shadow: 0 0 0 4px var(--primary-light);
-}
-textarea { resize: none; min-height: 120px; line-height: 1.5; }
-
-/* Search Row */
-.search-row { display: flex; gap: 12px; }
-.search-row input { flex: 1; }
-.search-row .btn { width: auto; padding: 0 24px; white-space: nowrap; }
-
-/* ── Info Card (Profile) ── */
-.info-card {
-  background: var(--primary-light); border-radius: var(--radius-md); padding: 20px;
-  display: none; border: 1px solid #D1E0FF; animation: slideUp 0.3s ease;
-}
-.info-card.show { display: block; }
-.info-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 0.9rem; }
-.info-row:not(:last-child) { border-bottom: 1px dashed rgba(79, 70, 229, 0.2); }
-.info-row span:first-child { color: var(--text-muted); font-size: 0.85rem; }
-.info-row span:last-child { font-weight: 600; color: var(--primary-hover); text-align: right; }
-
-/* ── Upload Box ── */
-.upload-box {
-  border: 2px dashed #CBD5E1; border-radius: var(--radius-md); padding: 30px 20px;
-  text-align: center; cursor: pointer; transition: all 0.2s; background: #F9FAFB;
-}
-.upload-box:hover { border-color: var(--primary); background: var(--primary-light); }
-.upload-box .icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
-.upload-box p { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
-.upload-box span { font-size: 0.75rem; color: #9CA3AF; display: block; margin-top: 4px; }
-.upload-box input { display: none; }
-.upload-preview { display: none; border-radius: var(--radius-md); overflow: hidden; margin-top: 16px; position: relative; border: 1px solid var(--border); box-shadow: var(--shadow); }
-.upload-preview img { width: 100%; max-height: 250px; object-fit: cover; display: block; }
-.upload-preview .remove-img {
-  position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white;
-  width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-weight: bold; border: none; backdrop-filter: blur(4px);
+@keyframes spin{to{transform:rotate(360deg);}}
+#loading p{
+  font-family:'Kanit',sans-serif;
+  font-size:0.85rem;color:var(--c-muted2);
+  letter-spacing:2px;text-transform:uppercase;
 }
 
-/* ── Buttons ── */
-.btn {
-  width: 100%; padding: 16px; border: none; border-radius: var(--radius-md);
-  font-size: 1rem; font-weight: 600; font-family: inherit; cursor: pointer;
-  transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px;
+/* ── HEADER ── */
+.app-header{
+  position:relative;
+  padding:48px 24px 100px;
+  text-align:center;
+  z-index:1;
+  overflow:hidden;
 }
-.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
-.btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4); }
-.btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
-.btn-outline:hover { background: var(--primary-light); }
-.btn-success { background: var(--secondary); color: #fff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
-.btn-success:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4); }
-.btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-.btn-row { display: flex; gap: 16px; margin-top: 32px; }
-.btn-row .btn { flex: 1; }
 
-/* ── Alerts ── */
-.alert { padding: 14px 16px; border-radius: var(--radius-sm); font-size: 0.9rem; margin-bottom: 20px; display: none; font-weight: 500; display: flex; align-items: center; gap: 8px; }
-.alert.show { display: flex; animation: slideUp 0.3s ease; }
-.alert-error { background: #FEF2F2; color: #DC2626; border: 1px solid #FCA5A5; }
-.alert-warning { background: #FFFBEB; color: #D97706; border: 1px solid #FCD34D; font-size: 0.85rem;}
+.header-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,0.06) 1px, transparent 1px);
+  background-size:40px 40px;
+  mask-image:linear-gradient(to bottom, transparent, black 30%, black 70%, transparent);
+}
 
-/* ── Success Screen ── */
-.success-screen { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0; text-align: center; }
-.success-screen.show { display: flex; animation: slideUp 0.5s ease; }
-.success-icon { 
-  width: 80px; height: 80px; background: var(--secondary); border-radius: 50%; 
-  display: flex; align-items: center; justify-content: center; font-size: 40px; color: #fff;
-  margin-bottom: 24px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
-  animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+.badge-wrap{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(59,130,246,0.12);
+  border:1px solid rgba(59,130,246,0.25);
+  border-radius:999px;
+  padding:6px 16px;
+  font-size:0.75rem;
+  color:#93C5FD;
+  font-family:'Kanit',sans-serif;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin-bottom:20px;
+  position:relative;z-index:1;
 }
-@keyframes bounceIn { 0% { transform: scale(0); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-.success-screen h2 { font-size: 1.5rem; color: var(--text-main); margin-bottom: 8px; }
-.success-screen p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px; }
-.ticket-badge { 
-  background: var(--bg); color: var(--primary-hover); padding: 12px 32px; 
-  border-radius: 999px; font-size: 1.25rem; font-weight: 700; border: 2px dashed #CBD5E1; 
-  letter-spacing: 1px;
+.badge-dot{
+  width:6px;height:6px;
+  background:#3B82F6;
+  border-radius:50%;
+  animation:pulse-dot 2s ease infinite;
 }
+@keyframes pulse-dot{
+  0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,0.6);}
+  50%{box-shadow:0 0 0 6px rgba(59,130,246,0);}
+}
+
+.app-header h1{
+  font-family:'Kanit',sans-serif;
+  font-size:2rem;font-weight:600;
+  background:linear-gradient(135deg,#F1F5F9 0%,#93C5FD 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  line-height:1.2;
+  margin-bottom:8px;
+  position:relative;z-index:1;
+}
+.app-header p{
+  font-size:0.9rem;color:var(--c-muted2);
+  font-weight:300;
+  position:relative;z-index:1;
+}
+
+/* ── CONTAINER ── */
+.container{
+  position:relative;z-index:2;
+  padding:0 16px 48px;
+  margin-top:-64px;
+  max-width:600px;
+  margin-left:auto;margin-right:auto;
+}
+
+/* ── CARD ── */
+.card{
+  background:var(--c-surface);
+  border:1px solid var(--c-border);
+  border-radius:var(--r2);
+  padding:28px 24px;
+  position:relative;
+  overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(59,130,246,0.5),rgba(99,102,241,0.5),transparent);
+}
+
+/* ── STEPPER ── */
+.stepper{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:32px;
+  position:relative;
+  padding:0 4px;
+}
+.step-line{
+  position:absolute;
+  top:18px;left:calc(50px);right:calc(50px);
+  height:1px;
+  background:var(--c-border2);
+  z-index:0;
+}
+.step-line-fill{
+  position:absolute;
+  top:18px;
+  left:calc(50px);
+  height:1px;
+  background:linear-gradient(90deg,var(--c-accent),var(--c-accent2));
+  z-index:1;
+  width:0%;
+  transition:width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+.step{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;
+  align-items:center;gap:8px;
+  flex:0 0 auto;
+}
+.step-circle{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--c-surface2);
+  border:1.5px solid var(--c-border2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Kanit',sans-serif;
+  font-weight:500;font-size:0.85rem;
+  color:var(--c-muted);
+  transition:all 0.35s ease;
+  position:relative;
+}
+.step.active .step-circle{
+  border-color:var(--c-accent);
+  background:rgba(59,130,246,0.15);
+  color:#93C5FD;
+  box-shadow:0 0 0 4px rgba(59,130,246,0.15);
+}
+.step.done .step-circle{
+  border-color:var(--c-green);
+  background:rgba(16,185,129,0.15);
+  color:var(--c-green);
+}
+.step-label{
+  font-size:0.7rem;
+  color:var(--c-muted);
+  font-weight:500;
+  letter-spacing:0.3px;
+  transition:color 0.3s;
+  white-space:nowrap;
+}
+.step.active .step-label{color:#93C5FD;}
+.step.done .step-label{color:var(--c-green);}
+
+/* ── SECTION ANIMATION ── */
+.form-section{display:none;}
+.form-section.active{
+  display:block;
+  animation:fadeSlide 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+@keyframes fadeSlide{
+  from{opacity:0;transform:translateY(16px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* ── SECTION TITLE ── */
+.section-head{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:24px;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--c-border);
+}
+.section-icon{
+  width:40px;height:40px;
+  background:rgba(59,130,246,0.12);
+  border:1px solid rgba(59,130,246,0.2);
+  border-radius:var(--r3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  flex-shrink:0;
+}
+.section-head h3{
+  font-family:'Kanit',sans-serif;
+  font-size:1rem;font-weight:500;
+  color:var(--c-text);
+}
+.section-head p{font-size:0.8rem;color:var(--c-muted);}
+
+/* ── FIELD ── */
+.field-group{margin-bottom:20px;}
+
+label{
+  display:block;
+  font-size:0.8rem;font-weight:500;
+  color:var(--c-muted2);
+  margin-bottom:8px;
+  letter-spacing:0.3px;
+  text-transform:uppercase;
+}
+.req{color:#F87171;}
+
+input,select,textarea{
+  width:100%;
+  padding:14px 16px;
+  background:var(--c-surface2);
+  border:1.5px solid var(--c-border2);
+  border-radius:var(--r3);
+  font-size:0.95rem;
+  font-family:'Sarabun',sans-serif;
+  color:var(--c-text);
+  transition:all 0.25s;
+  appearance:none;
+  -webkit-appearance:none;
+}
+input::placeholder,textarea::placeholder{color:var(--c-muted);}
+input:focus,select:focus,textarea:focus{
+  outline:none;
+  border-color:var(--c-accent);
+  background:rgba(59,130,246,0.05);
+  box-shadow:0 0 0 4px rgba(59,130,246,0.12);
+}
+textarea{resize:none;min-height:110px;line-height:1.6;}
+
+select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 16px center;
+  padding-right:40px;
+}
+select option{background:#1A2235;color:var(--c-text);}
+
+/* ── SEARCH ROW ── */
+.search-row{display:flex;gap:10px;}
+.search-row input{flex:1;}
+.search-row .btn{width:auto;padding:0 20px;white-space:nowrap;border-radius:var(--r3);}
+
+/* ── INFO CARD ── */
+.info-card{
+  background:var(--c-glass);
+  border:1px solid var(--c-border2);
+  border-radius:var(--r);
+  padding:20px;
+  display:none;
+  position:relative;
+  overflow:hidden;
+}
+.info-card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--c-accent),var(--c-accent2));
+}
+.info-card.show{display:block;animation:fadeSlide 0.3s ease;}
+
+.ic-header{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:16px;
+}
+.ic-avatar{
+  width:44px;height:44px;
+  background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Kanit',sans-serif;
+  font-weight:600;font-size:1.1rem;
+  color:#fff;
+  flex-shrink:0;
+}
+.ic-name{font-family:'Kanit',sans-serif;font-size:1rem;font-weight:500;}
+.ic-sub{font-size:0.8rem;color:var(--c-muted2);margin-top:2px;}
+
+.info-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;
+  padding-top:14px;
+  border-top:1px solid var(--c-border);
+}
+.ig-item{
+  background:var(--c-glass2);
+  border:1px solid var(--c-border);
+  border-radius:var(--r3);
+  padding:12px 14px;
+}
+.ig-item span:first-child{
+  display:block;font-size:0.72rem;
+  color:var(--c-muted);
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  margin-bottom:4px;
+}
+.ig-item span:last-child{
+  font-size:0.9rem;font-weight:500;
+  color:var(--c-text);
+}
+
+/* ── ALERTS ── */
+.alert{
+  border-radius:var(--r3);
+  font-size:0.875rem;
+  margin-bottom:16px;
+  padding:12px 16px;
+  display:none;
+  align-items:center;
+  gap:10px;
+  animation:fadeSlide 0.3s ease;
+}
+.alert.show{display:flex;}
+.alert-error{
+  background:var(--c-error-bg);
+  border:1px solid rgba(248,113,113,0.25);
+  color:var(--c-error);
+}
+.alert-warning{
+  background:rgba(251,191,36,0.08);
+  border:1px solid rgba(251,191,36,0.2);
+  color:#FCD34D;
+  font-size:0.83rem;
+}
+
+/* ── UPLOAD ── */
+.upload-box{
+  border:1.5px dashed var(--c-border2);
+  border-radius:var(--r);
+  padding:28px 20px;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.25s;
+  background:var(--c-glass);
+  position:relative;overflow:hidden;
+}
+.upload-box:hover{
+  border-color:var(--c-accent);
+  background:rgba(59,130,246,0.05);
+}
+.upload-icon{
+  width:52px;height:52px;
+  background:rgba(59,130,246,0.1);
+  border:1px solid rgba(59,130,246,0.2);
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  margin:0 auto 14px;
+}
+.upload-box p{font-size:0.9rem;color:var(--c-muted2);font-weight:500;}
+.upload-box span{font-size:0.78rem;color:var(--c-muted);display:block;margin-top:4px;}
+.upload-box input{display:none;}
+
+.upload-preview{
+  display:none;
+  border-radius:var(--r);
+  overflow:hidden;
+  margin-top:14px;
+  position:relative;
+  border:1px solid var(--c-border2);
+}
+.upload-preview img{width:100%;max-height:220px;object-fit:cover;display:block;}
+.remove-img{
+  position:absolute;top:10px;right:10px;
+  background:rgba(0,0,0,0.7);color:white;
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-weight:bold;border:none;
+  font-size:12px;
+  backdrop-filter:blur(4px);
+  transition:background 0.2s;
+}
+.remove-img:hover{background:rgba(220,38,38,0.8);}
+
+/* ── BUTTONS ── */
+.btn{
+  width:100%;padding:15px;border:none;
+  border-radius:var(--r3);
+  font-size:0.95rem;font-weight:600;
+  font-family:'Kanit',sans-serif;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  letter-spacing:0.3px;
+  position:relative;overflow:hidden;
+}
+.btn::after{
+  content:'';position:absolute;inset:0;
+  background:rgba(255,255,255,0);
+  transition:background 0.2s;
+}
+.btn:hover::after{background:rgba(255,255,255,0.05);}
+.btn:active{transform:scale(0.98);}
+
+.btn-primary{
+  background:linear-gradient(135deg,var(--c-accent) 0%,var(--c-accent2) 100%);
+  color:#fff;
+  box-shadow:0 4px 20px rgba(59,130,246,0.35);
+}
+.btn-primary:hover{box-shadow:0 6px 24px rgba(59,130,246,0.5);}
+
+.btn-outline{
+  background:transparent;
+  color:var(--c-muted2);
+  border:1.5px solid var(--c-border2);
+}
+.btn-outline:hover{border-color:var(--c-muted);color:var(--c-text);}
+
+.btn-success{
+  background:linear-gradient(135deg,#059669 0%,#10B981 100%);
+  color:#fff;
+  box-shadow:0 4px 20px rgba(16,185,129,0.35);
+}
+.btn-success:hover{box-shadow:0 6px 24px rgba(16,185,129,0.5);}
+
+.btn:disabled{
+  opacity:0.45;cursor:not-allowed;
+  transform:none !important;box-shadow:none !important;
+}
+.btn-row{display:flex;gap:12px;margin-top:28px;}
+.btn-row .btn{flex:1;}
+
+/* ── CONFIRM CARD ── */
+.confirm-card{
+  background:var(--c-glass);
+  border:1px solid var(--c-border2);
+  border-radius:var(--r);
+  overflow:hidden;
+}
+.confirm-header{
+  padding:16px 20px;
+  background:rgba(59,130,246,0.08);
+  border-bottom:1px solid var(--c-border);
+  display:flex;align-items:center;gap:10px;
+}
+.confirm-header span{font-size:16px;}
+.confirm-header h4{
+  font-family:'Kanit',sans-serif;
+  font-size:0.9rem;font-weight:500;
+  color:#93C5FD;
+}
+.confirm-body{padding:0;}
+.cr{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 20px;
+  font-size:0.9rem;
+  border-bottom:1px solid var(--c-border);
+}
+.cr:last-child{border:none;}
+.cr-label{color:var(--c-muted);font-size:0.82rem;}
+.cr-val{font-weight:500;color:var(--c-text);text-align:right;max-width:60%;}
+.cr-val.accent{color:#93C5FD;}
+
+.cr-detail{
+  padding:14px 20px;
+  border-bottom:1px solid var(--c-border);
+  font-size:0.9rem;
+}
+.cr-detail .cr-label{margin-bottom:8px;display:block;}
+.cr-detail-text{
+  background:var(--c-surface2);
+  border:1px solid var(--c-border);
+  border-radius:var(--r3);
+  padding:12px 14px;
+  font-size:0.875rem;
+  color:var(--c-muted2);
+  line-height:1.6;
+}
+
+/* ── SUCCESS ── */
+.success-screen{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  padding:16px 0 8px;
+  text-align:center;
+}
+.success-screen.show{display:flex;animation:fadeSlide 0.5s ease;}
+
+.success-ring{
+  position:relative;
+  width:90px;height:90px;
+  margin-bottom:28px;
+}
+.success-ring svg{
+  width:90px;height:90px;
+  transform:rotate(-90deg);
+}
+.sr-bg{fill:none;stroke:rgba(16,185,129,0.15);stroke-width:3;}
+.sr-fill{
+  fill:none;stroke:var(--c-green);stroke-width:3;
+  stroke-dasharray:251;stroke-dashoffset:251;
+  stroke-linecap:round;
+  animation:draw-ring 1s 0.3s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+@keyframes draw-ring{to{stroke-dashoffset:0;}}
+.success-check{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;
+  animation:pop-in 0.4s 1s cubic-bezier(0.175,0.885,0.32,1.275) both;
+}
+@keyframes pop-in{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+.success-screen h2{
+  font-family:'Kanit',sans-serif;
+  font-size:1.5rem;font-weight:600;
+  color:var(--c-text);
+  margin-bottom:10px;
+}
+.success-screen p{
+  color:var(--c-muted2);
+  font-size:0.92rem;line-height:1.7;
+  margin-bottom:28px;
+  max-width:280px;
+}
+
+.ticket-wrap{
+  background:var(--c-glass2);
+  border:1px dashed rgba(59,130,246,0.35);
+  border-radius:var(--r);
+  padding:20px 32px;
+  margin-bottom:8px;
+  position:relative;overflow:hidden;
+}
+.ticket-wrap::before{
+  content:'';position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 50% 0%, rgba(59,130,246,0.08), transparent 60%);
+}
+.ticket-label{
+  font-size:0.72rem;color:var(--c-muted);
+  text-transform:uppercase;letter-spacing:2px;
+  display:block;margin-bottom:8px;
+  position:relative;
+}
+.ticket-badge{
+  font-family:'Kanit',sans-serif;
+  font-size:1.8rem;font-weight:700;
+  background:linear-gradient(135deg,#F1F5F9,#93C5FD);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  letter-spacing:2px;
+  position:relative;
+}
+
+/* ── MINI LOADER ── */
+.mini-loader{
+  width:18px;height:18px;
+  border:2.5px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+  flex-shrink:0;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--c-border2);border-radius:4px;}
 </style>
 </head>
 <body>
 
 <div id="loading">
-  <div class="loader"></div>
-  <p>กำลังเตรียมระบบ...</p>
+  <div class="loader-ring"></div>
+  <p>Initializing System</p>
 </div>
 
-<!-- Header -->
-<div class="header-bg">
-  <div class="header-icon">👨‍🔧</div>
-  <h1>ระบบแจ้งซ่อมออนไลน์</h1>
-  <p>รวดเร็ว ทันใจ ติดตามได้ผ่าน LINE</p>
-</div>
-
-<!-- Main Container -->
-<div class="container">
-  <div class="card">
-    
-    <!-- Fallback Alert -->
-    <div class="alert alert-warning" id="alertLiffError" style="display:none;">
-      <span>⚠️</span> ระบบไม่สามารถเชื่อมต่อ LINE ได้ แต่คุณยังสามารถแจ้งซ่อมได้ตามปกติ
-    </div>
-
-    <!-- Stepper -->
-    <div class="stepper" id="stepBar">
-      <div class="step active" id="s1">
-        <div class="step-circle">1</div><div class="step-label">ค้นหาข้อมูล</div>
-      </div>
-      <div class="step" id="s2">
-        <div class="step-circle">2</div><div class="step-label">รายละเอียด</div>
-      </div>
-      <div class="step" id="s3">
-        <div class="step-circle">3</div><div class="step-label">ส่งข้อมูล</div>
-      </div>
-    </div>
-
-    <!-- SECTION 1: ค้นหาพนักงาน -->
-    <div class="form-section active" id="sec1">
-      <div class="field-group">
-        <label>🔍 รหัสพนักงาน (Employee ID) <span class="required">*</span></label>
-        <div class="search-row">
-          <input id="inputId" type="text" placeholder="ระบุรหัสพนักงานของคุณ" inputmode="numeric">
-          <button class="btn btn-primary" onclick="searchUser()">ค้นหา</button>
-        </div>
-      </div>
-      
-      <div class="alert alert-error" id="alertSearch"></div>
-      
-      <div class="info-card" id="infoCard">
-        <div style="font-size:0.75rem; color:var(--primary); font-weight:700; margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;">ข้อมูลพนักงาน</div>
-        <div class="info-row"><span>ชื่อ-นามสกุล</span><span id="iName"></span></div>
-        <div class="info-row"><span>ตำแหน่ง</span><span id="iPos"></span></div>
-        <div class="info-row"><span>หน่วยงาน</span><span id="iDept"></span></div>
-        <div class="info-row"><span>สาขา (Site)</span><span id="iSite"></span></div>
-      </div>
-
-      <div class="btn-row" id="nextBtn1" style="display:none;">
-        <button class="btn btn-primary" onclick="goStep(2)">ดำเนินการต่อ <span>→</span></button>
-      </div>
-    </div>
-
-    <!-- SECTION 2: รายละเอียดการแจ้งซ่อม -->
-    <div class="form-section" id="sec2">
-      <div class="field-group">
-        <label>🔧 ประเภทปัญหา <span class="required">*</span></label>
-        <select id="selIssue">
-          <option value="" disabled selected>-- เลือกประเภทที่ต้องการแจ้ง --</option>
-          <option>ไฟฟ้า / แสงสว่าง</option>
-          <option>ประปา / ท่อน้ำ</option>
-          <option>เครื่องปรับอากาศ</option>
-          <option>คอมพิวเตอร์ / IT</option>
-          <option>เฟอร์นิเจอร์ / อุปกรณ์สำนักงาน</option>
-          <option>ประตู / หน้าต่าง</option>
-          <option>อื่นๆ</option>
-        </select>
-      </div>
-      
-      <div class="field-group">
-        <label>📝 รายละเอียดเพิ่มเติม</label>
-        <textarea id="txtDetail" placeholder="ระบุจุดที่เกิดปัญหา หรืออธิบายอาการเพิ่มเติมให้ช่างทราบ..."></textarea>
-      </div>
-      
-      <div class="field-group">
-        <label>📷 รูปภาพประกอบ (ถ้ามี)</label>
-        <div class="upload-box" id="uploadBox" onclick="document.getElementById('imgInput').click()">
-          <span class="icon">📸</span>
-          <p>แตะเพื่อถ่ายรูปหรือเลือกรูปภาพ</p>
-          <span>รองรับไฟล์ .jpg, .png</span>
-          <input type="file" id="imgInput" accept="image/*" onchange="previewImg(this)">
-        </div>
-        <div class="upload-preview" id="preview">
-          <button class="remove-img" onclick="removeImg()">✕</button>
-          <img id="previewImg" src="">
-        </div>
-      </div>
-
-      <div class="alert alert-error" id="alertForm"></div>
-      
-      <div class="btn-row">
-        <button class="btn btn-outline" onclick="goStep(1)">ย้อนกลับ</button>
-        <button class="btn btn-primary" onclick="goStep(3)">ตรวจสอบข้อมูล</button>
-      </div>
-    </div>
-
-    <!-- SECTION 3: สรุปและยืนยัน -->
-    <div class="form-section" id="sec3">
-      <div style="text-align:center; margin-bottom:24px;">
-        <div style="width:50px; height:50px; background:var(--primary-light); color:var(--primary); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 12px;">📋</div>
-        <h3 style="font-size:1.1rem; color:var(--text-main);">ตรวจสอบความถูกต้อง</h3>
-        <p style="font-size:0.85rem; color:var(--text-muted);">กรุณาตรวจสอบข้อมูลก่อนกดส่ง</p>
-      </div>
-
-      <div class="info-card show" id="confirmCard" style="background:#fff; border:2px solid var(--primary-light);">
-        <div class="info-row"><span>ผู้แจ้งซ่อม</span><span id="cName"></span></div>
-        <div class="info-row"><span>หน่วยงาน</span><span id="cDept"></span></div>
-        <div class="info-row"><span>ประเภทปัญหา</span><span id="cIssue" style="color:var(--primary); font-weight:700;"></span></div>
-        <div class="info-row" style="border:none; flex-direction:column; align-items:flex-start; margin-top:8px;">
-          <span style="margin-bottom:4px;">รายละเอียดเพิ่มเติม</span>
-          <span id="cDetail" style="text-align:left; font-weight:400; color:var(--text-main); background:#F9FAFB; padding:12px; border-radius:12px; width:100%; border:1px solid var(--border);"></span>
-        </div>
-      </div>
-
-      <div class="alert alert-error" id="alertSubmit" style="margin-top:20px;"></div>
-      
-      <div class="btn-row" style="margin-top:32px;">
-        <button class="btn btn-outline" onclick="goStep(2)">แก้ไขข้อมูล</button>
-        <button class="btn btn-success" id="btnSubmit" onclick="submitForm()">✅ ยืนยันการแจ้งซ่อม</button>
-      </div>
-    </div>
-
-    <!-- SUCCESS SCREEN -->
-    <div class="success-screen" id="successScreen">
-      <div class="success-icon">✓</div>
-      <h2>ส่งเรื่องสำเร็จ!</h2>
-      <p>ระบบได้รับเรื่องแจ้งซ่อมของคุณเรียบร้อยแล้ว<br>ช่างจะติดต่อกลับเพื่ออัปเดตสถานะเร็วๆ นี้</p>
-      <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">หมายเลข Ticket ของคุณ</div>
-      <div class="ticket-badge" id="ticketDisplay">TK00000</div>
-      
-      <button class="btn btn-primary" style="margin-top:32px;" onclick="liff.closeWindow();">ปิดหน้าต่าง</button>
-    </div>
-
+<!-- HEADER -->
+<div class="app-header">
+  <div class="header-grid"></div>
+  <div class="badge-wrap">
+    <div class="badge-dot"></div>
+    Maintenance Online System
   </div>
+  <h1>ระบบแจ้งซ่อม<br>ออนไลน์</h1>
+  <p>รวดเร็ว แม่นยำ ติดตามได้ทุกที่ผ่าน LINE</p>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+<div class="card">
+
+  <!-- LIFF Warning -->
+  <div class="alert alert-warning" id="alertLiffError" style="display:none;">
+    <span>⚠</span>
+    <span>ไม่สามารถเชื่อมต่อ LINE ได้ แต่คุณยังสามารถแจ้งซ่อมได้ตามปกติ</span>
+  </div>
+
+  <!-- STEPPER -->
+  <div class="stepper" id="stepBar">
+    <div class="step-line"></div>
+    <div class="step-line-fill" id="stepLineFill"></div>
+    <div class="step active" id="s1">
+      <div class="step-circle">1</div>
+      <div class="step-label">ค้นหา</div>
+    </div>
+    <div class="step" id="s2">
+      <div class="step-circle">2</div>
+      <div class="step-label">รายละเอียด</div>
+    </div>
+    <div class="step" id="s3">
+      <div class="step-circle">3</div>
+      <div class="step-label">ยืนยัน</div>
+    </div>
+  </div>
+
+  <!-- SEC 1: ค้นหาพนักงาน -->
+  <div class="form-section active" id="sec1">
+    <div class="section-head">
+      <div class="section-icon">🔍</div>
+      <div>
+        <h3>ระบุตัวตน</h3>
+        <p>กรอกรหัสพนักงานเพื่อดึงข้อมูล</p>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>รหัสพนักงาน (Employee ID) <span class="req">*</span></label>
+      <div class="search-row">
+        <input id="inputId" type="text" placeholder="เช่น EMP00123" inputmode="numeric">
+        <button class="btn btn-primary" onclick="searchUser()">ค้นหา</button>
+      </div>
+    </div>
+
+    <div class="alert alert-error" id="alertSearch"></div>
+
+    <div class="info-card" id="infoCard">
+      <div class="ic-header">
+        <div class="ic-avatar" id="icInitials">NN</div>
+        <div>
+          <div class="ic-name" id="iName"></div>
+          <div class="ic-sub" id="iPos"></div>
+        </div>
+      </div>
+      <div class="info-grid">
+        <div class="ig-item">
+          <span>หน่วยงาน</span>
+          <span id="iDept">-</span>
+        </div>
+        <div class="ig-item">
+          <span>สาขา (Site)</span>
+          <span id="iSite">-</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row" id="nextBtn1" style="display:none;">
+      <button class="btn btn-primary" onclick="goStep(2)">
+        ดำเนินการต่อ
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- SEC 2: รายละเอียดการแจ้งซ่อม -->
+  <div class="form-section" id="sec2">
+    <div class="section-head">
+      <div class="section-icon">🔧</div>
+      <div>
+        <h3>รายละเอียดปัญหา</h3>
+        <p>ระบุประเภทและอธิบายปัญหาที่พบ</p>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>ประเภทปัญหา <span class="req">*</span></label>
+      <select id="selIssue">
+        <option value="" disabled selected>— เลือกประเภทที่ต้องการแจ้ง —</option>
+        <option>ไฟฟ้า / แสงสว่าง</option>
+        <option>ประปา / ท่อน้ำ</option>
+        <option>เครื่องปรับอากาศ</option>
+        <option>คอมพิวเตอร์ / IT</option>
+        <option>เฟอร์นิเจอร์ / อุปกรณ์สำนักงาน</option>
+        <option>ประตู / หน้าต่าง</option>
+        <option>อื่นๆ</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label>รายละเอียดเพิ่มเติม</label>
+      <textarea id="txtDetail" placeholder="ระบุจุดที่เกิดปัญหา หรืออธิบายอาการเพิ่มเติมให้ช่างทราบ..."></textarea>
+    </div>
+
+    <div class="field-group">
+      <label>รูปภาพประกอบ (ถ้ามี)</label>
+      <div class="upload-box" id="uploadBox" onclick="document.getElementById('imgInput').click()">
+        <div class="upload-icon">📸</div>
+        <p>แตะเพื่อถ่ายรูปหรือเลือกรูปภาพ</p>
+        <span>รองรับ .jpg, .png ขนาดไม่เกิน 5MB</span>
+        <input type="file" id="imgInput" accept="image/*" onchange="previewImg(this)">
+      </div>
+      <div class="upload-preview" id="preview">
+        <button class="remove-img" onclick="removeImg()">✕</button>
+        <img id="previewImg" src="">
+      </div>
+    </div>
+
+    <div class="alert alert-error" id="alertForm"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(1)">ย้อนกลับ</button>
+      <button class="btn btn-primary" onclick="goStep(3)">ตรวจสอบข้อมูล</button>
+    </div>
+  </div>
+
+  <!-- SEC 3: ยืนยัน -->
+  <div class="form-section" id="sec3">
+    <div class="section-head">
+      <div class="section-icon">📋</div>
+      <div>
+        <h3>ยืนยันข้อมูล</h3>
+        <p>ตรวจสอบความถูกต้องก่อนส่ง</p>
+      </div>
+    </div>
+
+    <div class="confirm-card" id="confirmCard">
+      <div class="confirm-header">
+        <span>👤</span>
+        <h4>ข้อมูลผู้แจ้งซ่อม</h4>
+      </div>
+      <div class="confirm-body">
+        <div class="cr">
+          <span class="cr-label">ชื่อ-นามสกุล</span>
+          <span class="cr-val" id="cName">-</span>
+        </div>
+        <div class="cr">
+          <span class="cr-label">หน่วยงาน</span>
+          <span class="cr-val" id="cDept">-</span>
+        </div>
+        <div class="cr">
+          <span class="cr-label">ประเภทปัญหา</span>
+          <span class="cr-val accent" id="cIssue">-</span>
+        </div>
+        <div class="cr-detail">
+          <span class="cr-label">รายละเอียดเพิ่มเติม</span>
+          <div class="cr-detail-text" id="cDetail">-</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-error" id="alertSubmit" style="margin-top:16px;"></div>
+
+    <div class="btn-row" style="margin-top:24px;">
+      <button class="btn btn-outline" onclick="goStep(2)">แก้ไข</button>
+      <button class="btn btn-success" id="btnSubmit" onclick="submitForm()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        ยืนยันการแจ้งซ่อม
+      </button>
+    </div>
+  </div>
+
+  <!-- SUCCESS SCREEN -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-ring">
+      <svg viewBox="0 0 90 90">
+        <circle class="sr-bg" cx="45" cy="45" r="40"/>
+        <circle class="sr-fill" cx="45" cy="45" r="40"/>
+      </svg>
+      <div class="success-check">✓</div>
+    </div>
+
+    <h2>ส่งเรื่องสำเร็จ!</h2>
+    <p>ระบบได้รับเรื่องแจ้งซ่อมของคุณแล้ว ช่างจะติดต่อกลับผ่าน LINE เพื่ออัปเดตสถานะ</p>
+
+    <div class="ticket-wrap">
+      <span class="ticket-label">หมายเลข Ticket</span>
+      <div class="ticket-badge" id="ticketDisplay">TK00000</div>
+    </div>
+
+    <div class="btn-row" style="margin-top:24px;width:100%;">
+      <button class="btn btn-primary" onclick="liff.closeWindow();">ปิดหน้าต่าง</button>
+    </div>
+  </div>
+
+</div>
 </div>
 
 <script>
-// ⚠️ สำคัญมาก: นำลิงก์ Web App API ของ Google Apps Script มาใส่ที่นี่ (ที่เพิ่ง Deploy ล่าสุด)
-const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8fhFOUdu9MHKnk23jnOhuKQ7sG_32FCEmu3mLgNPqiH_kp_Q/exec'; 
-
-const LIFF_ID = '2009669941-oojQ8hNu'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8fhFOUdu9MHKnk23jnOhuKQ7sG_32FCEmu3mLgNPqiH_kp_Q/exec';
+const LIFF_ID = '2009669941-oojQ8hNu';
 
 let lineUid = '';
 let userData = null;
@@ -354,33 +861,28 @@ function hideLoading() {
   const el = document.getElementById('loading');
   if (el) {
     el.style.opacity = '0';
-    setTimeout(() => { el.style.display = 'none'; }, 500);
+    setTimeout(() => { el.style.display = 'none'; }, 600);
   }
 }
 
 async function initApp() {
   const params = new URLSearchParams(location.search);
-  
-  // พยายามดึง UID จาก URL ก่อน
   const urlUid = params.get('uid');
   if (urlUid && urlUid.startsWith("U")) {
-      lineUid = urlUid;
-      hideLoading();
-      return;
+    lineUid = urlUid;
+    hideLoading();
+    return;
   }
-  
-  // ถ้าไม่มีใน URL ค่อยเรียก LIFF (เผื่อเปิดผ่าน Browser ทั่วไป)
   try {
     await liff.init({ liffId: LIFF_ID });
     if (liff.isLoggedIn()) {
       const profile = await liff.getProfile();
       lineUid = profile.userId;
     } else {
-      // ถ้าเปิดในบราวเซอร์มือถือ จะไม่บังคับล็อกอินเพื่อไม่ให้ค้าง ให้ใช้ Fallback แทน
       lineUid = 'U_DEV_' + Date.now();
       document.getElementById('alertLiffError').style.display = 'flex';
     }
-  } catch (err) { 
+  } catch (err) {
     console.warn('LIFF Init Error:', err);
     lineUid = 'U_DEV_' + Date.now();
     document.getElementById('alertLiffError').style.display = 'flex';
@@ -388,78 +890,89 @@ async function initApp() {
   hideLoading();
 }
 
+function getInitials(name) {
+  if (!name) return 'NN';
+  const parts = name.trim().split(' ');
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.substring(0, 2).toUpperCase();
+}
+
 async function searchUser() {
   const id = document.getElementById('inputId').value.trim();
-  if (!id) return showAlert('alertSearch', '⚠️ กรุณาระบุรหัสพนักงาน');
-  
-  const btn = document.querySelector('#sec1 .btn-primary');
-  btn.innerHTML = '<div class="loader" style="width:20px;height:20px;border-width:3px;margin:0;"></div>';
-  
+  if (!id) return showAlert('alertSearch', '⚠ กรุณาระบุรหัสพนักงาน');
+
+  const btn = document.querySelector('#sec1 .search-row .btn');
+  btn.innerHTML = '<div class="mini-loader"></div>';
+  btn.disabled = true;
+
   try {
     const response = await fetch(`${API_URL}?action=getUserById&id=${id}`, { redirect: "follow" });
     const res = await response.json();
-    
+
     if (res.found) {
       userData = res;
-      document.getElementById('iName').textContent = res.firstName + ' ' + res.lastName;
+      const fullName = res.firstName + ' ' + res.lastName;
+      document.getElementById('iName').textContent = fullName;
       document.getElementById('iPos').textContent = res.position;
       document.getElementById('iDept').textContent = res.department;
       document.getElementById('iSite').textContent = res.site;
-      
+      document.getElementById('icInitials').textContent = getInitials(fullName);
+
       document.getElementById('infoCard').classList.add('show');
       document.getElementById('nextBtn1').style.display = 'flex';
       document.getElementById('alertSearch').classList.remove('show');
     } else {
-      showAlert('alertSearch', '❌ ไม่พบข้อมูลพนักงานในระบบ กรุณาตรวจสอบรหัสอีกครั้ง');
+      showAlert('alertSearch', '✕ ไม่พบข้อมูลพนักงาน กรุณาตรวจสอบรหัสอีกครั้ง');
       document.getElementById('infoCard').classList.remove('show');
       document.getElementById('nextBtn1').style.display = 'none';
     }
   } catch (err) {
-    showAlert('alertSearch', '⚠️ ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้ กรุณาลองใหม่');
+    showAlert('alertSearch', '⚠ ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาลองใหม่');
   }
+
   btn.innerHTML = 'ค้นหา';
+  btn.disabled = false;
+}
+
+function updateStepLine(n) {
+  const fill = document.getElementById('stepLineFill');
+  const pct = n === 1 ? 0 : n === 2 ? 50 : 100;
+  fill.style.width = pct + '%';
 }
 
 function goStep(n) {
   if (n === 2 && !userData) return;
   if (n === 3) {
     const issue = document.getElementById('selIssue').value;
-    if (!issue) return showAlert('alertForm', '⚠️ กรุณาเลือกประเภทปัญหาก่อนดำเนินการต่อ');
+    if (!issue) return showAlert('alertForm', '⚠ กรุณาเลือกประเภทปัญหาก่อนดำเนินการต่อ');
     document.getElementById('alertForm').classList.remove('show');
-    
     document.getElementById('cName').textContent = userData.firstName + ' ' + userData.lastName;
     document.getElementById('cDept').textContent = userData.department;
     document.getElementById('cIssue').textContent = issue;
     document.getElementById('cDetail').textContent = document.getElementById('txtDetail').value || 'ไม่มีรายละเอียดเพิ่มเติม';
   }
 
-  // ซ่อนทุก Section ก่อน
   document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
-  // โชว์ Section ปัจจุบัน
   document.getElementById('sec' + n).classList.add('active');
-  
-  // อัปเดต Stepper
+
   for (let i = 1; i <= 3; i++) {
     const el = document.getElementById('s' + i);
-    el.classList.remove('active','done');
+    el.classList.remove('active', 'done');
     if (i < n) el.classList.add('done');
     else if (i === n) el.classList.add('active');
   }
-  
-  // เลื่อนหน้าจอขึ้นบนสุด
+
+  updateStepLine(n);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function previewImg(input) {
   if (!input.files[0]) return;
-  
-  // เพิ่มการเช็คขนาดไฟล์ (จำกัด 5MB) ป้องกันส่งไม่ผ่าน
-  if(input.files[0].size > 5 * 1024 * 1024) {
-      alert("ขนาดไฟล์ภาพใหญ่เกินไป (ไม่เกิน 5MB)");
-      input.value = "";
-      return;
+  if (input.files[0].size > 5 * 1024 * 1024) {
+    alert("ขนาดไฟล์ภาพใหญ่เกินไป (ไม่เกิน 5MB)");
+    input.value = "";
+    return;
   }
-
   const reader = new FileReader();
   reader.onload = e => {
     imgBase64 = e.target.result;
@@ -480,7 +993,7 @@ function removeImg() {
 async function submitForm() {
   const btn = document.getElementById('btnSubmit');
   btn.disabled = true;
-  btn.innerHTML = '<div class="loader" style="width:20px;height:20px;border-width:3px;margin:0 8px 0 0;border-top-color:#fff;"></div> กำลังส่งข้อมูล...';
+  btn.innerHTML = '<div class="mini-loader"></div> กำลังส่งข้อมูล...';
 
   const payload = {
     action: 'submitRepair',
@@ -497,7 +1010,7 @@ async function submitForm() {
   try {
     const response = await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload),
       redirect: "follow"
     });
@@ -509,18 +1022,21 @@ async function submitForm() {
       document.getElementById('ticketDisplay').textContent = res.ticketId;
       document.getElementById('successScreen').classList.add('show');
     } else {
-      showAlert('alertSubmit', '❌ เกิดข้อผิดพลาด: ' + res.error);
-      btn.disabled = false; btn.innerHTML = '✅ ยืนยันการแจ้งซ่อม';
+      showAlert('alertSubmit', '✕ เกิดข้อผิดพลาด: ' + res.error);
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ยืนยันการแจ้งซ่อม';
     }
   } catch (err) {
-    showAlert('alertSubmit', '⚠️ การเชื่อมต่อขัดข้อง กรุณาลองใหม่อีกครั้ง');
-    btn.disabled = false; btn.innerHTML = '✅ ยืนยันการแจ้งซ่อม';
+    showAlert('alertSubmit', '⚠ การเชื่อมต่อขัดข้อง กรุณาลองใหม่');
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ยืนยันการแจ้งซ่อม';
   }
 }
 
 function showAlert(id, msg) {
   const el = document.getElementById(id);
-  el.innerHTML = msg; el.classList.add('show');
+  el.innerHTML = msg;
+  el.classList.add('show');
 }
 
 window.onload = initApp;
