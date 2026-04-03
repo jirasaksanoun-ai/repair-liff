@@ -2,189 +2,348 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>แจ้งซ่อม</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>แจ้งซ่อมออนไลน์</title>
+<!-- 🌟 เพิ่ม Font Prompt จาก Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
-:root{
-  --blue:#1A73E8;--blue-dark:#1557B0;--blue-light:#EAF2FF;
-  --green:#34A853;--orange:#F57C00;--red:#EA4335;
-  --gray:#F5F7FA;--border:#E2E8F0;--text:#1A202C;--muted:#718096;
-  --radius:16px;--shadow:0 4px 24px rgba(0,0,0,.08);
+:root {
+  --primary: #4F46E5;
+  --primary-hover: #4338CA;
+  --primary-light: #EEF2FF;
+  --secondary: #10B981;
+  --bg: #F3F4F6;
+  --surface: #FFFFFF;
+  --text-main: #111827;
+  --text-muted: #6B7280;
+  --border: #E5E7EB;
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+  --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Noto Sans Thai',sans-serif;background:#F0F4FF;min-height:100vh;color:var(--text)}
 
-#loading{
-  position:fixed;inset:0;background:#fff;display:flex;
-  flex-direction:column;align-items:center;justify-content:center;z-index:999;
-  transition:opacity .4s;
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+  font-family: 'Prompt', sans-serif; 
+  background-color: var(--bg); 
+  color: var(--text-main); 
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
-.spinner{
-  width:48px;height:48px;border:4px solid var(--blue-light);
-  border-top-color:var(--blue);border-radius:50%;
-  animation:spin .8s linear infinite;margin-bottom:16px;
+
+/* ── Loading Screen ── */
+#loading {
+  position: fixed; inset: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999;
+  transition: opacity 0.5s ease;
 }
-@keyframes spin{to{transform:rotate(360deg)}}
-
-.header{
-  background:linear-gradient(135deg,var(--blue) 0%,#4B9BFF 100%);
-  padding:32px 24px 48px;color:#fff;position:relative;overflow:hidden;
+.loader {
+  width: 50px; height: 50px; border: 4px solid var(--primary-light);
+  border-top-color: var(--primary); border-radius: 50%;
+  animation: spin 1s linear infinite; margin-bottom: 16px;
 }
-.header-icon{font-size:2.5rem;margin-bottom:8px;display:block;}
-.header h1{font-size:1.5rem;font-weight:700;}
+@keyframes spin { to { transform: rotate(360deg); } }
+#loading p { font-weight: 500; color: var(--primary); letter-spacing: 0.5px; }
 
-.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);margin:0 16px;padding:24px;}
-.main-card{margin-top:-24px;position:relative;z-index:10}
+/* ── Header Area ── */
+.header-bg {
+  background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
+  padding: 40px 24px 80px; color: #fff; text-align: center;
+  border-bottom-left-radius: 32px; border-bottom-right-radius: 32px;
+  position: relative; overflow: hidden;
+}
+.header-bg::before {
+  content: ''; position: absolute; top: -50px; right: -50px;
+  width: 150px; height: 150px; background: rgba(255, 255, 255, 0.1); border-radius: 50%;
+}
+.header-bg::after {
+  content: ''; position: absolute; bottom: -30px; left: -30px;
+  width: 100px; height: 100px; background: rgba(255, 255, 255, 0.1); border-radius: 50%;
+}
+.header-icon {
+  width: 60px; height: 60px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px);
+  border-radius: 20px; display: flex; align-items: center; justify-content: center;
+  font-size: 28px; margin: 0 auto 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  position: relative; z-index: 1;
+}
+.header-bg h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; position: relative; z-index: 1; }
+.header-bg p { font-size: 0.9rem; opacity: 0.9; position: relative; z-index: 1; font-weight: 300; }
 
-.steps{display:flex;margin-bottom:24px;gap:8px}
-.step{flex:1;text-align:center;padding:10px 4px;border-radius:12px;font-size:.75rem;font-weight:600;color:var(--muted);background:var(--gray);transition:.3s;}
-.step.active{background:var(--blue-light);color:var(--blue)}
-.step.done{background:var(--green);color:#fff}
-.step-num{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;margin-bottom:4px;font-weight:700;background:currentColor;color:#fff;}
+/* ── Main Card ── */
+.container { padding: 0 20px; margin-top: -50px; position: relative; z-index: 10; padding-bottom: 40px; }
+.card {
+  background: var(--surface); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow); padding: 30px 24px;
+}
 
-.form-section{display:none}
-.form-section.active{display:block}
+/* ── Modern Stepper ── */
+.stepper { display: flex; justify-content: space-between; margin-bottom: 32px; position: relative; }
+.stepper::before {
+  content: ''; position: absolute; top: 16px; left: 10%; right: 10%;
+  height: 3px; background: var(--border); z-index: 0; border-radius: 2px;
+}
+.step {
+  position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1;
+}
+.step-circle {
+  width: 34px; height: 34px; border-radius: 50%; background: var(--surface);
+  border: 3px solid var(--border); display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.85rem; color: var(--text-muted); transition: all 0.3s;
+}
+.step.active .step-circle { border-color: var(--primary); background: var(--primary); color: #fff; box-shadow: 0 0 0 4px var(--primary-light); }
+.step.done .step-circle { border-color: var(--secondary); background: var(--secondary); color: #fff; }
+.step-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); transition: 0.3s; }
+.step.active .step-label { color: var(--primary); }
+.step.done .step-label { color: var(--secondary); }
 
-.field-group{margin-bottom:20px}
-label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase}
-input,select,textarea{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:12px;font-size:.95rem;font-family:inherit;background:#fff;}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(26,115,232,.12);}
-textarea{resize:none;min-height:100px}
+/* ── Form Sections & Animations ── */
+.form-section { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.form-section.active { display: block; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-.search-row{display:flex;gap:10px}
-.search-row input{flex:1}
+/* ── Input Groups ── */
+.field-group { margin-bottom: 24px; }
+label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 8px; }
+.required { color: var(--red); }
+input, select, textarea {
+  width: 100%; padding: 16px; border: 1.5px solid var(--border); border-radius: var(--radius-md);
+  font-size: 1rem; font-family: inherit; background: #F9FAFB; color: var(--text-main);
+  transition: all 0.2s ease; appearance: none;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: var(--primary); background: var(--surface);
+  box-shadow: 0 0 0 4px var(--primary-light);
+}
+textarea { resize: none; min-height: 120px; line-height: 1.5; }
 
-.info-card{background:var(--blue-light);border-radius:12px;padding:16px;display:none;}
-.info-card.show{display:block}
-.info-row{display:flex;justify-content:space-between;padding:6px 0;font-size:.9rem}
-.info-row span:first-child{color:var(--muted)}
-.info-row span:last-child{font-weight:600;color:var(--blue-dark)}
-.badge{display:inline-block;background:var(--blue);color:#fff;padding:2px 10px;border-radius:999px;font-size:.75rem;margin-top:6px;}
+/* Search Row */
+.search-row { display: flex; gap: 12px; }
+.search-row input { flex: 1; }
+.search-row .btn { width: auto; padding: 0 24px; white-space: nowrap; }
 
-.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
-.btn-primary{background:var(--blue);color:#fff}
-.btn-outline{background:#fff;color:var(--blue);border:2px solid var(--blue)}
-.btn-success{background:var(--green);color:#fff}
-.btn-row{display:flex;gap:12px;margin-top:8px}
-.btn-row .btn{flex:1}
+/* ── Info Card (Profile) ── */
+.info-card {
+  background: var(--primary-light); border-radius: var(--radius-md); padding: 20px;
+  display: none; border: 1px solid #D1E0FF; animation: slideUp 0.3s ease;
+}
+.info-card.show { display: block; }
+.info-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 0.9rem; }
+.info-row:not(:last-child) { border-bottom: 1px dashed rgba(79, 70, 229, 0.2); }
+.info-row span:first-child { color: var(--text-muted); font-size: 0.85rem; }
+.info-row span:last-child { font-weight: 600; color: var(--primary-hover); text-align: right; }
 
-.upload-box{border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;color:var(--muted);}
-.upload-box input{display:none}
-.upload-preview{display:none;border-radius:12px;overflow:hidden;margin-top:12px}
-.upload-preview img{width:100%;max-height:200px;object-fit:cover}
+/* ── Upload Box ── */
+.upload-box {
+  border: 2px dashed #CBD5E1; border-radius: var(--radius-md); padding: 30px 20px;
+  text-align: center; cursor: pointer; transition: all 0.2s; background: #F9FAFB;
+}
+.upload-box:hover { border-color: var(--primary); background: var(--primary-light); }
+.upload-box .icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+.upload-box p { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
+.upload-box span { font-size: 0.75rem; color: #9CA3AF; display: block; margin-top: 4px; }
+.upload-box input { display: none; }
+.upload-preview { display: none; border-radius: var(--radius-md); overflow: hidden; margin-top: 16px; position: relative; border: 1px solid var(--border); box-shadow: var(--shadow); }
+.upload-preview img { width: 100%; max-height: 250px; object-fit: cover; display: block; }
+.upload-preview .remove-img {
+  position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white;
+  width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-weight: bold; border: none; backdrop-filter: blur(4px);
+}
 
-.alert{padding:12px 16px;border-radius:10px;font-size:.9rem;margin-bottom:16px;display:none;}
-.alert.show{display:block}
-.alert-error{background:#FDECEA;color:var(--red);border:1px solid #F5C6C2}
+/* ── Buttons ── */
+.btn {
+  width: 100%; padding: 16px; border: none; border-radius: var(--radius-md);
+  font-size: 1rem; font-weight: 600; font-family: inherit; cursor: pointer;
+  transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4); }
+.btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+.btn-outline:hover { background: var(--primary-light); }
+.btn-success { background: var(--secondary); color: #fff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+.btn-success:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4); }
+.btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+.btn-row { display: flex; gap: 16px; margin-top: 32px; }
+.btn-row .btn { flex: 1; }
 
-.success-screen{display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;}
-.success-screen.show{display:flex}
-.success-icon{font-size:4rem;margin-bottom:16px;}
-.ticket-badge{background:var(--blue-light);color:var(--blue);padding:8px 20px;border-radius:999px;font-size:1.1rem;font-weight:700;margin:16px 0;}
+/* ── Alerts ── */
+.alert { padding: 14px 16px; border-radius: var(--radius-sm); font-size: 0.9rem; margin-bottom: 20px; display: none; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.alert.show { display: flex; animation: slideUp 0.3s ease; }
+.alert-error { background: #FEF2F2; color: #DC2626; border: 1px solid #FCA5A5; }
+.alert-warning { background: #FFFBEB; color: #D97706; border: 1px solid #FCD34D; font-size: 0.85rem;}
+
+/* ── Success Screen ── */
+.success-screen { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0; text-align: center; }
+.success-screen.show { display: flex; animation: slideUp 0.5s ease; }
+.success-icon { 
+  width: 80px; height: 80px; background: var(--secondary); border-radius: 50%; 
+  display: flex; align-items: center; justify-content: center; font-size: 40px; color: #fff;
+  margin-bottom: 24px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+  animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes bounceIn { 0% { transform: scale(0); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+.success-screen h2 { font-size: 1.5rem; color: var(--text-main); margin-bottom: 8px; }
+.success-screen p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px; }
+.ticket-badge { 
+  background: var(--bg); color: var(--primary-hover); padding: 12px 32px; 
+  border-radius: 999px; font-size: 1.25rem; font-weight: 700; border: 2px dashed #CBD5E1; 
+  letter-spacing: 1px;
+}
 </style>
 </head>
 <body>
 
 <div id="loading">
-  <div class="spinner"></div>
-  <p>กำลังเชื่อมต่อ LINE...</p>
+  <div class="loader"></div>
+  <p>กำลังเตรียมระบบ...</p>
 </div>
 
-<div class="header">
-  <span class="header-icon">🔧</span>
-  <h1>ระบบแจ้งซ่อม</h1>
-  <p>Repair Request System</p>
+<!-- Header -->
+<div class="header-bg">
+  <div class="header-icon">👨‍🔧</div>
+  <h1>ระบบแจ้งซ่อมออนไลน์</h1>
+  <p>รวดเร็ว ทันใจ ติดตามได้ผ่าน LINE</p>
 </div>
 
-<div class="card main-card">
-  <div class="steps" id="stepBar">
-    <div class="step active" id="s1"><div class="step-num">1</div><br>ค้นหา</div>
-    <div class="step" id="s2"><div class="step-num">2</div><br>รายละเอียด</div>
-    <div class="step" id="s3"><div class="step-num">3</div><br>ส่ง</div>
-  </div>
+<!-- Main Container -->
+<div class="container">
+  <div class="card">
+    
+    <!-- Fallback Alert -->
+    <div class="alert alert-warning" id="alertLiffError" style="display:none;">
+      <span>⚠️</span> ระบบไม่สามารถเชื่อมต่อ LINE ได้ แต่คุณยังสามารถแจ้งซ่อมได้ตามปกติ
+    </div>
 
-  <div class="form-section active" id="sec1">
-    <div class="field-group">
-      <label>🔍 รหัสพนักงาน (ID)</label>
-      <div class="search-row">
-        <input id="inputId" type="text" placeholder="กรอกรหัสพนักงาน" inputmode="numeric">
-        <button class="btn btn-primary" style="width:auto;padding:12px 20px" onclick="searchUser()">ค้นหา</button>
+    <!-- Stepper -->
+    <div class="stepper" id="stepBar">
+      <div class="step active" id="s1">
+        <div class="step-circle">1</div><div class="step-label">ค้นหาข้อมูล</div>
+      </div>
+      <div class="step" id="s2">
+        <div class="step-circle">2</div><div class="step-label">รายละเอียด</div>
+      </div>
+      <div class="step" id="s3">
+        <div class="step-circle">3</div><div class="step-label">ส่งข้อมูล</div>
       </div>
     </div>
-    <div class="alert alert-error" id="alertSearch"></div>
-    <div class="info-card" id="infoCard">
-      <div class="info-row"><span>ชื่อ-นามสกุล</span><span id="iName"></span></div>
-      <div class="info-row"><span>ตำแหน่ง</span><span id="iPos"></span></div>
-      <div class="info-row"><span>หน่วยงาน</span><span id="iDept"></span></div>
-      <div class="info-row"><span>Site</span><span id="iSite"></span></div>
-      <span class="badge" id="iBadge"></span>
-    </div>
-    <div class="btn-row" id="nextBtn1" style="display:none;margin-top:20px">
-      <button class="btn btn-primary" onclick="goStep(2)">ถัดไป →</button>
-    </div>
-  </div>
 
-  <div class="form-section" id="sec2">
-    <div class="field-group">
-      <label>🔧 ประเภทปัญหา</label>
-      <select id="selIssue">
-        <option value="">-- เลือกประเภทปัญหา --</option>
-        <option>ไฟฟ้า / แสงสว่าง</option>
-        <option>ประปา / ท่อน้ำ</option>
-        <option>เครื่องปรับอากาศ</option>
-        <option>คอมพิวเตอร์ / IT</option>
-        <option>อื่นๆ</option>
-      </select>
-    </div>
-    <div class="field-group">
-      <label>📝 รายละเอียดเพิ่มเติม</label>
-      <textarea id="txtDetail" placeholder="อธิบายปัญหาที่พบ..."></textarea>
-    </div>
-    <div class="field-group">
-      <label>📷 รูปภาพ (ถ้ามี)</label>
-      <div class="upload-box" onclick="document.getElementById('imgInput').click()">
-        <div style="font-size:2rem">📸</div>
-        <p style="margin-top:8px;font-size:.85rem">แตะเพื่ออัพโหลดรูป</p>
-        <input type="file" id="imgInput" accept="image/*" onchange="previewImg(this)">
+    <!-- SECTION 1: ค้นหาพนักงาน -->
+    <div class="form-section active" id="sec1">
+      <div class="field-group">
+        <label>🔍 รหัสพนักงาน (Employee ID) <span class="required">*</span></label>
+        <div class="search-row">
+          <input id="inputId" type="text" placeholder="ระบุรหัสพนักงานของคุณ" inputmode="numeric">
+          <button class="btn btn-primary" onclick="searchUser()">ค้นหา</button>
+        </div>
       </div>
-      <div class="upload-preview" id="preview">
-        <img id="previewImg" src="">
+      
+      <div class="alert alert-error" id="alertSearch"></div>
+      
+      <div class="info-card" id="infoCard">
+        <div style="font-size:0.75rem; color:var(--primary); font-weight:700; margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;">ข้อมูลพนักงาน</div>
+        <div class="info-row"><span>ชื่อ-นามสกุล</span><span id="iName"></span></div>
+        <div class="info-row"><span>ตำแหน่ง</span><span id="iPos"></span></div>
+        <div class="info-row"><span>หน่วยงาน</span><span id="iDept"></span></div>
+        <div class="info-row"><span>สาขา (Site)</span><span id="iSite"></span></div>
+      </div>
+
+      <div class="btn-row" id="nextBtn1" style="display:none;">
+        <button class="btn btn-primary" onclick="goStep(2)">ดำเนินการต่อ <span>→</span></button>
       </div>
     </div>
-    <div class="alert alert-error" id="alertForm"></div>
-    <div class="btn-row">
-      <button class="btn btn-outline" onclick="goStep(1)">← ย้อนกลับ</button>
-      <button class="btn btn-primary" onclick="goStep(3)">ถัดไป →</button>
-    </div>
-  </div>
 
-  <div class="form-section" id="sec3">
-    <h3 style="font-size:1rem;margin-bottom:16px;color:var(--muted)">📋 สรุปข้อมูลการแจ้งซ่อม</h3>
-    <div class="info-card show" id="confirmCard">
-      <div class="info-row"><span>ผู้แจ้ง</span><span id="cName"></span></div>
-      <div class="info-row"><span>ปัญหา</span><span id="cIssue"></span></div>
-    </div>
-    <div class="alert alert-error" id="alertSubmit"></div>
-    <div class="btn-row" style="margin-top:20px">
-      <button class="btn btn-outline" onclick="goStep(2)">← แก้ไข</button>
-      <button class="btn btn-success" id="btnSubmit" onclick="submitForm()">✅ แจ้งซ่อม</button>
-    </div>
-  </div>
+    <!-- SECTION 2: รายละเอียดการแจ้งซ่อม -->
+    <div class="form-section" id="sec2">
+      <div class="field-group">
+        <label>🔧 ประเภทปัญหา <span class="required">*</span></label>
+        <select id="selIssue">
+          <option value="" disabled selected>-- เลือกประเภทที่ต้องการแจ้ง --</option>
+          <option>ไฟฟ้า / แสงสว่าง</option>
+          <option>ประปา / ท่อน้ำ</option>
+          <option>เครื่องปรับอากาศ</option>
+          <option>คอมพิวเตอร์ / IT</option>
+          <option>เฟอร์นิเจอร์ / อุปกรณ์สำนักงาน</option>
+          <option>ประตู / หน้าต่าง</option>
+          <option>อื่นๆ</option>
+        </select>
+      </div>
+      
+      <div class="field-group">
+        <label>📝 รายละเอียดเพิ่มเติม</label>
+        <textarea id="txtDetail" placeholder="ระบุจุดที่เกิดปัญหา หรืออธิบายอาการเพิ่มเติมให้ช่างทราบ..."></textarea>
+      </div>
+      
+      <div class="field-group">
+        <label>📷 รูปภาพประกอบ (ถ้ามี)</label>
+        <div class="upload-box" id="uploadBox" onclick="document.getElementById('imgInput').click()">
+          <span class="icon">📸</span>
+          <p>แตะเพื่อถ่ายรูปหรือเลือกรูปภาพ</p>
+          <span>รองรับไฟล์ .jpg, .png</span>
+          <input type="file" id="imgInput" accept="image/*" onchange="previewImg(this)">
+        </div>
+        <div class="upload-preview" id="preview">
+          <button class="remove-img" onclick="removeImg()">✕</button>
+          <img id="previewImg" src="">
+        </div>
+      </div>
 
-  <div class="success-screen" id="successScreen">
-    <div class="success-icon">✅</div>
-    <h2>แจ้งซ่อมสำเร็จ!</h2>
-    <p>ช่างจะติดต่อกลับผ่าน LINE ของคุณ</p>
-    <div class="ticket-badge" id="ticketDisplay">TK00000</div>
+      <div class="alert alert-error" id="alertForm"></div>
+      
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="goStep(1)">ย้อนกลับ</button>
+        <button class="btn btn-primary" onclick="goStep(3)">ตรวจสอบข้อมูล</button>
+      </div>
+    </div>
+
+    <!-- SECTION 3: สรุปและยืนยัน -->
+    <div class="form-section" id="sec3">
+      <div style="text-align:center; margin-bottom:24px;">
+        <div style="width:50px; height:50px; background:var(--primary-light); color:var(--primary); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 12px;">📋</div>
+        <h3 style="font-size:1.1rem; color:var(--text-main);">ตรวจสอบความถูกต้อง</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted);">กรุณาตรวจสอบข้อมูลก่อนกดส่ง</p>
+      </div>
+
+      <div class="info-card show" id="confirmCard" style="background:#fff; border:2px solid var(--primary-light);">
+        <div class="info-row"><span>ผู้แจ้งซ่อม</span><span id="cName"></span></div>
+        <div class="info-row"><span>หน่วยงาน</span><span id="cDept"></span></div>
+        <div class="info-row"><span>ประเภทปัญหา</span><span id="cIssue" style="color:var(--primary); font-weight:700;"></span></div>
+        <div class="info-row" style="border:none; flex-direction:column; align-items:flex-start; margin-top:8px;">
+          <span style="margin-bottom:4px;">รายละเอียดเพิ่มเติม</span>
+          <span id="cDetail" style="text-align:left; font-weight:400; color:var(--text-main); background:#F9FAFB; padding:12px; border-radius:12px; width:100%; border:1px solid var(--border);"></span>
+        </div>
+      </div>
+
+      <div class="alert alert-error" id="alertSubmit" style="margin-top:20px;"></div>
+      
+      <div class="btn-row" style="margin-top:32px;">
+        <button class="btn btn-outline" onclick="goStep(2)">แก้ไขข้อมูล</button>
+        <button class="btn btn-success" id="btnSubmit" onclick="submitForm()">✅ ยืนยันการแจ้งซ่อม</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS SCREEN -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">✓</div>
+      <h2>ส่งเรื่องสำเร็จ!</h2>
+      <p>ระบบได้รับเรื่องแจ้งซ่อมของคุณเรียบร้อยแล้ว<br>ช่างจะติดต่อกลับเพื่ออัปเดตสถานะเร็วๆ นี้</p>
+      <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">หมายเลข Ticket ของคุณ</div>
+      <div class="ticket-badge" id="ticketDisplay">TK00000</div>
+      
+      <button class="btn btn-primary" style="margin-top:32px;" onclick="liff.closeWindow();">ปิดหน้าต่าง</button>
+    </div>
+
   </div>
 </div>
 
 <script>
-// ⚠️ เปลี่ยนเป็น URL ของ Google Apps Script ของคุณ (ลงท้ายด้วย /exec)
+// ⚠️ สำคัญมาก: นำลิงก์ Web App API ของ Google Apps Script มาใส่ที่นี่ (ที่เพิ่ง Deploy ล่าสุด)
 const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8fhFOUdu9MHKnk23jnOhuKQ7sG_32FCEmu3mLgNPqiH_kp_Q/exec'; 
 
-// ⚠️ LIFF ID ของคุณ
 const LIFF_ID = '2009669941-oojQ8hNu'; 
 
 let lineUid = '';
@@ -192,38 +351,52 @@ let userData = null;
 let imgBase64 = '';
 
 function hideLoading() {
-  document.getElementById('loading').style.opacity = '0';
-  setTimeout(() => document.getElementById('loading').style.display = 'none', 400);
+  const el = document.getElementById('loading');
+  if (el) {
+    el.style.opacity = '0';
+    setTimeout(() => { el.style.display = 'none'; }, 500);
+  }
 }
 
-// เมื่อเว็บไม่ได้อยู่ใน iframe แล้ว LIFF จะทำงานได้สมบูรณ์แบบ 100%
 async function initApp() {
+  const params = new URLSearchParams(location.search);
+  
+  // พยายามดึง UID จาก URL ก่อน
+  const urlUid = params.get('uid');
+  if (urlUid && urlUid.startsWith("U")) {
+      lineUid = urlUid;
+      hideLoading();
+      return;
+  }
+  
+  // ถ้าไม่มีใน URL ค่อยเรียก LIFF (เผื่อเปิดผ่าน Browser ทั่วไป)
   try {
     await liff.init({ liffId: LIFF_ID });
     if (liff.isLoggedIn()) {
       const profile = await liff.getProfile();
       lineUid = profile.userId;
-      console.log("LINE UID:", lineUid);
     } else {
-      liff.login({ redirectUri: location.href });
+      // ถ้าเปิดในบราวเซอร์มือถือ จะไม่บังคับล็อกอินเพื่อไม่ให้ค้าง ให้ใช้ Fallback แทน
+      lineUid = 'U_DEV_' + Date.now();
+      document.getElementById('alertLiffError').style.display = 'flex';
     }
-  } catch (err) {
-    console.error('LIFF Init Error:', err);
-    lineUid = 'U_DEV_NOLIFF';
+  } catch (err) { 
+    console.warn('LIFF Init Error:', err);
+    lineUid = 'U_DEV_' + Date.now();
+    document.getElementById('alertLiffError').style.display = 'flex';
   }
   hideLoading();
 }
 
 async function searchUser() {
   const id = document.getElementById('inputId').value.trim();
-  if (!id) return showAlert('alertSearch','กรุณากรอกรหัสพนักงาน');
+  if (!id) return showAlert('alertSearch', '⚠️ กรุณาระบุรหัสพนักงาน');
   
   const btn = document.querySelector('#sec1 .btn-primary');
-  btn.innerHTML = 'กำลังค้นหา...';
+  btn.innerHTML = '<div class="loader" style="width:20px;height:20px;border-width:3px;margin:0;"></div>';
   
   try {
-    // 🚀 ย้ายจาก google.script.run มาใช้ fetch API ทันสมัย
-    const response = await fetch(`${API_URL}?action=getUserById&id=${id}`);
+    const response = await fetch(`${API_URL}?action=getUserById&id=${id}`, { redirect: "follow" });
     const res = await response.json();
     
     if (res.found) {
@@ -232,15 +405,17 @@ async function searchUser() {
       document.getElementById('iPos').textContent = res.position;
       document.getElementById('iDept').textContent = res.department;
       document.getElementById('iSite').textContent = res.site;
-      document.getElementById('iBadge').textContent = 'ID: ' + res.id;
+      
       document.getElementById('infoCard').classList.add('show');
       document.getElementById('nextBtn1').style.display = 'flex';
       document.getElementById('alertSearch').classList.remove('show');
     } else {
-      showAlert('alertSearch','❌ ไม่พบรหัสพนักงานในระบบ');
+      showAlert('alertSearch', '❌ ไม่พบข้อมูลพนักงานในระบบ กรุณาตรวจสอบรหัสอีกครั้ง');
+      document.getElementById('infoCard').classList.remove('show');
+      document.getElementById('nextBtn1').style.display = 'none';
     }
   } catch (err) {
-    showAlert('alertSearch', 'การเชื่อมต่อขัดข้อง');
+    showAlert('alertSearch', '⚠️ ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้ กรุณาลองใหม่');
   }
   btn.innerHTML = 'ค้นหา';
 }
@@ -248,53 +423,83 @@ async function searchUser() {
 function goStep(n) {
   if (n === 2 && !userData) return;
   if (n === 3) {
-    document.getElementById('cName').textContent = userData.firstName;
-    document.getElementById('cIssue').textContent = document.getElementById('selIssue').value;
+    const issue = document.getElementById('selIssue').value;
+    if (!issue) return showAlert('alertForm', '⚠️ กรุณาเลือกประเภทปัญหาก่อนดำเนินการต่อ');
+    document.getElementById('alertForm').classList.remove('show');
+    
+    document.getElementById('cName').textContent = userData.firstName + ' ' + userData.lastName;
+    document.getElementById('cDept').textContent = userData.department;
+    document.getElementById('cIssue').textContent = issue;
+    document.getElementById('cDetail').textContent = document.getElementById('txtDetail').value || 'ไม่มีรายละเอียดเพิ่มเติม';
   }
+
+  // ซ่อนทุก Section ก่อน
   document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+  // โชว์ Section ปัจจุบัน
   document.getElementById('sec' + n).classList.add('active');
+  
+  // อัปเดต Stepper
   for (let i = 1; i <= 3; i++) {
     const el = document.getElementById('s' + i);
     el.classList.remove('active','done');
     if (i < n) el.classList.add('done');
     else if (i === n) el.classList.add('active');
   }
+  
+  // เลื่อนหน้าจอขึ้นบนสุด
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function previewImg(input) {
   if (!input.files[0]) return;
+  
+  // เพิ่มการเช็คขนาดไฟล์ (จำกัด 5MB) ป้องกันส่งไม่ผ่าน
+  if(input.files[0].size > 5 * 1024 * 1024) {
+      alert("ขนาดไฟล์ภาพใหญ่เกินไป (ไม่เกิน 5MB)");
+      input.value = "";
+      return;
+  }
+
   const reader = new FileReader();
   reader.onload = e => {
     imgBase64 = e.target.result;
     document.getElementById('previewImg').src = imgBase64;
     document.getElementById('preview').style.display = 'block';
+    document.getElementById('uploadBox').style.display = 'none';
   };
   reader.readAsDataURL(input.files[0]);
+}
+
+function removeImg() {
+  imgBase64 = '';
+  document.getElementById('imgInput').value = '';
+  document.getElementById('preview').style.display = 'none';
+  document.getElementById('uploadBox').style.display = 'block';
 }
 
 async function submitForm() {
   const btn = document.getElementById('btnSubmit');
   btn.disabled = true;
-  btn.innerHTML = 'กำลังส่ง...';
+  btn.innerHTML = '<div class="loader" style="width:20px;height:20px;border-width:3px;margin:0 8px 0 0;border-top-color:#fff;"></div> กำลังส่งข้อมูล...';
 
   const payload = {
-    action: 'submitRepair', // บอก API ว่าจะทำอะไร
+    action: 'submitRepair',
     data: {
       uid: lineUid,
       fullName: userData.firstName + ' ' + userData.lastName,
       department: userData.department,
       site: userData.site,
-      issue: document.getElementById('selIssue').value + ' — ' + document.getElementById('txtDetail').value,
+      issue: document.getElementById('selIssue').value + (document.getElementById('txtDetail').value ? ' — ' + document.getElementById('txtDetail').value : ''),
       imgBefore: imgBase64
     }
   };
 
   try {
-    // 🚀 ย้ายจาก google.script.run มาใช้ fetch (ส่งเป็น text/plain ป้องกัน CORS Error ใน GAS)
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      redirect: "follow"
     });
     const res = await response.json();
 
@@ -304,20 +509,18 @@ async function submitForm() {
       document.getElementById('ticketDisplay').textContent = res.ticketId;
       document.getElementById('successScreen').classList.add('show');
     } else {
-      showAlert('alertSubmit', '❌ ' + res.error);
-      btn.disabled = false;
-      btn.innerHTML = '✅ แจ้งซ่อม';
+      showAlert('alertSubmit', '❌ เกิดข้อผิดพลาด: ' + res.error);
+      btn.disabled = false; btn.innerHTML = '✅ ยืนยันการแจ้งซ่อม';
     }
   } catch (err) {
-    showAlert('alertSubmit', 'การเชื่อมต่อขัดข้อง');
-    btn.disabled = false;
-    btn.innerHTML = '✅ แจ้งซ่อม';
+    showAlert('alertSubmit', '⚠️ การเชื่อมต่อขัดข้อง กรุณาลองใหม่อีกครั้ง');
+    btn.disabled = false; btn.innerHTML = '✅ ยืนยันการแจ้งซ่อม';
   }
 }
 
 function showAlert(id, msg) {
   const el = document.getElementById(id);
-  el.textContent = msg; el.classList.add('show');
+  el.innerHTML = msg; el.classList.add('show');
 }
 
 window.onload = initApp;
