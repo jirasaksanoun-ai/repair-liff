@@ -5,82 +5,390 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>ประเมินงานซ่อม</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--green:#34A853;--orange:#F57C00;--gray:#F5F7FA;--border:#E2E8F0;--text:#1A202C;--muted:#718096;--radius:16px;--shadow:0 4px 24px rgba(0,0,0,.08);}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Noto Sans Thai',sans-serif;background:#F0FFF4;min-height:100vh;color:var(--text)}
-#loading{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;}
-.spinner{width:48px;height:48px;border:4px solid #E6F4EA;border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.header{background:linear-gradient(135deg,var(--green) 0%,#5AC87A 100%);padding:32px 24px 48px;color:#fff;text-align:center;}
-.header-icon{font-size:2.5rem;margin-bottom:8px;display:block;}
-.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);margin:0 16px;padding:24px;margin-top:-24px;position:relative;z-index:10;}
-.ticket-info{background:var(--gray);border-radius:12px;padding:16px;margin-bottom:24px;display:flex;align-items:flex-start;gap:12px;}
-.ticket-info .icon{font-size:2rem}
-.ticket-info h3{font-size:1rem;font-weight:700;color:var(--text)}
-.ticket-info p{font-size:.85rem;color:var(--muted);margin-top:4px}
-.rating-section{margin-bottom:24px}
-.rating-section label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:12px;}
-.rating-btns{display:flex;gap:12px}
-.rating-btn{flex:1;padding:20px 10px;border:2px solid var(--border);border-radius:16px;background:#fff;cursor:pointer;text-align:center;transition:.2s;}
-.rating-btn.selected-good{border-color:var(--green);background:#E6F4EA}
-.rating-btn.selected-bad{border-color:var(--orange);background:#FFF3E0}
-.rating-btn .emoji{font-size:2rem;display:block;margin-bottom:8px}
-textarea{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:12px;font-size:.95rem;font-family:inherit;min-height:100px;resize:none;}
-textarea:focus{outline:none; border-color:var(--green);}
-.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:1rem;font-weight:700;color:#fff;background:var(--green);margin-top:10px;cursor:pointer;}
-.success-screen{display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;}
-.success-screen.show{display:flex}
+:root{
+  --c-bg:#0A0E1A;
+  --c-surface:#111827;
+  --c-surface2:#1A2235;
+  --c-border:rgba(255,255,255,0.08);
+  --c-border2:rgba(255,255,255,0.14);
+  --c-accent:#3B82F6;
+  --c-accent2:#6366F1;
+  --c-green:#10B981;
+  --c-amber:#F59E0B;
+  --c-text:#F1F5F9;
+  --c-muted:#64748B;
+  --c-muted2:#94A3B8;
+  --c-glass:rgba(255,255,255,0.04);
+  --c-glass2:rgba(255,255,255,0.07);
+  --r:16px;--r2:24px;--r3:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Sarabun',sans-serif;
+  background:var(--c-bg);
+  color:var(--c-text);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;top:-200px;left:-200px;
+  width:500px;height:500px;
+  background:radial-gradient(circle,rgba(16,185,129,0.1) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── LOADING ── */
+#loading{
+  position:fixed;inset:0;background:var(--c-bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:9999;transition:opacity 0.6s ease;
+}
+.loader-wrap{position:relative;width:64px;height:64px;margin-bottom:24px;}
+.loader-ring{
+  position:absolute;inset:0;
+  border:3px solid rgba(16,185,129,0.15);
+  border-top-color:var(--c-green);
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+.loader-ring2{
+  position:absolute;inset:8px;
+  border:2px solid rgba(59,130,246,0.15);
+  border-bottom-color:var(--c-accent);
+  border-radius:50%;
+  animation:spin 1.5s linear infinite reverse;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+#loading p{
+  font-family:'Kanit',sans-serif;
+  font-size:0.8rem;color:var(--c-muted2);
+  letter-spacing:2px;text-transform:uppercase;
+  animation:pulse-text 2s ease infinite;
+}
+@keyframes pulse-text{0%,100%{opacity:0.5;}50%{opacity:1;}}
+
+/* ── HEADER ── */
+.app-header{
+  position:relative;padding:48px 24px 100px;
+  text-align:center;z-index:1;overflow:hidden;
+}
+.header-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(16,185,129,0.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(16,185,129,0.05) 1px,transparent 1px);
+  background-size:40px 40px;
+  mask-image:linear-gradient(to bottom,transparent,black 30%,black 70%,transparent);
+}
+.badge-wrap{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(16,185,129,0.1);
+  border:1px solid rgba(16,185,129,0.25);
+  border-radius:999px;padding:6px 16px;
+  font-size:0.75rem;color:#6EE7B7;
+  font-family:'Kanit',sans-serif;letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:20px;position:relative;z-index:1;
+}
+.badge-dot{
+  width:6px;height:6px;background:var(--c-green);border-radius:50%;
+  animation:pulse-dot 2s ease infinite;
+}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.6);}50%{box-shadow:0 0 0 6px rgba(16,185,129,0);}}
+.app-header h1{
+  font-family:'Kanit',sans-serif;font-size:2rem;font-weight:600;
+  background:linear-gradient(135deg,#F1F5F9 0%,#6EE7B7 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1.2;margin-bottom:8px;position:relative;z-index:1;
+}
+.app-header p{font-size:0.9rem;color:var(--c-muted2);font-weight:300;position:relative;z-index:1;}
+
+/* ── CONTAINER ── */
+.container{
+  position:relative;z-index:2;
+  padding:0 16px 48px;margin-top:-64px;
+  max-width:600px;margin-left:auto;margin-right:auto;
+}
+
+/* ── CARD ── */
+.card{
+  background:var(--c-surface);
+  border:1px solid var(--c-border);
+  border-radius:var(--r2);
+  padding:28px 24px;
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(16,185,129,0.5),rgba(59,130,246,0.5),transparent);
+}
+
+/* ── TICKET INFO CARD ── */
+.ticket-card{
+  background:var(--c-glass);
+  border:1px solid var(--c-border2);
+  border-radius:var(--r);
+  overflow:hidden;
+  margin-bottom:24px;
+}
+.ticket-card-header{
+  padding:14px 18px;
+  background:rgba(16,185,129,0.08);
+  border-bottom:1px solid var(--c-border);
+  display:flex;align-items:center;gap:10px;
+}
+.ticket-card-header span{font-size:16px;}
+.ticket-card-header h4{
+  font-family:'Kanit',sans-serif;font-size:0.9rem;font-weight:500;color:#6EE7B7;
+}
+.ticket-card-header .tid{
+  margin-left:auto;
+  font-family:'Kanit',sans-serif;font-size:0.95rem;font-weight:700;
+  color:var(--c-text);letter-spacing:1px;
+}
+.ticket-body{padding:16px 18px;}
+.ticket-row{
+  display:flex;gap:8px;font-size:0.88rem;
+  padding:8px 0;border-bottom:1px solid var(--c-border);
+}
+.ticket-row:last-child{border:none;padding-bottom:0;}
+.tr-label{color:var(--c-muted);flex-shrink:0;width:80px;}
+.tr-val{color:var(--c-text);font-weight:500;flex:1;word-break:break-word;}
+.img-after-wrap{margin-top:14px;padding-top:14px;border-top:1px solid var(--c-border);}
+.img-label{
+  font-size:0.72rem;color:var(--c-muted);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;
+  display:flex;align-items:center;gap:6px;
+}
+.img-label::before{content:'';display:inline-block;width:8px;height:8px;background:var(--c-accent);border-radius:2px;}
+#imgAfterView{width:100%;border-radius:var(--r3);border:1px solid var(--c-border2);}
+
+/* ── SECTION LABEL ── */
+.section-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.section-icon{
+  width:38px;height:38px;
+  background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);
+  border-radius:var(--r3);display:flex;align-items:center;justify-content:center;font-size:16px;
+  flex-shrink:0;
+}
+.section-head h3{font-family:'Kanit',sans-serif;font-size:0.95rem;font-weight:500;}
+.section-head p{font-size:0.8rem;color:var(--c-muted);}
+
+/* ── RATING BUTTONS ── */
+.rating-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}
+.rating-btn{
+  padding:24px 12px;
+  background:var(--c-surface2);
+  border:1.5px solid var(--c-border2);
+  border-radius:var(--r);
+  cursor:pointer;text-align:center;
+  transition:all 0.2s ease;
+  position:relative;overflow:hidden;
+}
+.rating-btn::before{
+  content:'';position:absolute;inset:0;
+  opacity:0;transition:opacity 0.2s;
+}
+.rating-btn:hover{border-color:var(--c-muted);transform:translateY(-2px);}
+.rating-btn:active{transform:scale(0.97);}
+
+.rating-btn.selected-good{
+  border-color:var(--c-green);
+  background:rgba(16,185,129,0.1);
+  box-shadow:0 0 0 4px rgba(16,185,129,0.12);
+}
+.rating-btn.selected-bad{
+  border-color:var(--c-amber);
+  background:rgba(245,158,11,0.1);
+  box-shadow:0 0 0 4px rgba(245,158,11,0.12);
+}
+
+.rb-emoji{font-size:2.2rem;display:block;margin-bottom:10px;transition:transform 0.2s;}
+.rating-btn:hover .rb-emoji{transform:scale(1.15);}
+.rating-btn.selected-good .rb-emoji,.rating-btn.selected-bad .rb-emoji{transform:scale(1.2);}
+.rb-label{font-family:'Kanit',sans-serif;font-size:0.9rem;font-weight:500;color:var(--c-muted2);}
+.rating-btn.selected-good .rb-label{color:#6EE7B7;}
+.rating-btn.selected-bad .rb-label{color:#FCD34D;}
+
+/* ── TEXTAREA ── */
+.field-group{margin-bottom:20px;}
+label{
+  display:block;font-size:0.78rem;font-weight:500;
+  color:var(--c-muted2);margin-bottom:8px;
+  letter-spacing:0.3px;text-transform:uppercase;
+}
+textarea{
+  width:100%;padding:14px 16px;
+  background:var(--c-surface2);border:1.5px solid var(--c-border2);
+  border-radius:var(--r3);font-size:0.95rem;
+  font-family:'Sarabun',sans-serif;color:var(--c-text);
+  min-height:110px;resize:none;line-height:1.6;
+  transition:all 0.25s;
+}
+textarea::placeholder{color:var(--c-muted);}
+textarea:focus{
+  outline:none;border-color:var(--c-green);
+  background:rgba(16,185,129,0.04);
+  box-shadow:0 0 0 4px rgba(16,185,129,0.1);
+}
+
+/* ── BUTTON ── */
+.btn{
+  width:100%;padding:15px;border:none;
+  border-radius:var(--r3);
+  font-size:0.95rem;font-weight:600;
+  font-family:'Kanit',sans-serif;
+  cursor:pointer;transition:all 0.2s ease;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  letter-spacing:0.3px;
+}
+.btn-success{
+  background:linear-gradient(135deg,#059669 0%,#10B981 100%);
+  color:#fff;box-shadow:0 4px 20px rgba(16,185,129,0.35);
+}
+.btn-success:hover{box-shadow:0 6px 24px rgba(16,185,129,0.5);transform:translateY(-1px);}
+.btn-success:active{transform:scale(0.98);}
+.btn:disabled{opacity:0.45;cursor:not-allowed;transform:none !important;box-shadow:none !important;}
+
+.mini-loader{
+  width:18px;height:18px;
+  border:2.5px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin 0.8s linear infinite;flex-shrink:0;
+}
+
+/* ── SUCCESS ── */
+.success-screen{display:none;flex-direction:column;align-items:center;padding:24px 0 8px;text-align:center;}
+.success-screen.show{display:flex;animation:fadeSlide 0.5s ease;}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+.success-ring{position:relative;width:90px;height:90px;margin-bottom:28px;}
+.success-ring svg{width:90px;height:90px;transform:rotate(-90deg);}
+.sr-bg{fill:none;stroke:rgba(16,185,129,0.15);stroke-width:3;}
+.sr-fill{
+  fill:none;stroke:var(--c-green);stroke-width:3;
+  stroke-dasharray:251;stroke-dashoffset:251;stroke-linecap:round;
+  animation:draw-ring 1s 0.3s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+@keyframes draw-ring{to{stroke-dashoffset:0;}}
+.success-check{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:32px;
+  animation:pop-in 0.4s 1s cubic-bezier(0.175,0.885,0.32,1.275) both;
+}
+@keyframes pop-in{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+.success-screen h2{font-family:'Kanit',sans-serif;font-size:1.5rem;font-weight:600;margin-bottom:10px;}
+.success-screen p{color:var(--c-muted2);font-size:0.9rem;line-height:1.7;margin-bottom:0;max-width:280px;}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--c-border);margin:20px 0;}
 </style>
 </head>
 <body>
 
-<div id="loading"><div class="spinner"></div><p>กำลังเตรียมข้อมูล...</p></div>
-
-<div class="header">
-  <span class="header-icon">⭐</span>
-  <h1 style="font-size:1.5rem">ประเมินงานซ่อม</h1>
+<div id="loading">
+  <div class="loader-wrap">
+    <div class="loader-ring"></div>
+    <div class="loader-ring2"></div>
+  </div>
+  <p>Loading Review</p>
 </div>
 
-<div class="card" id="mainCard">
-  <div class="ticket-info">
-    <span class="icon">🎫</span>
-    <div style="width:100%">
-      <h3 id="ticketId">TK00000</h3>
-      <p id="tIssue" style="color:var(--text); font-weight:600;">ปัญหา: -</p>
-      <p id="tDetail">การแก้ไข: -</p>
-      <div id="imgAfterContainer" style="display:none; margin-top:12px;">
-        <span style="font-size:0.75rem; color:var(--muted); font-weight:bold;">📸 รูปถ่ายหลังซ่อมเสร็จ</span>
-        <img id="imgAfterView" src="" style="width:100%; border-radius:8px; margin-top:4px; border:1px solid #ccc;">
+<div class="app-header">
+  <div class="header-grid"></div>
+  <div class="badge-wrap"><div class="badge-dot"></div>Satisfaction Survey</div>
+  <h1>ประเมินงานซ่อม</h1>
+  <p>ความคิดเห็นของคุณช่วยพัฒนาการบริการ</p>
+</div>
+
+<div class="container">
+<div class="card">
+
+  <!-- Ticket Info -->
+  <div class="ticket-card" id="mainCard">
+    <div class="ticket-card-header">
+      <span>🎫</span>
+      <h4>รายละเอียดงานซ่อม</h4>
+      <span class="tid" id="ticketId">TK00000</span>
+    </div>
+    <div class="ticket-body">
+      <div class="ticket-row">
+        <span class="tr-label">ปัญหา</span>
+        <span class="tr-val" id="tIssue">—</span>
+      </div>
+      <div class="ticket-row">
+        <span class="tr-label">การแก้ไข</span>
+        <span class="tr-val" id="tDetail">—</span>
+      </div>
+      <div class="img-after-wrap" id="imgAfterContainer" style="display:none;">
+        <div class="img-label">รูปถ่ายหลังซ่อมเสร็จ</div>
+        <img id="imgAfterView" src="">
       </div>
     </div>
   </div>
 
-  <div class="rating-section">
-    <label>ความพึงพอใจโดยรวม</label>
-    <div class="rating-btns">
-      <button class="rating-btn" id="btnGood" onclick="selectRating('พึงพอใจ')"><span class="emoji">😊</span><span style="font-weight:bold;color:var(--text)">พึงพอใจ</span></button>
-      <button class="rating-btn" id="btnBad" onclick="selectRating('ควรปรับปรุง')"><span class="emoji">😐</span><span style="font-weight:bold;color:var(--text)">ควรปรับปรุง</span></button>
+  <!-- Rating -->
+  <div class="section-head">
+    <div class="section-icon">⭐</div>
+    <div>
+      <h3>ความพึงพอใจโดยรวม</h3>
+      <p>กรุณาเลือกระดับความพึงพอใจ</p>
     </div>
   </div>
 
-  <div class="rating-section">
-    <label>💬 ความคิดเห็น / ข้อเสนอแนะ</label>
-    <textarea id="txtFeedback" placeholder="แสดงความคิดเห็นเพิ่มเติม..."></textarea>
+  <div class="rating-grid">
+    <button class="rating-btn" id="btnGood" onclick="selectRating('พึงพอใจ')">
+      <span class="rb-emoji">😊</span>
+      <span class="rb-label">พึงพอใจ</span>
+    </button>
+    <button class="rating-btn" id="btnBad" onclick="selectRating('ควรปรับปรุง')">
+      <span class="rb-emoji">😐</span>
+      <span class="rb-label">ควรปรับปรุง</span>
+    </button>
   </div>
 
-  <button class="btn" id="btnSubmit" onclick="submitReview()">✅ ส่งการประเมิน</button>
-</div>
+  <div class="divider"></div>
 
-<div class="success-screen" id="successScreen">
-  <div style="font-size:4rem;margin-bottom:16px;">🎉</div>
-  <h2>ขอบคุณสำหรับการประเมิน!</h2>
-  <p style="color:var(--muted);margin-top:10px;">ความคิดเห็นของคุณช่วยให้เราปรับปรุงการให้บริการได้ดียิ่งขึ้น</p>
+  <!-- Feedback -->
+  <div class="section-head">
+    <div class="section-icon">💬</div>
+    <div>
+      <h3>ความคิดเห็น / ข้อเสนอแนะ</h3>
+      <p>ไม่บังคับกรอก</p>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <textarea id="txtFeedback" placeholder="แสดงความคิดเห็นเพิ่มเติมเพื่อช่วยให้เราปรับปรุงบริการ..."></textarea>
+  </div>
+
+  <button class="btn btn-success" id="btnSubmit" onclick="submitReview()">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    ส่งการประเมิน
+  </button>
+
+  <!-- Success Screen -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-ring">
+      <svg viewBox="0 0 90 90">
+        <circle class="sr-bg" cx="45" cy="45" r="40"/>
+        <circle class="sr-fill" cx="45" cy="45" r="40"/>
+      </svg>
+      <div class="success-check">🎉</div>
+    </div>
+    <h2>ขอบคุณสำหรับการประเมิน!</h2>
+    <p>ความคิดเห็นของคุณช่วยให้เราปรับปรุงการให้บริการได้ดียิ่งขึ้น</p>
+  </div>
+
+</div>
 </div>
 
 <script>
-// ⚠️ ใส่ลิงก์ API ของคุณ
-const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8fhFOUdu9MHKnk23jnOhuKQ7sG_32FCEmu3mLgNPqiH_kp_Q/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8fhFOUdu9MHKnk23jnOhuKQ7sG_32FCEmu3mLgNPqiH_kp_Q/exec';
 
 let ticketId = '';
 let selectedRating = '';
@@ -94,45 +402,72 @@ async function initApp() {
     const res = await fetch(`${API_URL}?action=getTicket&id=${ticketId}`, { redirect: "follow" });
     const json = await res.json();
     if (json.success && json.data) {
-        document.getElementById('tIssue').textContent = 'ปัญหา: ' + (json.data['Issue'] || '-');
-        document.getElementById('tDetail').textContent = 'การแก้ไข: ' + (json.data['Fix_Detail'] || '-');
-        if (json.data['Img_After']) {
-            document.getElementById('imgAfterView').src = json.data['Img_After'];
-            document.getElementById('imgAfterContainer').style.display = 'block';
-        }
+      document.getElementById('tIssue').textContent = json.data['Issue'] || '—';
+      document.getElementById('tDetail').textContent = json.data['Fix_Detail'] || '—';
+      if (json.data['Img_After']) {
+        document.getElementById('imgAfterView').src = json.data['Img_After'];
+        document.getElementById('imgAfterContainer').style.display = 'block';
+      }
     }
   } catch(e) {}
-  document.getElementById('loading').style.display = 'none';
+
+  const el = document.getElementById('loading');
+  el.style.opacity = '0';
+  setTimeout(() => { el.style.display = 'none'; }, 600);
 }
 
 function selectRating(val) {
   selectedRating = val;
   document.getElementById('btnGood').classList.remove('selected-good');
   document.getElementById('btnBad').classList.remove('selected-bad');
-  document.getElementById(val === 'พึงพอใจ' ? 'btnGood' : 'btnBad').classList.add(val === 'พึงพอใจ' ? 'selected-good' : 'selected-bad');
+  if (val === 'พึงพอใจ') {
+    document.getElementById('btnGood').classList.add('selected-good');
+  } else {
+    document.getElementById('btnBad').classList.add('selected-bad');
+  }
 }
 
 async function submitReview() {
   if (!selectedRating) return alert('กรุณาเลือกความพึงพอใจ');
-
   const btn = document.getElementById('btnSubmit');
-  btn.disabled = true; btn.textContent = 'กำลังส่ง...';
+  btn.disabled = true;
+  btn.innerHTML = '<div class="mini-loader"></div> กำลังส่ง...';
 
   const payload = {
     action: 'submitReview',
-    data: { ticketId: ticketId, rating: selectedRating, feedback: document.getElementById('txtFeedback').value }
+    data: {
+      ticketId: ticketId,
+      rating: selectedRating,
+      feedback: document.getElementById('txtFeedback').value
+    }
   };
 
   try {
-    const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), redirect: "follow" });
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      redirect: "follow"
+    });
     const json = await res.json();
     if (json.success) {
       document.getElementById('mainCard').style.display = 'none';
+      document.querySelector('.rating-grid').style.display = 'none';
+      document.querySelector('.rating-grid + .divider').style.display = 'none';
+      document.querySelectorAll('.section-head').forEach(el => el.style.display = 'none');
+      document.querySelector('.field-group').style.display = 'none';
+      btn.style.display = 'none';
       document.getElementById('successScreen').classList.add('show');
     } else {
-      alert('Error: ' + json.error); btn.disabled = false; btn.textContent = '✅ ส่งการประเมิน';
+      alert('Error: ' + json.error);
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ส่งการประเมิน';
     }
-  } catch(err) { alert('เชื่อมต่อขัดข้อง'); btn.disabled = false; btn.textContent = '✅ ส่งการประเมิน'; }
+  } catch(err) {
+    alert('เชื่อมต่อขัดข้อง');
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ส่งการประเมิน';
+  }
 }
 
 window.onload = initApp;
