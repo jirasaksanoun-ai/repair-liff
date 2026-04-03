@@ -6,45 +6,29 @@
 <title>ประเมินงานซ่อม</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
-:root{
-  --green:#34A853;--green-dark:#258C41;--green-light:#E6F4EA;
-  --orange:#F57C00;--red:#EA4335;--blue:#1A73E8;
-  --gray:#F5F7FA;--border:#E2E8F0;--text:#1A202C;--muted:#718096;
-  --radius:16px;--shadow:0 4px 24px rgba(0,0,0,.08);
-}
+:root{--green:#34A853;--orange:#F57C00;--gray:#F5F7FA;--border:#E2E8F0;--text:#1A202C;--muted:#718096;--radius:16px;--shadow:0 4px 24px rgba(0,0,0,.08);}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Noto Sans Thai',sans-serif;background:#F0FFF4;min-height:100vh;color:var(--text)}
-
 #loading{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;}
-.spinner{width:48px;height:48px;border:4px solid var(--green-light);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;}
+.spinner{width:48px;height:48px;border:4px solid #E6F4EA;border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-.header{background:linear-gradient(135deg,var(--green) 0%,#5AC87A 100%);padding:32px 24px 48px;color:#fff;position:relative;overflow:hidden;}
+.header{background:linear-gradient(135deg,var(--green) 0%,#5AC87A 100%);padding:32px 24px 48px;color:#fff;text-align:center;}
 .header-icon{font-size:2.5rem;margin-bottom:8px;display:block;}
-.header h1{font-size:1.5rem;font-weight:700;}
-
 .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);margin:0 16px;padding:24px;margin-top:-24px;position:relative;z-index:10;}
-
 .ticket-info{background:var(--gray);border-radius:12px;padding:16px;margin-bottom:24px;display:flex;align-items:flex-start;gap:12px;}
 .ticket-info .icon{font-size:2rem}
 .ticket-info h3{font-size:1rem;font-weight:700;color:var(--text)}
 .ticket-info p{font-size:.85rem;color:var(--muted);margin-top:4px}
-
 .rating-section{margin-bottom:24px}
 .rating-section label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:12px;}
-.rating-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.rating-btn{padding:20px 16px;border:2px solid var(--border);border-radius:16px;background:#fff;cursor:pointer;text-align:center;transition:.2s;}
-.rating-btn.selected-good{border-color:var(--green);background:var(--green-light)}
+.rating-btns{display:flex;gap:12px}
+.rating-btn{flex:1;padding:20px 10px;border:2px solid var(--border);border-radius:16px;background:#fff;cursor:pointer;text-align:center;transition:.2s;}
+.rating-btn.selected-good{border-color:var(--green);background:#E6F4EA}
 .rating-btn.selected-bad{border-color:var(--orange);background:#FFF3E0}
 .rating-btn .emoji{font-size:2rem;display:block;margin-bottom:8px}
-
-.stars-row{display:flex;gap:8px;justify-content:center;margin:20px 0}
-.star{font-size:2rem;cursor:pointer;opacity:.4;filter:grayscale(1)}
-.star.lit{opacity:1;filter:none;transform:scale(1.1)}
-
 textarea{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:12px;font-size:.95rem;font-family:inherit;min-height:100px;resize:none;}
-.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:1rem;font-weight:700;color:#fff;background:var(--green);margin-top:20px;}
-
+textarea:focus{outline:none; border-color:var(--green);}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:1rem;font-weight:700;color:#fff;background:var(--green);margin-top:10px;cursor:pointer;}
 .success-screen{display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;}
 .success-screen.show{display:flex}
 </style>
@@ -55,8 +39,7 @@ textarea{width:100%;padding:12px 16px;border:2px solid var(--border);border-radi
 
 <div class="header">
   <span class="header-icon">⭐</span>
-  <h1>ประเมินงานซ่อม</h1>
-  <p>กรุณาให้คะแนนความพึงพอใจ</p>
+  <h1 style="font-size:1.5rem">ประเมินงานซ่อม</h1>
 </div>
 
 <div class="card" id="mainCard">
@@ -66,8 +49,6 @@ textarea{width:100%;padding:12px 16px;border:2px solid var(--border);border-radi
       <h3 id="ticketId">TK00000</h3>
       <p id="tIssue" style="color:var(--text); font-weight:600;">ปัญหา: -</p>
       <p id="tDetail">การแก้ไข: -</p>
-      
-      <!-- 📸 กล่องแสดงรูปหลังซ่อม -->
       <div id="imgAfterContainer" style="display:none; margin-top:12px;">
         <span style="font-size:0.75rem; color:var(--muted); font-weight:bold;">📸 รูปถ่ายหลังซ่อมเสร็จ</span>
         <img id="imgAfterView" src="" style="width:100%; border-radius:8px; margin-top:4px; border:1px solid #ccc;">
@@ -78,16 +59,8 @@ textarea{width:100%;padding:12px 16px;border:2px solid var(--border);border-radi
   <div class="rating-section">
     <label>ความพึงพอใจโดยรวม</label>
     <div class="rating-btns">
-      <button class="rating-btn" id="btnGood" onclick="selectRating('พึงพอใจ')"><span class="emoji">😊</span><span class="label">พึงพอใจ</span></button>
-      <button class="rating-btn" id="btnBad" onclick="selectRating('ควรปรับปรุง')"><span class="emoji">😐</span><span class="label">ควรปรับปรุง</span></button>
-    </div>
-  </div>
-
-  <div class="rating-section">
-    <label>ให้คะแนน (1–5 ดาว)</label>
-    <div class="stars-row" id="starsRow">
-      <span class="star" onclick="setStars(1)">⭐</span><span class="star" onclick="setStars(2)">⭐</span>
-      <span class="star" onclick="setStars(3)">⭐</span><span class="star" onclick="setStars(4)">⭐</span><span class="star" onclick="setStars(5)">⭐</span>
+      <button class="rating-btn" id="btnGood" onclick="selectRating('พึงพอใจ')"><span class="emoji">😊</span><span style="font-weight:bold;color:var(--text)">พึงพอใจ</span></button>
+      <button class="rating-btn" id="btnBad" onclick="selectRating('ควรปรับปรุง')"><span class="emoji">😐</span><span style="font-weight:bold;color:var(--text)">ควรปรับปรุง</span></button>
     </div>
   </div>
 
@@ -106,13 +79,11 @@ textarea{width:100%;padding:12px 16px;border:2px solid var(--border);border-radi
 </div>
 
 <script>
-// ⚠️ เปลี่ยนเป็นลิงก์ Web App ของคุณ (อันเดียวกันกับไฟล์อื่น)
+// ⚠️ ใส่ลิงก์ API ของคุณ
 const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8fhFOUdu9MHKnk23jnOhuKQ7sG_32FCEmu3mLgNPqiH_kp_Q/exec'; 
-const LIFF_ID = '2009669941-2KJAIOid';
 
 let ticketId = '';
 let selectedRating = '';
-let selectedStars = 0;
 
 async function initApp() {
   const params = new URLSearchParams(location.search);
@@ -120,27 +91,18 @@ async function initApp() {
   document.getElementById('ticketId').textContent = ticketId;
 
   try {
-    // 🚀 ดึงข้อมูลจาก API ว่าช่างแก้ไขอะไรไป และมีรูปไหม
-    const res = await fetch(`${API_URL}?action=getTicket&id=${ticketId}`);
+    const res = await fetch(`${API_URL}?action=getTicket&id=${ticketId}`, { redirect: "follow" });
     const json = await res.json();
     if (json.success && json.data) {
         document.getElementById('tIssue').textContent = 'ปัญหา: ' + (json.data['Issue'] || '-');
         document.getElementById('tDetail').textContent = 'การแก้ไข: ' + (json.data['Fix_Detail'] || '-');
-        
         if (json.data['Img_After']) {
             document.getElementById('imgAfterView').src = json.data['Img_After'];
             document.getElementById('imgAfterContainer').style.display = 'block';
         }
     }
-  } catch(e) { console.warn("Fetch Ticket Detail failed."); }
-
-  // Init LIFF
-  if(typeof liff !== 'undefined') {
-      liff.init({ liffId: LIFF_ID }).catch(()=>{});
-  }
-  
-  document.getElementById('loading').style.opacity = '0';
-  setTimeout(() => document.getElementById('loading').style.display = 'none', 400);
+  } catch(e) {}
+  document.getElementById('loading').style.display = 'none';
 }
 
 function selectRating(val) {
@@ -150,35 +112,27 @@ function selectRating(val) {
   document.getElementById(val === 'พึงพอใจ' ? 'btnGood' : 'btnBad').classList.add(val === 'พึงพอใจ' ? 'selected-good' : 'selected-bad');
 }
 
-function setStars(n) {
-  selectedStars = n;
-  document.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('lit', i < n));
-}
-
 async function submitReview() {
   if (!selectedRating) return alert('กรุณาเลือกความพึงพอใจ');
-  if (!selectedStars) return alert('กรุณาให้คะแนนดาว');
 
   const btn = document.getElementById('btnSubmit');
-  btn.disabled = true; btn.innerHTML = 'กำลังส่ง...';
+  btn.disabled = true; btn.textContent = 'กำลังส่ง...';
 
   const payload = {
     action: 'submitReview',
-    data: { ticketId: ticketId, rating: `${selectedRating} (${selectedStars}★)`, feedback: document.getElementById('txtFeedback').value }
+    data: { ticketId: ticketId, rating: selectedRating, feedback: document.getElementById('txtFeedback').value }
   };
 
   try {
-    const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+    const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), redirect: "follow" });
     const json = await res.json();
     if (json.success) {
       document.getElementById('mainCard').style.display = 'none';
       document.getElementById('successScreen').classList.add('show');
     } else {
-      alert('Error: ' + json.error); btn.disabled = false; btn.innerHTML = '✅ ส่งการประเมิน';
+      alert('Error: ' + json.error); btn.disabled = false; btn.textContent = '✅ ส่งการประเมิน';
     }
-  } catch(err) {
-    alert('เชื่อมต่อขัดข้อง: ' + err.message); btn.disabled = false; btn.innerHTML = '✅ ส่งการประเมิน';
-  }
+  } catch(err) { alert('เชื่อมต่อขัดข้อง'); btn.disabled = false; btn.textContent = '✅ ส่งการประเมิน'; }
 }
 
 window.onload = initApp;
