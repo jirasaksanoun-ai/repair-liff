@@ -719,11 +719,22 @@ select option{background:#1A2235;color:var(--c-text);}
     </div>
 
     <div class="btn-row" id="nextBtn1" style="display:none;">
+      <button class="btn btn-outline" id="btnHistory" onclick="sendHistory()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 8a7 7 0 1 0 1.1-3.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M1 1v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        ประวัติการแจ้ง
+      </button>
       <button class="btn btn-primary" onclick="goStep(2)">
-        ดำเนินการต่อ
+        แจ้งซ่อมใหม่
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
+
+    <!-- History Status -->
+    <div id="historyLoading" style="display:none;text-align:center;padding:20px 0;">
+      <div class="mini-loader" style="margin:0 auto 12px;"></div>
+      <p style="font-size:0.82rem;color:var(--c-muted);">กำลังดึงประวัติการแจ้งซ่อม...</p>
+    </div>
+    <div id="historyStatus" style="display:none;margin-top:12px;"></div>
   </div>
 
   <!-- SEC 2: รายละเอียดการแจ้งซ่อม -->
@@ -1031,6 +1042,59 @@ async function submitForm() {
     btn.disabled = false;
     btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ยืนยันการแจ้งซ่อม';
   }
+}
+
+async function sendHistory() {
+  if (!userData || !lineUid || lineUid.startsWith('U_DEV_')) {
+    // ในโหมด dev แสดง alert แทน
+    showHistoryStatus('info', '⚠ ฟังก์ชันนี้ใช้งานได้เฉพาะใน LINE เท่านั้น');
+    return;
+  }
+
+  const btn = document.getElementById('btnHistory');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="mini-loader"></div> กำลังโหลด...';
+  document.getElementById('historyLoading').style.display = 'block';
+  document.getElementById('historyStatus').style.display = 'none';
+
+  try {
+    const res = await fetch(
+      `${API_URL}?action=getHistory&department=${encodeURIComponent(userData.department)}&site=${encodeURIComponent(userData.site)}&uid=${lineUid}`,
+      { redirect: "follow" }
+    );
+    const json = await res.json();
+
+    document.getElementById('historyLoading').style.display = 'none';
+
+    if (json.success) {
+      if (json.count === 0) {
+        showHistoryStatus('empty', '📭 ยังไม่มีประวัติการแจ้งซ่อมของหน่วยงานนี้');
+      } else {
+        showHistoryStatus('success', `✅ ส่งประวัติ ${json.count} รายการไปที่ LINE แล้ว กรุณาตรวจสอบข้อความ`);
+      }
+    } else {
+      showHistoryStatus('error', '✕ เกิดข้อผิดพลาด: ' + json.error);
+    }
+  } catch (err) {
+    document.getElementById('historyLoading').style.display = 'none';
+    showHistoryStatus('error', '⚠ ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 8a7 7 0 1 0 1.1-3.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M1 1v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> ประวัติการแจ้ง`;
+}
+
+function showHistoryStatus(type, msg) {
+  const el = document.getElementById('historyStatus');
+  const colors = {
+    success: { bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.25)', color: '#6EE7B7' },
+    error:   { bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.25)', color: '#FCA5A5' },
+    info:    { bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)', color: '#FCD34D' },
+    empty:   { bg: 'rgba(100,116,139,0.1)', border: 'rgba(100,116,139,0.2)', color: '#94A3B8' }
+  };
+  const c = colors[type] || colors.info;
+  el.style.cssText = `display:block;background:${c.bg};border:1px solid ${c.border};color:${c.color};border-radius:12px;padding:12px 16px;font-size:0.85rem;font-weight:500;animation:fadeSlide 0.3s ease;`;
+  el.textContent = msg;
 }
 
 function showAlert(id, msg) {
