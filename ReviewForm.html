@@ -459,33 +459,49 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8f
 let ticketId = '';
 let selectedRating = '';
 
-// ซ่อนทุก screen แล้วแสดงเฉพาะที่ต้องการ
+/* =========================
+   ✅ CENTRAL SCREEN CONTROL
+========================= */
 function showScreen(screenId) {
-  ['mainCard','ratingSection','feedbackSection','btnSubmit',
-   'successScreen','reviewedScreen','errorScreen'].forEach(id => {
+  const allScreens = ['successScreen','reviewedScreen','errorScreen'];
+
+  // 🔴 ซ่อนทุก screen + reset animation
+  allScreens.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
+    if (el) {
+      el.style.display = 'none';
+      el.classList.remove('show');
+    }
   });
-  // ซ่อน section-head และ divider ด้วย
-  document.querySelectorAll('.section-head,.divider,.rating-grid,.field-group').forEach(el => {
-    el.style.display = 'none';
-  });
+
+  // 🔴 ซ่อน UI หลักทั้งหมด
+  document.getElementById('mainCard').style.display = 'none';
+  document.querySelectorAll('.section-head,.divider,.rating-grid,.field-group')
+    .forEach(el => el.style.display = 'none');
+
+  const btn = document.getElementById('btnSubmit');
+  if (btn) btn.style.display = 'none';
+
+  // 🟢 แสดงเฉพาะ screen ที่ต้องการ
   if (screenId) {
     const target = document.getElementById(screenId);
     if (target) {
-      target.style.display = screenId.endsWith('Screen') ? 'flex' : 'block';
+      target.style.display = 'flex';
       target.classList.add('show');
     }
   }
 }
 
+/* =========================
+   INIT
+========================= */
 async function initApp() {
   const params = new URLSearchParams(location.search);
   ticketId = params.get('tid') || 'TK00000';
   document.getElementById('ticketId').textContent = ticketId;
 
   try {
-    const res  = await fetch(`${API_URL}?action=getTicket&id=${ticketId}`, { redirect: "follow" });
+    const res  = await fetch(`${API_URL}?action=getTicket&id=${ticketId}`);
     const json = await res.json();
 
     if (!json.success || !json.data) {
@@ -497,43 +513,58 @@ async function initApp() {
 
     const d = json.data;
 
-    // ── ตรวจสอบ: ประเมินไปแล้ว ──
+    /* =========================
+       🔒 กรณี: ประเมินแล้ว
+    ========================= */
     if (d['Status'] === 'Completed' && d['Rating']) {
       hideLoading();
+
       const isSatis = String(d['Rating']).indexOf('พึงพอใจ') !== -1;
       const valEl = document.getElementById('reviewedVal');
+
       valEl.textContent = d['Rating'];
       valEl.className = 'reviewed-result-val ' + (isSatis ? 'good' : 'bad');
-      document.getElementById('mainCard').style.display = 'none';
-      document.getElementById('reviewedScreen').classList.add('show');
-      document.getElementById('reviewedScreen').style.display = 'flex';
+
+      showScreen('reviewedScreen');
       return;
     }
 
-    // ── ตรวจสอบ: สถานะยังไม่พร้อมประเมิน ──
+    /* =========================
+       ❌ ยังไม่พร้อมประเมิน
+    ========================= */
     if (d['Status'] !== 'Waiting for Review' && d['Status'] !== 'Completed') {
       hideLoading();
+
       showScreen('errorScreen');
-      const statusTh = { 'Open':'รอช่างรับงาน', 'In Progress':'ช่างกำลังดำเนินการ' };
+
+      const statusTh = {
+        'Open':'รอช่างรับงาน',
+        'In Progress':'ช่างกำลังดำเนินการ'
+      };
+
       document.getElementById('errorMsg').textContent =
-        'ขณะนี้สถานะงาน: "' + (statusTh[d['Status']] || d['Status']) + '"\nกรุณารอให้ช่างดำเนินการเสร็จสิ้นก่อน';
+        'ขณะนี้สถานะงาน: "' + (statusTh[d['Status']] || d['Status']) +
+        '"\nกรุณารอให้ช่างดำเนินการเสร็จสิ้นก่อน';
+
       return;
     }
 
-    // ── พร้อมประเมิน: โหลดข้อมูล ──
+    /* =========================
+       ✅ โหลดข้อมูล
+    ========================= */
     document.getElementById('tIssue').textContent = d['Issue'] || '—';
     document.getElementById('tDetail').textContent = d['Fix_Detail'] || '—';
+
     if (d['Img_After'] && d['Img_After'].indexOf('https://') === 0) {
       document.getElementById('imgAfterView').src = d['Img_After'];
       document.getElementById('imgAfterContainer').style.display = 'block';
     }
 
-    // แสดงฟอร์มปกติ
+    // 🟢 แสดง form ปกติ
     document.getElementById('mainCard').style.display = 'block';
-    document.querySelectorAll('.section-head').forEach(el => el.style.removeProperty('display'));
-    document.querySelectorAll('.divider').forEach(el => el.style.removeProperty('display'));
-    document.querySelector('.rating-grid').style.removeProperty('display');
-    document.querySelector('.field-group').style.removeProperty('display');
+    document.querySelectorAll('.section-head,.divider,.rating-grid,.field-group')
+      .forEach(el => el.style.removeProperty('display'));
+
     document.getElementById('btnSubmit').style.removeProperty('display');
 
   } catch(e) {
@@ -546,15 +577,26 @@ async function initApp() {
   hideLoading();
 }
 
+/* =========================
+   LOADING
+========================= */
 function hideLoading() {
   const el = document.getElementById('loading');
-  if (el) { el.style.opacity = '0'; setTimeout(() => { el.style.display = 'none'; }, 600); }
+  if (el) {
+    el.style.opacity = '0';
+    setTimeout(() => { el.style.display = 'none'; }, 600);
+  }
 }
 
+/* =========================
+   RATING
+========================= */
 function selectRating(val) {
   selectedRating = val;
+
   document.getElementById('btnGood').classList.remove('selected-good');
   document.getElementById('btnBad').classList.remove('selected-bad');
+
   if (val === 'พึงพอใจ') {
     document.getElementById('btnGood').classList.add('selected-good');
   } else {
@@ -562,8 +604,12 @@ function selectRating(val) {
   }
 }
 
+/* =========================
+   SUBMIT
+========================= */
 async function submitReview() {
   if (!selectedRating) return alert('กรุณาเลือกความพึงพอใจ');
+
   const btn = document.getElementById('btnSubmit');
   btn.disabled = true;
   btn.innerHTML = '<div class="mini-loader"></div> กำลังส่ง...';
@@ -581,40 +627,45 @@ async function submitReview() {
     const res  = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload),
-      redirect: "follow"
+      body: JSON.stringify(payload)
     });
+
     const json = await res.json();
 
+    /* =========================
+       ✅ SUCCESS
+    ========================= */
     if (json.success) {
-      // ซ่อนฟอร์มทั้งหมด แสดง success
-      document.getElementById('mainCard').style.display = 'none';
-      document.querySelectorAll('.section-head,.divider,.rating-grid,.field-group').forEach(el => el.style.display = 'none');
-      btn.style.display = 'none';
-      document.getElementById('successScreen').classList.add('show');
-      document.getElementById('successScreen').style.display = 'flex';
+      showScreen('successScreen');
+    }
 
-    } else if (json.error === 'ALREADY_REVIEWED') {
-      // ประเมินซ้ำ — แสดง locked screen
-      document.getElementById('mainCard').style.display = 'none';
-      document.querySelectorAll('.section-head,.divider,.rating-grid,.field-group').forEach(el => el.style.display = 'none');
-      btn.style.display = 'none';
-      document.getElementById('reviewedScreen').classList.add('show');
-      document.getElementById('reviewedScreen').style.display = 'flex';
+    /* =========================
+       🔒 REVIEWED
+    ========================= */
+    else if (json.error === 'ALREADY_REVIEWED') {
       document.getElementById('reviewedVal').textContent = 'ได้รับการประเมินแล้ว';
+      showScreen('reviewedScreen');
+    }
 
-    } else {
+    /* =========================
+       ❌ ERROR
+    ========================= */
+    else {
       alert('เกิดข้อผิดพลาด: ' + json.error);
       btn.disabled = false;
-      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ส่งการประเมิน';
+      btn.innerHTML = 'ส่งการประเมิน';
     }
+
   } catch(err) {
     alert('เชื่อมต่อขัดข้อง');
     btn.disabled = false;
-    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ส่งการประเมิน';
+    btn.innerHTML = 'ส่งการประเมิน';
   }
 }
 
+/* =========================
+   START
+========================= */
 window.onload = initApp;
 </script>
 </body>
