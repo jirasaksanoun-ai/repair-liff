@@ -332,6 +332,11 @@ textarea:focus{
 }
 .error-screen h2{font-family:'Kanit',sans-serif;font-size:1.2rem;font-weight:600;color:#FCA5A5;margin-bottom:8px;}
 .error-screen p{color:var(--c-muted2);font-size:0.88rem;line-height:1.7;max-width:260px;}
+
+/* ซ่อน formSection ตอนเริ่มต้น */
+#formSection {
+    display: none;
+}
 </style>
 </head>
 <body>
@@ -377,49 +382,52 @@ textarea:focus{
     </div>
   </div>
 
-  <!-- Rating -->
-  <div class="section-head">
-    <div class="section-icon">⭐</div>
-    <div>
-      <h3>ความพึงพอใจโดยรวม</h3>
-      <p>กรุณาเลือกระดับความพึงพอใจ</p>
-    </div>
-  </div>
-
-  <div class="rating-grid">
-    <button class="rating-btn" id="btnGood" onclick="selectRating('พึงพอใจ')">
-      <span class="rb-emoji">😊</span>
-      <span class="rb-label">พึงพอใจ</span>
-    </button>
-    <button class="rating-btn" id="btnBad" onclick="selectRating('ควรปรับปรุง')">
-      <span class="rb-emoji">😐</span>
-      <span class="rb-label">ควรปรับปรุง</span>
-    </button>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- Feedback -->
-  <div class="section-head">
-    <div class="section-icon">💬</div>
-    <div>
-      <h3>ความคิดเห็น / ข้อเสนอแนะ</h3>
-      <p>ไม่บังคับกรอก</p>
-    </div>
-  </div>
-
-  <div class="field-group">
-    <textarea id="txtFeedback" placeholder="แสดงความคิดเห็นเพิ่มเติมเพื่อช่วยให้เราปรับปรุงบริการ..."></textarea>
-  </div>
-
-  <button class="btn btn-success" id="btnSubmit" onclick="submitReview()">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    ส่งการประเมิน
-  </button>
-
+  <!-- 🎯 ส่วนที่แก้ไข: นำ formSection มาคลุมเฉพาะส่วนฟอร์มประเมิน -->
   <div id="formSection">
+    <!-- Rating -->
+    <div class="section-head">
+      <div class="section-icon">⭐</div>
+      <div>
+        <h3>ความพึงพอใจโดยรวม</h3>
+        <p>กรุณาเลือกระดับความพึงพอใจ</p>
+      </div>
+    </div>
+
+    <div class="rating-grid">
+      <button class="rating-btn" id="btnGood" onclick="selectRating('พึงพอใจ')">
+        <span class="rb-emoji">😊</span>
+        <span class="rb-label">พึงพอใจ</span>
+      </button>
+      <button class="rating-btn" id="btnBad" onclick="selectRating('ควรปรับปรุง')">
+        <span class="rb-emoji">😐</span>
+        <span class="rb-label">ควรปรับปรุง</span>
+      </button>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Feedback -->
+    <div class="section-head">
+      <div class="section-icon">💬</div>
+      <div>
+        <h3>ความคิดเห็น / ข้อเสนอแนะ</h3>
+        <p>ไม่บังคับกรอก</p>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <textarea id="txtFeedback" placeholder="แสดงความคิดเห็นเพิ่มเติมเพื่อช่วยให้เราปรับปรุงบริการ..."></textarea>
+    </div>
+
+    <button class="btn btn-success" id="btnSubmit" onclick="submitReview()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      ส่งการประเมิน
+    </button>
+  </div>
+  <!-- สิ้นสุด formSection -->
+
   <!-- Success Screen -->
-  <div class="success-screen" id="successScreen">
+  <div class="success-screen" id="successScreen" style="display:none;">
     <div class="success-ring">
       <svg viewBox="0 0 90 90">
         <circle class="sr-bg" cx="45" cy="45" r="40"/>
@@ -432,7 +440,7 @@ textarea:focus{
   </div>
 
   <!-- Already Reviewed Screen -->
-  <div class="reviewed-screen" id="reviewedScreen">
+  <div class="reviewed-screen" id="reviewedScreen" style="display:none;">
     <div class="reviewed-icon">🔒</div>
     <h2>ประเมินแล้ว</h2>
     <p>Ticket นี้ได้รับการประเมินไปแล้ว<br>ไม่สามารถประเมินซ้ำได้</p>
@@ -445,7 +453,7 @@ textarea:focus{
   </div>
 
   <!-- Error Screen -->
-  <div class="error-screen" id="errorScreen">
+  <div class="error-screen" id="errorScreen" style="display:none;">
     <div class="error-icon">⚠️</div>
     <h2>ไม่สามารถประเมินได้</h2>
     <p id="errorMsg">งานนี้ยังไม่พร้อมสำหรับการประเมิน<br>กรุณารอให้ช่างปิดงานก่อน</p>
@@ -475,7 +483,7 @@ function showScreen(screenId) {
     }
   });
 
-  // 🔥 ซ่อนฟอร์มทั้งหมด (แก้ปัญหาซ้อน)
+  // ซ่อนฟอร์มทั้งหมด
   const form = document.getElementById('formSection');
   if (form) {
     form.style.display = 'none';
@@ -486,11 +494,14 @@ function showScreen(screenId) {
     const target = document.getElementById(screenId);
     if (target) {
       target.style.display = 'flex';
+      // บังคับ reflow เพื่อให้ animation ทำงาน
+      void target.offsetWidth; 
       target.classList.add('show');
     }
   }
 }
-</div>
+// 🎯 เอาแท็ก </div> ที่หลุดมาตรงนี้ออกแล้ว (สำคัญมาก)
+
 /* =========================
    INIT
 ========================= */
@@ -553,7 +564,7 @@ async function initApp() {
       document.getElementById('imgAfterContainer').style.display = 'block';
     }
 
-    // 🔥 เปิด form (สำคัญ)
+    // ✅ เปิด form
     const form = document.getElementById('formSection');
     if (form) form.style.display = 'block';
 
@@ -626,7 +637,7 @@ async function submitReview() {
     if (json.success) {
       showScreen('successScreen');
 
-      // 🔥 ปิด LIFF อัตโนมัติ
+      // ปิด LIFF อัตโนมัติ (แนะนำให้ init LIFF ก่อนใช้งานจริงถ้าเป็นไปได้)
       setTimeout(() => {
         if (typeof liff !== 'undefined') {
           liff.closeWindow();
@@ -653,6 +664,7 @@ async function submitReview() {
     btn.innerHTML = 'ส่งการประเมิน';
   }
 }
+
 /* =========================
    START
 ========================= */
