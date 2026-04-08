@@ -260,8 +260,8 @@ textarea:focus{
   animation:spin 0.8s linear infinite;flex-shrink:0;
 }
 
-/* ── SUCCESS ── */
-.success-screen{display:none;flex-direction:column;align-items:center;padding:24px 0 8px;text-align:center;}
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--c-border);margin:20px 0;}
 .success-screen.show{display:flex;animation:fadeSlide 0.5s ease;}
 @keyframes fadeSlide{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
 
@@ -284,8 +284,54 @@ textarea:focus{
 .success-screen h2{font-family:'Kanit',sans-serif;font-size:1.5rem;font-weight:600;margin-bottom:10px;}
 .success-screen p{color:var(--c-muted2);font-size:0.9rem;line-height:1.7;margin-bottom:0;max-width:280px;}
 
-/* ── DIVIDER ── */
-.divider{height:1px;background:var(--c-border);margin:20px 0;}
+/* ── ALREADY REVIEWED SCREEN ── */
+.reviewed-screen{
+  display:none;flex-direction:column;align-items:center;
+  padding:20px 0 8px;text-align:center;
+}
+.reviewed-screen.show{display:flex;animation:fadeSlide 0.4s ease;}
+.reviewed-icon{
+  width:72px;height:72px;
+  background:rgba(245,158,11,0.12);
+  border:2px solid rgba(245,158,11,0.3);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;margin-bottom:20px;
+}
+.reviewed-screen h2{
+  font-family:'Kanit',sans-serif;font-size:1.3rem;font-weight:600;
+  color:var(--c-text);margin-bottom:8px;
+}
+.reviewed-screen p{color:var(--c-muted2);font-size:0.88rem;line-height:1.7;max-width:260px;}
+.reviewed-result{
+  margin-top:20px;
+  background:var(--c-glass2);
+  border:1px solid var(--c-border2);
+  border-radius:var(--r);
+  padding:16px 24px;
+  display:flex;align-items:center;gap:12px;
+}
+.reviewed-result-label{font-size:0.78rem;color:var(--c-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.reviewed-result-val{font-family:'Kanit',sans-serif;font-size:1rem;font-weight:600;}
+.reviewed-result-val.good{color:#6EE7B7;}
+.reviewed-result-val.bad{color:#FCD34D;}
+
+/* ── ERROR SCREEN ── */
+.error-screen{
+  display:none;flex-direction:column;align-items:center;
+  padding:20px 0 8px;text-align:center;
+}
+.error-screen.show{display:flex;animation:fadeSlide 0.4s ease;}
+.error-icon{
+  width:72px;height:72px;
+  background:rgba(248,113,113,0.1);
+  border:2px solid rgba(248,113,113,0.3);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;margin-bottom:20px;
+}
+.error-screen h2{font-family:'Kanit',sans-serif;font-size:1.2rem;font-weight:600;color:#FCA5A5;margin-bottom:8px;}
+.error-screen p{color:var(--c-muted2);font-size:0.88rem;line-height:1.7;max-width:260px;}
 </style>
 </head>
 <body>
@@ -384,6 +430,26 @@ textarea:focus{
     <p>ความคิดเห็นของคุณช่วยให้เราปรับปรุงการให้บริการได้ดียิ่งขึ้น</p>
   </div>
 
+  <!-- Already Reviewed Screen -->
+  <div class="reviewed-screen" id="reviewedScreen">
+    <div class="reviewed-icon">🔒</div>
+    <h2>ประเมินแล้ว</h2>
+    <p>Ticket นี้ได้รับการประเมินไปแล้ว<br>ไม่สามารถประเมินซ้ำได้</p>
+    <div class="reviewed-result" id="reviewedResult">
+      <div>
+        <div class="reviewed-result-label">ผลการประเมิน</div>
+        <div class="reviewed-result-val" id="reviewedVal">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Screen -->
+  <div class="error-screen" id="errorScreen">
+    <div class="error-icon">⚠️</div>
+    <h2>ไม่สามารถประเมินได้</h2>
+    <p id="errorMsg">งานนี้ยังไม่พร้อมสำหรับการประเมิน<br>กรุณารอให้ช่างปิดงานก่อน</p>
+  </div>
+
 </div>
 </div>
 
@@ -393,27 +459,96 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8f
 let ticketId = '';
 let selectedRating = '';
 
+// ซ่อนทุก screen แล้วแสดงเฉพาะที่ต้องการ
+function showScreen(screenId) {
+  ['mainCard','ratingSection','feedbackSection','btnSubmit',
+   'successScreen','reviewedScreen','errorScreen'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  // ซ่อน section-head และ divider ด้วย
+  document.querySelectorAll('.section-head,.divider,.rating-grid,.field-group').forEach(el => {
+    el.style.display = 'none';
+  });
+  if (screenId) {
+    const target = document.getElementById(screenId);
+    if (target) {
+      target.style.display = screenId.endsWith('Screen') ? 'flex' : 'block';
+      target.classList.add('show');
+    }
+  }
+}
+
 async function initApp() {
   const params = new URLSearchParams(location.search);
   ticketId = params.get('tid') || 'TK00000';
   document.getElementById('ticketId').textContent = ticketId;
 
   try {
-    const res = await fetch(`${API_URL}?action=getTicket&id=${ticketId}`, { redirect: "follow" });
+    const res  = await fetch(`${API_URL}?action=getTicket&id=${ticketId}`, { redirect: "follow" });
     const json = await res.json();
-    if (json.success && json.data) {
-      document.getElementById('tIssue').textContent = json.data['Issue'] || '—';
-      document.getElementById('tDetail').textContent = json.data['Fix_Detail'] || '—';
-      if (json.data['Img_After']) {
-        document.getElementById('imgAfterView').src = json.data['Img_After'];
-        document.getElementById('imgAfterContainer').style.display = 'block';
-      }
-    }
-  } catch(e) {}
 
+    if (!json.success || !json.data) {
+      hideLoading();
+      showScreen('errorScreen');
+      document.getElementById('errorMsg').textContent = 'ไม่พบ Ticket นี้ในระบบ';
+      return;
+    }
+
+    const d = json.data;
+
+    // ── ตรวจสอบ: ประเมินไปแล้ว ──
+    if (d['Status'] === 'Completed' && d['Rating']) {
+      hideLoading();
+      const isSatis = String(d['Rating']).indexOf('พึงพอใจ') !== -1;
+      const valEl = document.getElementById('reviewedVal');
+      valEl.textContent = d['Rating'];
+      valEl.className = 'reviewed-result-val ' + (isSatis ? 'good' : 'bad');
+      document.getElementById('mainCard').style.display = 'none';
+      document.getElementById('reviewedScreen').classList.add('show');
+      document.getElementById('reviewedScreen').style.display = 'flex';
+      return;
+    }
+
+    // ── ตรวจสอบ: สถานะยังไม่พร้อมประเมิน ──
+    if (d['Status'] !== 'Waiting for Review' && d['Status'] !== 'Completed') {
+      hideLoading();
+      showScreen('errorScreen');
+      const statusTh = { 'Open':'รอช่างรับงาน', 'In Progress':'ช่างกำลังดำเนินการ' };
+      document.getElementById('errorMsg').textContent =
+        'ขณะนี้สถานะงาน: "' + (statusTh[d['Status']] || d['Status']) + '"\nกรุณารอให้ช่างดำเนินการเสร็จสิ้นก่อน';
+      return;
+    }
+
+    // ── พร้อมประเมิน: โหลดข้อมูล ──
+    document.getElementById('tIssue').textContent = d['Issue'] || '—';
+    document.getElementById('tDetail').textContent = d['Fix_Detail'] || '—';
+    if (d['Img_After'] && d['Img_After'].indexOf('https://') === 0) {
+      document.getElementById('imgAfterView').src = d['Img_After'];
+      document.getElementById('imgAfterContainer').style.display = 'block';
+    }
+
+    // แสดงฟอร์มปกติ
+    document.getElementById('mainCard').style.display = 'block';
+    document.querySelectorAll('.section-head').forEach(el => el.style.removeProperty('display'));
+    document.querySelectorAll('.divider').forEach(el => el.style.removeProperty('display'));
+    document.querySelector('.rating-grid').style.removeProperty('display');
+    document.querySelector('.field-group').style.removeProperty('display');
+    document.getElementById('btnSubmit').style.removeProperty('display');
+
+  } catch(e) {
+    hideLoading();
+    showScreen('errorScreen');
+    document.getElementById('errorMsg').textContent = 'ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่';
+    return;
+  }
+
+  hideLoading();
+}
+
+function hideLoading() {
   const el = document.getElementById('loading');
-  el.style.opacity = '0';
-  setTimeout(() => { el.style.display = 'none'; }, 600);
+  if (el) { el.style.opacity = '0'; setTimeout(() => { el.style.display = 'none'; }, 600); }
 }
 
 function selectRating(val) {
@@ -443,23 +578,33 @@ async function submitReview() {
   };
 
   try {
-    const res = await fetch(API_URL, {
+    const res  = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload),
       redirect: "follow"
     });
     const json = await res.json();
+
     if (json.success) {
+      // ซ่อนฟอร์มทั้งหมด แสดง success
       document.getElementById('mainCard').style.display = 'none';
-      document.querySelector('.rating-grid').style.display = 'none';
-      document.querySelector('.rating-grid + .divider').style.display = 'none';
-      document.querySelectorAll('.section-head').forEach(el => el.style.display = 'none');
-      document.querySelector('.field-group').style.display = 'none';
+      document.querySelectorAll('.section-head,.divider,.rating-grid,.field-group').forEach(el => el.style.display = 'none');
       btn.style.display = 'none';
       document.getElementById('successScreen').classList.add('show');
+      document.getElementById('successScreen').style.display = 'flex';
+
+    } else if (json.error === 'ALREADY_REVIEWED') {
+      // ประเมินซ้ำ — แสดง locked screen
+      document.getElementById('mainCard').style.display = 'none';
+      document.querySelectorAll('.section-head,.divider,.rating-grid,.field-group').forEach(el => el.style.display = 'none');
+      btn.style.display = 'none';
+      document.getElementById('reviewedScreen').classList.add('show');
+      document.getElementById('reviewedScreen').style.display = 'flex';
+      document.getElementById('reviewedVal').textContent = 'ได้รับการประเมินแล้ว';
+
     } else {
-      alert('Error: ' + json.error);
+      alert('เกิดข้อผิดพลาด: ' + json.error);
       btn.disabled = false;
       btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ส่งการประเมิน';
     }
