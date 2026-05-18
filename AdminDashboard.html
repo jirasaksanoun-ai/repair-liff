@@ -811,7 +811,6 @@ let allTickets = [];
 let closeImgBase64 = '';
 let costChartInst, kqiChartInst;
 let currentPage = 1;
-const itemsPerPage = 8;
 
 window.onload = () => {
   const saved = sessionStorage.getItem('adminData');
@@ -887,6 +886,7 @@ async function fetchData() {
 }
 
 function renderTable() {
+  const itemsPerPage = 8; // ย้ายมากำหนดในฟังก์ชันนี้เพื่อให้ปลอดภัยจากการ Error ของ Global Scope
   const search = document.getElementById('searchInput').value.toLowerCase();
   const status = document.getElementById('filterStatus').value;
 
@@ -956,7 +956,7 @@ function renderCharts() {
     return matchY && matchM && matchD;
   });
 
-  // ── Compute totals (New 5 Star Formula) ──
+  // ── Compute totals (พร้อม Backward Compatibility ของข้อมูลเก่า) ──
   let totalScore = 0;
   let reviewCount = 0;
   const starCounts = [0, 0, 0, 0, 0]; // 1ดาว, 2ดาว, 3ดาว, 4ดาว, 5ดาว
@@ -964,17 +964,25 @@ function renderCharts() {
   const deptMap = {}; 
 
   data.forEach(t => {
-    // แยกเฉพาะตัวเลข 1-5 จากคอลัมน์ Rating
     const ratingStr = String(t['Rating'] || '');
-    const match = ratingStr.match(/^(\d)/); 
     let score = 0;
+    
+    // ตรวจหาตัวเลข 1-5 ด้านหน้าข้อความ เช่น "5 ดาว (ดีมาก)"
+    const match = ratingStr.match(/^(\d)/); 
     if (match) {
       score = parseInt(match[1], 10);
-      if(score >= 1 && score <= 5) {
-          totalScore += score;
-          reviewCount++;
-          starCounts[score - 1]++;
-      }
+    } 
+    // กรณีเป็นข้อมูลแบบเก่า (รองรับไฟล์จากระบบเดิม)
+    else if (ratingStr.includes('พึงพอใจ')) {
+      score = 5;
+    } else if (ratingStr.includes('ควรปรับปรุง')) {
+      score = 1;
+    }
+
+    if(score >= 1 && score <= 5) {
+        totalScore += score;
+        reviewCount++;
+        starCounts[score - 1]++;
     }
 
     const c   = Number(t['Cost']) || 0;
@@ -991,7 +999,6 @@ function renderCharts() {
   });
 
   // สูตร: % KQI = ((คะแนนรวมดาวทั้งหมด / จำนวนคนที่รีวิว) / 5 ดาว) * 100
-  // หรือ 5ดาว=100%, 4ดาว=80%, 3ดาว=60%, 2ดาว=40%, 1ดาว=20%
   const kqiPct = reviewCount > 0 ? Math.round(((totalScore / reviewCount) / 5) * 100) : 0;
   const avgCost = data.length ? Math.round(totalCost / data.length) : 0;
   const avgScore = reviewCount > 0 ? (totalScore / reviewCount).toFixed(1) : "0.0";
@@ -1014,7 +1021,6 @@ function renderCharts() {
   } else {
     tbody.innerHTML = sortedDepts.map(dep => {
       const d     = deptMap[dep];
-      // คำนวณ KQI ของแผนกนั้น ๆ
       const dKqi  = d.reviewCount > 0 ? Math.round(((d.totalScore / d.reviewCount) / 5) * 100) : 0;
       const barW  = maxCost ? Math.round((d.cost  / maxCost)  * 100) : 0;
       
@@ -1084,7 +1090,6 @@ function renderCharts() {
     data: {
       labels: ['5 ดาว (ดีมาก)', '4 ดาว (ดี)', '3 ดาว (ปานกลาง)', '2 ดาว (พอใช้)', '1 ดาว (ควรปรับปรุง)'],
       datasets: [{
-        // ข้อมูลดาวต้องย้อนจาก 5 -> 1 ตาม labels
         data: [starCounts[4], starCounts[3], starCounts[2], starCounts[1], starCounts[0]],
         backgroundColor: ['#10B981', '#34D399', '#FCD34D', '#F87171', '#EF4444'],
         borderColor: ['#065F46', '#064E3B', '#B45309', '#991B1B', '#7F1D1D'],
@@ -1113,7 +1118,12 @@ function showDetail(id) {
   const t = allTickets.find(x => x['Ticket_ID'] === id);
   if (!t) return;
   const dt = new Date(t['Created_Date']);
-  const ratingClean = String(t['Rating'] || '—').split('(')[0].trim() + ' ' + (String(t['Rating'] || '').match(/\(([^)]+)\)/)?.[1] || '');
+  
+  // จัดการรูปแบบข้อความให้แสดงผลสวยงาม (ทั้งแบบเก่าและแบบใหม่)
+  let ratingClean = String(t['Rating'] || '—');
+  if (ratingClean.match(/^\d/)) {
+    ratingClean = ratingClean.split('(')[0].trim() + ' ' + (ratingClean.match(/\(([^)]+)\)/)?.[1] || '');
+  }
   
   const fields = [
     ['Ticket ID', t['Ticket_ID']], ['สถานะ', t['Status']],
