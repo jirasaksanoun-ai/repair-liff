@@ -410,7 +410,7 @@ tbody tr:hover td{background:var(--c-glass2);}
 .kqi-stat-label{font-size:0.75rem;color:var(--c-muted);margin-top:4px;text-transform:uppercase;}
 .kqi-stat-sub{font-size:0.72rem;color:var(--c-muted);margin-top:2px;}
 
-.kqi-main-row{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-top:16px;}
+.kqi-main-row{display:grid;grid-template-columns:1fr 340px;gap:16px;margin-top:16px;}
 .kqi-trend{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r2);padding:24px;}
 .kqi-donut-wrap{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r2);padding:24px;display:flex;flex-direction:column;}
 .chart-title{
@@ -670,7 +670,7 @@ tbody tr:hover td{background:var(--c-glass2);}
           <div class="kqi-stat-body">
             <div class="kqi-stat-val" id="dKqi">—</div>
             <div class="kqi-stat-label">KQI ความพึงพอใจ</div>
-            <div class="kqi-stat-sub">เป้าหมาย 100%</div>
+            <div class="kqi-stat-sub">เป้าหมาย 100% (5 ดาว)</div>
           </div>
         </div>
         <div class="kqi-stat s-blue">
@@ -686,7 +686,7 @@ tbody tr:hover td{background:var(--c-glass2);}
           <div class="kqi-stat-body">
             <div class="kqi-stat-val" id="dTotalTicket">—</div>
             <div class="kqi-stat-label">งานที่เสร็จสิ้น</div>
-            <div class="kqi-stat-sub" id="dSatisCount">พึงพอใจ: — / ควรปรับปรุง: —</div>
+            <div class="kqi-stat-sub" id="dSatisCount">มีผู้ประเมิน: — งาน</div>
           </div>
         </div>
       </div>
@@ -707,7 +707,7 @@ tbody tr:hover td{background:var(--c-glass2);}
         <div class="kqi-donut-wrap">
           <div class="chart-title">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#10B981" stroke-width="1.5"/><circle cx="8" cy="8" r="3" stroke="#EF4444" stroke-width="1.5"/></svg>
-            สัดส่วนความพึงพอใจ
+            สัดส่วนการให้คะแนนดาว
           </div>
           <div class="donut-center-label">
             <div class="dcl-val" id="dKqiDonut">—</div>
@@ -724,15 +724,15 @@ tbody tr:hover td{background:var(--c-glass2);}
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h9M2 12h6" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/></svg>
             สรุปแยกตามหน่วยงาน
           </h4>
-          <span style="font-size:0.75rem;color:var(--c-muted);">เฉพาะงานที่เสร็จสิ้น</span>
+          <span style="font-size:0.75rem;color:var(--c-muted);">เฉพาะงานที่เสร็จสิ้นและมีการประเมิน</span>
         </div>
         <table class="dept-table">
           <thead>
             <tr>
               <th>หน่วยงาน</th>
-              <th style="text-align:right;">งาน</th>
+              <th style="text-align:right;">งานซ่อม</th>
               <th style="text-align:right;">ค่าใช้จ่าย</th>
-              <th style="min-width:160px;">ความพึงพอใจ</th>
+              <th style="min-width:160px;">ความพึงพอใจโดยรวม</th>
               <th style="text-align:right;">KQI %</th>
             </tr>
           </thead>
@@ -956,24 +956,45 @@ function renderCharts() {
     return matchY && matchM && matchD;
   });
 
-  // ── Compute totals ──
-  let satisCount = 0, badCount = 0, totalCost = 0;
-  const deptMap = {}; // { dept: { count, cost, satis } }
+  // ── Compute totals (New 5 Star Formula) ──
+  let totalScore = 0;
+  let reviewCount = 0;
+  const starCounts = [0, 0, 0, 0, 0]; // 1ดาว, 2ดาว, 3ดาว, 4ดาว, 5ดาว
+  let totalCost = 0;
+  const deptMap = {}; 
 
   data.forEach(t => {
-    const isSatis = String(t['Rating']).includes('พึงพอใจ');
-    if (isSatis) satisCount++; else badCount++;
+    // แยกเฉพาะตัวเลข 1-5 จากคอลัมน์ Rating
+    const ratingStr = String(t['Rating'] || '');
+    const match = ratingStr.match(/^(\d)/); 
+    let score = 0;
+    if (match) {
+      score = parseInt(match[1], 10);
+      if(score >= 1 && score <= 5) {
+          totalScore += score;
+          reviewCount++;
+          starCounts[score - 1]++;
+      }
+    }
+
     const c   = Number(t['Cost']) || 0;
     const dep = t['Department'] || 'อื่นๆ';
     totalCost += c;
-    if (!deptMap[dep]) deptMap[dep] = { count:0, cost:0, satis:0 };
+
+    if (!deptMap[dep]) deptMap[dep] = { count: 0, cost: 0, totalScore: 0, reviewCount: 0 };
     deptMap[dep].count++;
     deptMap[dep].cost += c;
-    if (isSatis) deptMap[dep].satis++;
+    if (score > 0) {
+      deptMap[dep].totalScore += score;
+      deptMap[dep].reviewCount++;
+    }
   });
 
-  const kqiPct = data.length ? Math.round((satisCount / data.length) * 100) : 0;
+  // สูตร: % KQI = ((คะแนนรวมดาวทั้งหมด / จำนวนคนที่รีวิว) / 5 ดาว) * 100
+  // หรือ 5ดาว=100%, 4ดาว=80%, 3ดาว=60%, 2ดาว=40%, 1ดาว=20%
+  const kqiPct = reviewCount > 0 ? Math.round(((totalScore / reviewCount) / 5) * 100) : 0;
   const avgCost = data.length ? Math.round(totalCost / data.length) : 0;
+  const avgScore = reviewCount > 0 ? (totalScore / reviewCount).toFixed(1) : "0.0";
 
   // ── Update summary stats ──
   document.getElementById('dKqi').textContent          = kqiPct + '%';
@@ -981,7 +1002,7 @@ function renderCharts() {
   document.getElementById('dCost').textContent         = '฿' + totalCost.toLocaleString('th-TH');
   document.getElementById('dCostAvg').textContent      = 'เฉลี่ยต่องาน: ฿' + avgCost.toLocaleString('th-TH');
   document.getElementById('dTotalTicket').textContent  = data.length;
-  document.getElementById('dSatisCount').textContent   = 'พึงพอใจ: ' + satisCount + '  /  ควรปรับปรุง: ' + badCount;
+  document.getElementById('dSatisCount').textContent   = `รีวิว ${reviewCount} งาน (เฉลี่ย ${avgScore} ดาว)`;
 
   // ── Dept breakdown table ──
   const sortedDepts = Object.keys(deptMap).sort((a,b) => deptMap[b].cost - deptMap[a].cost);
@@ -993,10 +1014,13 @@ function renderCharts() {
   } else {
     tbody.innerHTML = sortedDepts.map(dep => {
       const d     = deptMap[dep];
-      const dKqi  = d.count ? Math.round((d.satis / d.count) * 100) : 0;
+      // คำนวณ KQI ของแผนกนั้น ๆ
+      const dKqi  = d.reviewCount > 0 ? Math.round(((d.totalScore / d.reviewCount) / 5) * 100) : 0;
       const barW  = maxCost ? Math.round((d.cost  / maxCost)  * 100) : 0;
-      const barColor = dKqi >= 80 ? '#10B981' : dKqi >= 50 ? '#F59E0B' : '#EF4444';
-      const dotColor = dKqi >= 80 ? '#10B981' : dKqi >= 50 ? '#F59E0B' : '#EF4444';
+      
+      const barColor = dKqi >= 80 ? '#10B981' : dKqi >= 60 ? '#F59E0B' : '#EF4444';
+      const dotColor = dKqi >= 80 ? '#10B981' : dKqi >= 60 ? '#F59E0B' : '#EF4444';
+      
       return `<tr>
         <td style="font-weight:500;">${dep}</td>
         <td style="text-align:right;color:var(--c-muted2);">${d.count}</td>
@@ -1040,9 +1064,7 @@ function renderCharts() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          callbacks: {
-            label: ctx => ' ฿' + ctx.parsed.y.toLocaleString('th-TH')
-          }
+          callbacks: { label: ctx => ' ฿' + ctx.parsed.y.toLocaleString('th-TH') }
         }
       },
       scales: {
@@ -1055,17 +1077,18 @@ function renderCharts() {
     }
   });
 
-  // ── Donut Chart: KQI ──
+  // ── Donut Chart: KQI (5 Levels) ──
   if (kqiChartInst) kqiChartInst.destroy();
   kqiChartInst = new Chart(document.getElementById('kqiChart'), {
     type: 'doughnut',
     data: {
-      labels: ['พึงพอใจ', 'ควรปรับปรุง'],
+      labels: ['5 ดาว (ดีมาก)', '4 ดาว (ดี)', '3 ดาว (ปานกลาง)', '2 ดาว (พอใช้)', '1 ดาว (ควรปรับปรุง)'],
       datasets: [{
-        data: [satisCount, badCount],
-        backgroundColor: ['rgba(16,185,129,0.8)', 'rgba(239,68,68,0.7)'],
-        borderColor: ['#10B981', '#EF4444'],
-        borderWidth: 2,
+        // ข้อมูลดาวต้องย้อนจาก 5 -> 1 ตาม labels
+        data: [starCounts[4], starCounts[3], starCounts[2], starCounts[1], starCounts[0]],
+        backgroundColor: ['#10B981', '#34D399', '#FCD34D', '#F87171', '#EF4444'],
+        borderColor: ['#065F46', '#064E3B', '#B45309', '#991B1B', '#7F1D1D'],
+        borderWidth: 1,
         hoverOffset: 6
       }]
     },
@@ -1073,12 +1096,12 @@ function renderCharts() {
       cutout: '68%',
       plugins: {
         legend: {
-          position: 'bottom',
-          labels: { padding: 18, usePointStyle: true, pointStyle: 'circle', color: '#94A3B8', font: { size: 12 } }
+          position: 'right',
+          labels: { padding: 12, usePointStyle: true, pointStyle: 'circle', color: '#94A3B8', font: { size: 11 } }
         },
         tooltip: {
           callbacks: {
-            label: ctx => ' ' + ctx.label + ': ' + ctx.parsed + ' งาน (' + (data.length ? Math.round(ctx.parsed/data.length*100) : 0) + '%)'
+            label: ctx => ' ' + ctx.label + ': ' + ctx.parsed + ' งาน'
           }
         }
       }
@@ -1090,7 +1113,8 @@ function showDetail(id) {
   const t = allTickets.find(x => x['Ticket_ID'] === id);
   if (!t) return;
   const dt = new Date(t['Created_Date']);
-  const ratingClean = String(t['Rating'] || '—').split('(')[0].trim();
+  const ratingClean = String(t['Rating'] || '—').split('(')[0].trim() + ' ' + (String(t['Rating'] || '').match(/\(([^)]+)\)/)?.[1] || '');
+  
   const fields = [
     ['Ticket ID', t['Ticket_ID']], ['สถานะ', t['Status']],
     ['วันที่แจ้ง', isNaN(dt) ? '—' : dt.toLocaleDateString('th-TH')],
@@ -1098,7 +1122,7 @@ function showDetail(id) {
     ['ปัญหา', t['Issue']], ['ช่าง', t['Admin_Name']],
     ['รายละเอียดซ่อม', t['Fix_Detail']],
     ['ค่าใช้จ่าย', t['Cost'] ? '฿' + Number(t['Cost']).toLocaleString('th-TH') : null],
-    ['ความพึงพอใจ', ratingClean], ['ความคิดเห็น', t['Feedback']]
+    ['ความพึงพอใจ', ratingClean === '— ' ? '—' : ratingClean], ['ความคิดเห็น', t['Feedback']]
   ];
 
   let html = fields.filter(([, v]) => v && v !== '—' && v !== 'undefined')
