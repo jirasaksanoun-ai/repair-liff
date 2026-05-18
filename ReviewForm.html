@@ -262,6 +262,12 @@ textarea:focus{
 
 /* ── DIVIDER ── */
 .divider{height:1px;background:var(--c-border);margin:20px 0;}
+
+/* ── SUCCESS SCREEN ── */
+.success-screen{
+  display:none;flex-direction:column;align-items:center;
+  padding:20px 0 8px;text-align:center;
+}
 .success-screen.show{display:flex;animation:fadeSlide 0.5s ease;}
 @keyframes fadeSlide{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
 
@@ -354,76 +360,81 @@ textarea:focus{
 <div class="container">
 <div class="card">
 
-  <!-- Ticket Info -->
-  <div class="ticket-card" id="mainCard">
-    <div class="ticket-card-header">
-      <span>🎫</span>
-      <h4>รายละเอียดงานซ่อม</h4>
-      <span class="tid" id="ticketId">TK00000</span>
-    </div>
-    <div class="ticket-body">
-      <div class="ticket-row">
-        <span class="tr-label">ปัญหา</span>
-        <span class="tr-val" id="tIssue">—</span>
+  <!-- ── แบบฟอร์มการประเมิน (กรุ๊ปรวมกันไว้เพื่อให้ซ่อน/แสดงง่ายขึ้น) ── -->
+  <div id="reviewFormContainer" style="display:none;">
+    <!-- Ticket Info -->
+    <div class="ticket-card" id="mainCard">
+      <div class="ticket-card-header">
+        <span>🎫</span>
+        <h4>รายละเอียดงานซ่อม</h4>
+        <span class="tid" id="ticketId">TK00000</span>
       </div>
-      <div class="ticket-row">
-        <span class="tr-label">การแก้ไข</span>
-        <span class="tr-val" id="tDetail">—</span>
+      <div class="ticket-body">
+        <div class="ticket-row">
+          <span class="tr-label">ปัญหา</span>
+          <span class="tr-val" id="tIssue">—</span>
+        </div>
+        <div class="ticket-row">
+          <span class="tr-label">การแก้ไข</span>
+          <span class="tr-val" id="tDetail">—</span>
+        </div>
+        <div class="img-after-wrap" id="imgAfterContainer" style="display:none;">
+          <div class="img-label">รูปถ่ายหลังซ่อมเสร็จ</div>
+          <img id="imgAfterView" src="">
+        </div>
       </div>
-      <div class="img-after-wrap" id="imgAfterContainer" style="display:none;">
-        <div class="img-label">รูปถ่ายหลังซ่อมเสร็จ</div>
-        <img id="imgAfterView" src="">
+    </div>
+
+    <!-- Rating Section (Stars) -->
+    <div class="section-head">
+      <div class="section-icon">⭐</div>
+      <div>
+        <h3>ความพึงพอใจโดยรวม</h3>
+        <p>กรุณาให้คะแนนการบริการ</p>
       </div>
     </div>
-  </div>
 
-  <!-- Rating Section (Stars) -->
-  <div class="section-head">
-    <div class="section-icon">⭐</div>
-    <div>
-      <h3>ความพึงพอใจโดยรวม</h3>
-      <p>กรุณาให้คะแนนการบริการ</p>
+    <div class="star-rating">
+      <input type="radio" id="star5" name="rating" value="5" onchange="selectRating(5, 'ดีมาก')">
+      <label for="star5" title="5 ดาว">★</label>
+
+      <input type="radio" id="star4" name="rating" value="4" onchange="selectRating(4, 'ดี')">
+      <label for="star4" title="4 ดาว">★</label>
+
+      <input type="radio" id="star3" name="rating" value="3" onchange="selectRating(3, 'ปานกลาง')">
+      <label for="star3" title="3 ดาว">★</label>
+
+      <input type="radio" id="star2" name="rating" value="2" onchange="selectRating(2, 'พอใช้')">
+      <label for="star2" title="2 ดาว">★</label>
+
+      <input type="radio" id="star1" name="rating" value="1" onchange="selectRating(1, 'ควรปรับปรุง')">
+      <label for="star1" title="1 ดาว">★</label>
     </div>
-  </div>
+    <div class="rating-text" id="ratingText">กรุณาเลือกให้คะแนนดาว</div>
 
-  <div class="star-rating">
-    <input type="radio" id="star5" name="rating" value="5" onchange="selectRating(5, 'ดีมาก')">
-    <label for="star5" title="5 ดาว">★</label>
+    <div class="divider"></div>
 
-    <input type="radio" id="star4" name="rating" value="4" onchange="selectRating(4, 'ดี')">
-    <label for="star4" title="4 ดาว">★</label>
-
-    <input type="radio" id="star3" name="rating" value="3" onchange="selectRating(3, 'ปานกลาง')">
-    <label for="star3" title="3 ดาว">★</label>
-
-    <input type="radio" id="star2" name="rating" value="2" onchange="selectRating(2, 'พอใช้')">
-    <label for="star2" title="2 ดาว">★</label>
-
-    <input type="radio" id="star1" name="rating" value="1" onchange="selectRating(1, 'ควรปรับปรุง')">
-    <label for="star1" title="1 ดาว">★</label>
-  </div>
-  <div class="rating-text" id="ratingText">กรุณาเลือกให้คะแนนดาว</div>
-
-  <div class="divider"></div>
-
-  <!-- Feedback -->
-  <div class="section-head">
-    <div class="section-icon">💬</div>
-    <div>
-      <h3>ความคิดเห็น / ข้อเสนอแนะ</h3>
-      <p>ไม่บังคับกรอก</p>
+    <!-- Feedback -->
+    <div class="section-head">
+      <div class="section-icon">💬</div>
+      <div>
+        <h3>ความคิดเห็น / ข้อเสนอแนะ</h3>
+        <p>ไม่บังคับกรอก</p>
+      </div>
     </div>
+
+    <div class="field-group">
+      <textarea id="txtFeedback" placeholder="แสดงความคิดเห็นเพิ่มเติมเพื่อช่วยให้เราปรับปรุงบริการ..."></textarea>
+    </div>
+
+    <button class="btn btn-success" id="btnSubmit" onclick="submitReview()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      ส่งการประเมิน
+    </button>
   </div>
+  <!-- ── จบส่วนแบบฟอร์มประเมิน ── -->
 
-  <div class="field-group">
-    <textarea id="txtFeedback" placeholder="แสดงความคิดเห็นเพิ่มเติมเพื่อช่วยให้เราปรับปรุงบริการ..."></textarea>
-  </div>
-
-  <button class="btn btn-success" id="btnSubmit" onclick="submitReview()">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    ส่งการประเมิน
-  </button>
-
+  <!-- ── หน้าจอสถานะต่างๆ ── -->
   <!-- Success Screen -->
   <div class="success-screen" id="successScreen">
     <div class="success-ring">
@@ -466,22 +477,23 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8f
 let ticketId = '';
 let selectedRating = 0;
 
-// ซ่อนทุก screen แล้วแสดงเฉพาะที่ต้องการ
+// ฟังก์ชันสลับหน้าจอ รับประกันว่าจะโชว์แค่ 1 กรุ๊ปเสมอ (แก้ปัญหาข้อความค้าง)
 function showScreen(screenId) {
-  ['mainCard','successScreen','reviewedScreen','errorScreen'].forEach(id => {
+  // 1. ซ่อนทุกอย่างก่อน
+  ['reviewFormContainer', 'successScreen', 'reviewedScreen', 'errorScreen'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  });
-  // ซ่อน section-head และ divider ด้วย
-  document.querySelectorAll('.section-head,.divider,.star-rating,.rating-text,.field-group,#btnSubmit').forEach(el => {
-    el.style.display = 'none';
+    if (el) {
+      el.style.display = 'none';
+      el.classList.remove('show');
+    }
   });
   
+  // 2. แสดงเฉพาะสิ่งที่ต้องการ
   if (screenId) {
     const target = document.getElementById(screenId);
     if (target) {
       target.style.display = screenId.endsWith('Screen') ? 'flex' : 'block';
-      target.classList.add('show');
+      setTimeout(() => target.classList.add('show'), 10);
     }
   }
 }
@@ -497,8 +509,8 @@ async function initApp() {
 
     if (!json.success || !json.data) {
       hideLoading();
-      showScreen('errorScreen');
       document.getElementById('errorMsg').textContent = 'ไม่พบ Ticket นี้ในระบบ';
+      showScreen('errorScreen');
       return;
     }
 
@@ -522,10 +534,10 @@ async function initApp() {
     // ── ตรวจสอบ: สถานะยังไม่พร้อมประเมิน ──
     if (d['Status'] !== 'Waiting for Review' && d['Status'] !== 'Completed') {
       hideLoading();
-      showScreen('errorScreen');
       const statusTh = { 'Open':'รอช่างรับงาน', 'In Progress':'ช่างกำลังดำเนินการ' };
       document.getElementById('errorMsg').textContent =
         'ขณะนี้สถานะงาน: "' + (statusTh[d['Status']] || d['Status']) + '"\nกรุณารอให้ช่างดำเนินการเสร็จสิ้นก่อน';
+      showScreen('errorScreen');
       return;
     }
 
@@ -537,16 +549,13 @@ async function initApp() {
       document.getElementById('imgAfterContainer').style.display = 'block';
     }
 
-    // แสดงฟอร์มปกติ
-    document.getElementById('mainCard').style.display = 'block';
-    document.querySelectorAll('.section-head, .divider, .star-rating, .rating-text, .field-group, #btnSubmit').forEach(el => {
-      el.style.display = el.tagName === 'DIV' && el.className === 'star-rating' ? 'flex' : 'block';
-    });
+    // แสดงฟอร์มประเมินอย่างเดียว
+    showScreen('reviewFormContainer');
 
   } catch(e) {
     hideLoading();
-    showScreen('errorScreen');
     document.getElementById('errorMsg').textContent = 'ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่';
+    showScreen('errorScreen');
     return;
   }
 
@@ -590,10 +599,11 @@ async function submitReview() {
     const json = await res.json();
 
     if (json.success) {
+      // เมื่อสำเร็จให้สลับหน้าจอไปที่หน้าขอบคุณ
       showScreen('successScreen');
     } else if (json.error === 'ALREADY_REVIEWED') {
-      showScreen('reviewedScreen');
       document.getElementById('reviewedVal').textContent = 'ได้รับการประเมินแล้ว';
+      showScreen('reviewedScreen');
     } else {
       alert('เกิดข้อผิดพลาด: ' + json.error);
       btn.disabled = false;
