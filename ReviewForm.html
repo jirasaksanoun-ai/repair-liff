@@ -332,11 +332,6 @@ textarea:focus{
 }
 .error-screen h2{font-family:'Kanit',sans-serif;font-size:1.2rem;font-weight:600;color:#FCA5A5;margin-bottom:8px;}
 .error-screen p{color:var(--c-muted2);font-size:0.88rem;line-height:1.7;max-width:260px;}
-
-/* ซ่อน formSection ตอนเริ่มต้น */
-#formSection {
-    display: none;
-}
 </style>
 </head>
 <body>
@@ -382,52 +377,48 @@ textarea:focus{
     </div>
   </div>
 
-  <!-- 🎯 ส่วนที่แก้ไข: นำ formSection มาคลุมเฉพาะส่วนฟอร์มประเมิน -->
-  <div id="formSection">
-    <!-- Rating -->
-    <div class="section-head">
-      <div class="section-icon">⭐</div>
-      <div>
-        <h3>ความพึงพอใจโดยรวม</h3>
-        <p>กรุณาเลือกระดับความพึงพอใจ</p>
-      </div>
+  <!-- Rating -->
+  <div class="section-head">
+    <div class="section-icon">⭐</div>
+    <div>
+      <h3>ความพึงพอใจโดยรวม</h3>
+      <p>กรุณาเลือกระดับความพึงพอใจ</p>
     </div>
+  </div>
 
-    <div class="rating-grid">
-      <button class="rating-btn" id="btnGood" onclick="selectRating('พึงพอใจ')">
-        <span class="rb-emoji">😊</span>
-        <span class="rb-label">พึงพอใจ</span>
-      </button>
-      <button class="rating-btn" id="btnBad" onclick="selectRating('ควรปรับปรุง')">
-        <span class="rb-emoji">😐</span>
-        <span class="rb-label">ควรปรับปรุง</span>
-      </button>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- Feedback -->
-    <div class="section-head">
-      <div class="section-icon">💬</div>
-      <div>
-        <h3>ความคิดเห็น / ข้อเสนอแนะ</h3>
-        <p>ไม่บังคับกรอก</p>
-      </div>
-    </div>
-
-    <div class="field-group">
-      <textarea id="txtFeedback" placeholder="แสดงความคิดเห็นเพิ่มเติมเพื่อช่วยให้เราปรับปรุงบริการ..."></textarea>
-    </div>
-
-    <button class="btn btn-success" id="btnSubmit" onclick="submitReview()">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      ส่งการประเมิน
+  <div class="rating-grid">
+    <button class="rating-btn" id="btnGood" onclick="selectRating('พึงพอใจ')">
+      <span class="rb-emoji">😊</span>
+      <span class="rb-label">พึงพอใจ</span>
+    </button>
+    <button class="rating-btn" id="btnBad" onclick="selectRating('ควรปรับปรุง')">
+      <span class="rb-emoji">😐</span>
+      <span class="rb-label">ควรปรับปรุง</span>
     </button>
   </div>
-  <!-- สิ้นสุด formSection -->
+
+  <div class="divider"></div>
+
+  <!-- Feedback -->
+  <div class="section-head">
+    <div class="section-icon">💬</div>
+    <div>
+      <h3>ความคิดเห็น / ข้อเสนอแนะ</h3>
+      <p>ไม่บังคับกรอก</p>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <textarea id="txtFeedback" placeholder="แสดงความคิดเห็นเพิ่มเติมเพื่อช่วยให้เราปรับปรุงบริการ..."></textarea>
+  </div>
+
+  <button class="btn btn-success" id="btnSubmit" onclick="submitReview()">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    ส่งการประเมิน
+  </button>
 
   <!-- Success Screen -->
-  <div class="success-screen" id="successScreen" style="display:none;">
+  <div class="success-screen" id="successScreen">
     <div class="success-ring">
       <svg viewBox="0 0 90 90">
         <circle class="sr-bg" cx="45" cy="45" r="40"/>
@@ -440,7 +431,7 @@ textarea:focus{
   </div>
 
   <!-- Already Reviewed Screen -->
-  <div class="reviewed-screen" id="reviewedScreen" style="display:none;">
+  <div class="reviewed-screen" id="reviewedScreen">
     <div class="reviewed-icon">🔒</div>
     <h2>ประเมินแล้ว</h2>
     <p>Ticket นี้ได้รับการประเมินไปแล้ว<br>ไม่สามารถประเมินซ้ำได้</p>
@@ -453,7 +444,7 @@ textarea:focus{
   </div>
 
   <!-- Error Screen -->
-  <div class="error-screen" id="errorScreen" style="display:none;">
+  <div class="error-screen" id="errorScreen">
     <div class="error-icon">⚠️</div>
     <h2>ไม่สามารถประเมินได้</h2>
     <p id="errorMsg">งานนี้ยังไม่พร้อมสำหรับการประเมิน<br>กรุณารอให้ช่างปิดงานก่อน</p>
@@ -468,50 +459,33 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8f
 let ticketId = '';
 let selectedRating = '';
 
-/* =========================
-   ✅ CENTRAL SCREEN CONTROL
-========================= */
+// ซ่อนทุก screen แล้วแสดงเฉพาะที่ต้องการ
 function showScreen(screenId) {
-  const screens = ['successScreen','reviewedScreen','errorScreen'];
-
-  // ซ่อนทุก screen + reset animation
-  screens.forEach(id => {
+  ['mainCard','ratingSection','feedbackSection','btnSubmit',
+   'successScreen','reviewedScreen','errorScreen'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) {
-      el.style.display = 'none';
-      el.classList.remove('show');
-    }
+    if (el) el.style.display = 'none';
   });
-
-  // ซ่อนฟอร์มทั้งหมด
-  const form = document.getElementById('formSection');
-  if (form) {
-    form.style.display = 'none';
-  }
-
-  // แสดงเฉพาะ screen ที่ต้องการ
+  // ซ่อน section-head และ divider ด้วย
+  document.querySelectorAll('.section-head,.divider,.rating-grid,.field-group').forEach(el => {
+    el.style.display = 'none';
+  });
   if (screenId) {
     const target = document.getElementById(screenId);
     if (target) {
-      target.style.display = 'flex';
-      // บังคับ reflow เพื่อให้ animation ทำงาน
-      void target.offsetWidth; 
+      target.style.display = screenId.endsWith('Screen') ? 'flex' : 'block';
       target.classList.add('show');
     }
   }
 }
-// 🎯 เอาแท็ก </div> ที่หลุดมาตรงนี้ออกแล้ว (สำคัญมาก)
 
-/* =========================
-   INIT
-========================= */
 async function initApp() {
   const params = new URLSearchParams(location.search);
   ticketId = params.get('tid') || 'TK00000';
   document.getElementById('ticketId').textContent = ticketId;
 
   try {
-    const res  = await fetch(`${API_URL}?action=getTicket&id=${ticketId}`);
+    const res  = await fetch(`${API_URL}?action=getTicket&id=${ticketId}`, { redirect: "follow" });
     const json = await res.json();
 
     if (!json.success || !json.data) {
@@ -523,50 +497,44 @@ async function initApp() {
 
     const d = json.data;
 
-    // 🔒 ประเมินแล้ว
+    // ── ตรวจสอบ: ประเมินไปแล้ว ──
     if (d['Status'] === 'Completed' && d['Rating']) {
       hideLoading();
-
       const isSatis = String(d['Rating']).indexOf('พึงพอใจ') !== -1;
       const valEl = document.getElementById('reviewedVal');
-
       valEl.textContent = d['Rating'];
       valEl.className = 'reviewed-result-val ' + (isSatis ? 'good' : 'bad');
-
-      showScreen('reviewedScreen');
+      document.getElementById('mainCard').style.display = 'none';
+      document.getElementById('reviewedScreen').classList.add('show');
+      document.getElementById('reviewedScreen').style.display = 'flex';
       return;
     }
 
-    // ❌ ยังไม่พร้อมประเมิน
+    // ── ตรวจสอบ: สถานะยังไม่พร้อมประเมิน ──
     if (d['Status'] !== 'Waiting for Review' && d['Status'] !== 'Completed') {
       hideLoading();
-
       showScreen('errorScreen');
-
-      const statusTh = {
-        'Open':'รอช่างรับงาน',
-        'In Progress':'ช่างกำลังดำเนินการ'
-      };
-
+      const statusTh = { 'Open':'รอช่างรับงาน', 'In Progress':'ช่างกำลังดำเนินการ' };
       document.getElementById('errorMsg').textContent =
-        'ขณะนี้สถานะงาน: "' + (statusTh[d['Status']] || d['Status']) +
-        '"\nกรุณารอให้ช่างดำเนินการเสร็จสิ้นก่อน';
-
+        'ขณะนี้สถานะงาน: "' + (statusTh[d['Status']] || d['Status']) + '"\nกรุณารอให้ช่างดำเนินการเสร็จสิ้นก่อน';
       return;
     }
 
-    // ✅ โหลดข้อมูล
+    // ── พร้อมประเมิน: โหลดข้อมูล ──
     document.getElementById('tIssue').textContent = d['Issue'] || '—';
     document.getElementById('tDetail').textContent = d['Fix_Detail'] || '—';
-
     if (d['Img_After'] && d['Img_After'].indexOf('https://') === 0) {
       document.getElementById('imgAfterView').src = d['Img_After'];
       document.getElementById('imgAfterContainer').style.display = 'block';
     }
 
-    // ✅ เปิด form
-    const form = document.getElementById('formSection');
-    if (form) form.style.display = 'block';
+    // แสดงฟอร์มปกติ
+    document.getElementById('mainCard').style.display = 'block';
+    document.querySelectorAll('.section-head').forEach(el => el.style.removeProperty('display'));
+    document.querySelectorAll('.divider').forEach(el => el.style.removeProperty('display'));
+    document.querySelector('.rating-grid').style.removeProperty('display');
+    document.querySelector('.field-group').style.removeProperty('display');
+    document.getElementById('btnSubmit').style.removeProperty('display');
 
   } catch(e) {
     hideLoading();
@@ -578,26 +546,15 @@ async function initApp() {
   hideLoading();
 }
 
-/* =========================
-   LOADING
-========================= */
 function hideLoading() {
   const el = document.getElementById('loading');
-  if (el) {
-    el.style.opacity = '0';
-    setTimeout(() => { el.style.display = 'none'; }, 600);
-  }
+  if (el) { el.style.opacity = '0'; setTimeout(() => { el.style.display = 'none'; }, 600); }
 }
 
-/* =========================
-   RATING
-========================= */
 function selectRating(val) {
   selectedRating = val;
-
   document.getElementById('btnGood').classList.remove('selected-good');
   document.getElementById('btnBad').classList.remove('selected-bad');
-
   if (val === 'พึงพอใจ') {
     document.getElementById('btnGood').classList.add('selected-good');
   } else {
@@ -605,12 +562,8 @@ function selectRating(val) {
   }
 }
 
-/* =========================
-   SUBMIT
-========================= */
 async function submitReview() {
   if (!selectedRating) return alert('กรุณาเลือกความพึงพอใจ');
-
   const btn = document.getElementById('btnSubmit');
   btn.disabled = true;
   btn.innerHTML = '<div class="mini-loader"></div> กำลังส่ง...';
@@ -628,46 +581,40 @@ async function submitReview() {
     const res  = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      redirect: "follow"
     });
-
     const json = await res.json();
 
-    // ✅ SUCCESS
     if (json.success) {
-      showScreen('successScreen');
+      // ซ่อนฟอร์มทั้งหมด แสดง success
+      document.getElementById('mainCard').style.display = 'none';
+      document.querySelectorAll('.section-head,.divider,.rating-grid,.field-group').forEach(el => el.style.display = 'none');
+      btn.style.display = 'none';
+      document.getElementById('successScreen').classList.add('show');
+      document.getElementById('successScreen').style.display = 'flex';
 
-      // ปิด LIFF อัตโนมัติ (แนะนำให้ init LIFF ก่อนใช้งานจริงถ้าเป็นไปได้)
-      setTimeout(() => {
-        if (typeof liff !== 'undefined') {
-          liff.closeWindow();
-        }
-      }, 2000);
-    }
-
-    // 🔒 REVIEWED ซ้ำ
-    else if (json.error === 'ALREADY_REVIEWED') {
+    } else if (json.error === 'ALREADY_REVIEWED') {
+      // ประเมินซ้ำ — แสดง locked screen
+      document.getElementById('mainCard').style.display = 'none';
+      document.querySelectorAll('.section-head,.divider,.rating-grid,.field-group').forEach(el => el.style.display = 'none');
+      btn.style.display = 'none';
+      document.getElementById('reviewedScreen').classList.add('show');
+      document.getElementById('reviewedScreen').style.display = 'flex';
       document.getElementById('reviewedVal').textContent = 'ได้รับการประเมินแล้ว';
-      showScreen('reviewedScreen');
-    }
 
-    // ❌ ERROR
-    else {
+    } else {
       alert('เกิดข้อผิดพลาด: ' + json.error);
       btn.disabled = false;
-      btn.innerHTML = 'ส่งการประเมิน';
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ส่งการประเมิน';
     }
-
   } catch(err) {
     alert('เชื่อมต่อขัดข้อง');
     btn.disabled = false;
-    btn.innerHTML = 'ส่งการประเมิน';
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ส่งการประเมิน';
   }
 }
 
-/* =========================
-   START
-========================= */
 window.onload = initApp;
 </script>
 </body>
