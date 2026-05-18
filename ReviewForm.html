@@ -177,41 +177,41 @@ body::before{
 .section-head h3{font-family:'Kanit',sans-serif;font-size:0.95rem;font-weight:500;}
 .section-head p{font-size:0.8rem;color:var(--c-muted);}
 
-/* ── RATING BUTTONS ── */
-.rating-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}
-.rating-btn{
-  padding:24px 12px;
-  background:var(--c-surface2);
-  border:1.5px solid var(--c-border2);
-  border-radius:var(--r);
-  cursor:pointer;text-align:center;
-  transition:all 0.2s ease;
-  position:relative;overflow:hidden;
+/* ── STAR RATING ── */
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
 }
-.rating-btn::before{
-  content:'';position:absolute;inset:0;
-  opacity:0;transition:opacity 0.2s;
+.star-rating input { display: none; }
+.star-rating label {
+    font-size: 3rem;
+    color: var(--c-surface2);
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+    -webkit-tap-highlight-color: transparent;
 }
-.rating-btn:hover{border-color:var(--c-muted);transform:translateY(-2px);}
-.rating-btn:active{transform:scale(0.97);}
-
-.rating-btn.selected-good{
-  border-color:var(--c-green);
-  background:rgba(16,185,129,0.1);
-  box-shadow:0 0 0 4px rgba(16,185,129,0.12);
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input:checked ~ label,
+.star-rating input:checked + label {
+    color: var(--c-amber);
 }
-.rating-btn.selected-bad{
-  border-color:var(--c-amber);
-  background:rgba(245,158,11,0.1);
-  box-shadow:0 0 0 4px rgba(245,158,11,0.12);
+.star-rating input:checked + label {
+    transform: scale(1.15);
 }
-
-.rb-emoji{font-size:2.2rem;display:block;margin-bottom:10px;transition:transform 0.2s;}
-.rating-btn:hover .rb-emoji{transform:scale(1.15);}
-.rating-btn.selected-good .rb-emoji,.rating-btn.selected-bad .rb-emoji{transform:scale(1.2);}
-.rb-label{font-family:'Kanit',sans-serif;font-size:0.9rem;font-weight:500;color:var(--c-muted2);}
-.rating-btn.selected-good .rb-label{color:#6EE7B7;}
-.rating-btn.selected-bad .rb-label{color:#FCD34D;}
+.rating-text {
+    text-align: center;
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--c-muted);
+    min-height: 24px;
+    margin-bottom: 24px;
+    transition: color 0.3s;
+}
 
 /* ── TEXTAREA ── */
 .field-group{margin-bottom:20px;}
@@ -377,25 +377,32 @@ textarea:focus{
     </div>
   </div>
 
-  <!-- Rating -->
+  <!-- Rating Section (Stars) -->
   <div class="section-head">
     <div class="section-icon">⭐</div>
     <div>
       <h3>ความพึงพอใจโดยรวม</h3>
-      <p>กรุณาเลือกระดับความพึงพอใจ</p>
+      <p>กรุณาให้คะแนนการบริการ</p>
     </div>
   </div>
 
-  <div class="rating-grid">
-    <button class="rating-btn" id="btnGood" onclick="selectRating('พึงพอใจ')">
-      <span class="rb-emoji">😊</span>
-      <span class="rb-label">พึงพอใจ</span>
-    </button>
-    <button class="rating-btn" id="btnBad" onclick="selectRating('ควรปรับปรุง')">
-      <span class="rb-emoji">😐</span>
-      <span class="rb-label">ควรปรับปรุง</span>
-    </button>
+  <div class="star-rating">
+    <input type="radio" id="star5" name="rating" value="5" onchange="selectRating(5, 'ดีมาก')">
+    <label for="star5" title="5 ดาว">★</label>
+
+    <input type="radio" id="star4" name="rating" value="4" onchange="selectRating(4, 'ดี')">
+    <label for="star4" title="4 ดาว">★</label>
+
+    <input type="radio" id="star3" name="rating" value="3" onchange="selectRating(3, 'ปานกลาง')">
+    <label for="star3" title="3 ดาว">★</label>
+
+    <input type="radio" id="star2" name="rating" value="2" onchange="selectRating(2, 'พอใช้')">
+    <label for="star2" title="2 ดาว">★</label>
+
+    <input type="radio" id="star1" name="rating" value="1" onchange="selectRating(1, 'ควรปรับปรุง')">
+    <label for="star1" title="1 ดาว">★</label>
   </div>
+  <div class="rating-text" id="ratingText">กรุณาเลือกให้คะแนนดาว</div>
 
   <div class="divider"></div>
 
@@ -457,19 +464,19 @@ textarea:focus{
 const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8fhFOUdu9MHKnk23jnOhuKQ7sG_32FCEmu3mLgNPqiH_kp_Q/exec';
 
 let ticketId = '';
-let selectedRating = '';
+let selectedRating = 0;
 
 // ซ่อนทุก screen แล้วแสดงเฉพาะที่ต้องการ
 function showScreen(screenId) {
-  ['mainCard','ratingSection','feedbackSection','btnSubmit',
-   'successScreen','reviewedScreen','errorScreen'].forEach(id => {
+  ['mainCard','successScreen','reviewedScreen','errorScreen'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
   // ซ่อน section-head และ divider ด้วย
-  document.querySelectorAll('.section-head,.divider,.rating-grid,.field-group').forEach(el => {
+  document.querySelectorAll('.section-head,.divider,.star-rating,.rating-text,.field-group,#btnSubmit').forEach(el => {
     el.style.display = 'none';
   });
+  
   if (screenId) {
     const target = document.getElementById(screenId);
     if (target) {
@@ -500,13 +507,15 @@ async function initApp() {
     // ── ตรวจสอบ: ประเมินไปแล้ว ──
     if (d['Status'] === 'Completed' && d['Rating']) {
       hideLoading();
-      const isSatis = String(d['Rating']).indexOf('พึงพอใจ') !== -1;
+      
+      const ratingStr = String(d['Rating']);
+      const isGood = ratingStr.match(/^[4-5]/); // ให้คะแนน 4-5 ดาว ถือว่าดี
+      
       const valEl = document.getElementById('reviewedVal');
-      valEl.textContent = d['Rating'];
-      valEl.className = 'reviewed-result-val ' + (isSatis ? 'good' : 'bad');
-      document.getElementById('mainCard').style.display = 'none';
-      document.getElementById('reviewedScreen').classList.add('show');
-      document.getElementById('reviewedScreen').style.display = 'flex';
+      valEl.textContent = ratingStr;
+      valEl.className = 'reviewed-result-val ' + (isGood ? 'good' : 'bad');
+      
+      showScreen('reviewedScreen');
       return;
     }
 
@@ -530,11 +539,9 @@ async function initApp() {
 
     // แสดงฟอร์มปกติ
     document.getElementById('mainCard').style.display = 'block';
-    document.querySelectorAll('.section-head').forEach(el => el.style.removeProperty('display'));
-    document.querySelectorAll('.divider').forEach(el => el.style.removeProperty('display'));
-    document.querySelector('.rating-grid').style.removeProperty('display');
-    document.querySelector('.field-group').style.removeProperty('display');
-    document.getElementById('btnSubmit').style.removeProperty('display');
+    document.querySelectorAll('.section-head, .divider, .star-rating, .rating-text, .field-group, #btnSubmit').forEach(el => {
+      el.style.display = el.tagName === 'DIV' && el.className === 'star-rating' ? 'flex' : 'block';
+    });
 
   } catch(e) {
     hideLoading();
@@ -551,19 +558,15 @@ function hideLoading() {
   if (el) { el.style.opacity = '0'; setTimeout(() => { el.style.display = 'none'; }, 600); }
 }
 
-function selectRating(val) {
+function selectRating(val, label) {
   selectedRating = val;
-  document.getElementById('btnGood').classList.remove('selected-good');
-  document.getElementById('btnBad').classList.remove('selected-bad');
-  if (val === 'พึงพอใจ') {
-    document.getElementById('btnGood').classList.add('selected-good');
-  } else {
-    document.getElementById('btnBad').classList.add('selected-bad');
-  }
+  const ratingText = document.getElementById('ratingText');
+  ratingText.textContent = val + ' ดาว (' + label + ')';
+  ratingText.style.color = val >= 4 ? '#10B981' : val === 3 ? '#F59E0B' : '#EF4444';
 }
 
 async function submitReview() {
-  if (!selectedRating) return alert('กรุณาเลือกความพึงพอใจ');
+  if (!selectedRating) return alert('กรุณาเลือกให้คะแนนความพึงพอใจ');
   const btn = document.getElementById('btnSubmit');
   btn.disabled = true;
   btn.innerHTML = '<div class="mini-loader"></div> กำลังส่ง...';
@@ -572,7 +575,7 @@ async function submitReview() {
     action: 'submitReview',
     data: {
       ticketId: ticketId,
-      rating: selectedRating,
+      rating: selectedRating, // ส่งตัวเลข 1-5 ไปยัง backend
       feedback: document.getElementById('txtFeedback').value
     }
   };
@@ -587,22 +590,10 @@ async function submitReview() {
     const json = await res.json();
 
     if (json.success) {
-      // ซ่อนฟอร์มทั้งหมด แสดง success
-      document.getElementById('mainCard').style.display = 'none';
-      document.querySelectorAll('.section-head,.divider,.rating-grid,.field-group').forEach(el => el.style.display = 'none');
-      btn.style.display = 'none';
-      document.getElementById('successScreen').classList.add('show');
-      document.getElementById('successScreen').style.display = 'flex';
-
+      showScreen('successScreen');
     } else if (json.error === 'ALREADY_REVIEWED') {
-      // ประเมินซ้ำ — แสดง locked screen
-      document.getElementById('mainCard').style.display = 'none';
-      document.querySelectorAll('.section-head,.divider,.rating-grid,.field-group').forEach(el => el.style.display = 'none');
-      btn.style.display = 'none';
-      document.getElementById('reviewedScreen').classList.add('show');
-      document.getElementById('reviewedScreen').style.display = 'flex';
+      showScreen('reviewedScreen');
       document.getElementById('reviewedVal').textContent = 'ได้รับการประเมินแล้ว';
-
     } else {
       alert('เกิดข้อผิดพลาด: ' + json.error);
       btn.disabled = false;
