@@ -684,20 +684,14 @@ select option{background:#1A2235;color:var(--c-text);}
       <div class="section-icon">🔍</div>
       <div>
         <h3>ระบุตัวตน</h3>
-        <p id="sec1Subtitle">กรอกชื่อผู้ใช้งานเพื่อดึงข้อมูล</p>
+        <p>กรอกรหัสพนักงานเพื่อดึงข้อมูล</p>
       </div>
     </div>
 
-    <!-- Alert welcome LINE OA -->
-    <div class="alert" id="alertLineOALogin" style="display:none;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:#6EE7B7;border-radius:12px;padding:12px 16px;font-size:0.875rem;margin-bottom:16px;align-items:center;gap:10px;animation:fadeSlide 0.3s ease;">
-      <span>🟢</span>
-      <span>เข้าสู่ระบบอัตโนมัติผ่าน LINE OA สำเร็จ</span>
-    </div>
-
-    <div class="field-group" id="loginFormContainer">
-      <label>ชื่อผู้ใช้งาน (Username) <span class="req">*</span></label>
+    <div class="field-group">
+      <label>รหัสพนักงาน (Employee ID) <span class="req">*</span></label>
       <div class="search-row">
-        <input id="inputId" type="text" placeholder="กรอก Username ของคุณ">
+        <input id="inputId" type="text" placeholder="เช่น 1406" inputmode="numeric">
         <button class="btn btn-primary" onclick="searchUser()">ค้นหา</button>
       </div>
     </div>
@@ -886,7 +880,6 @@ async function initApp() {
   const urlUid = params.get('uid');
   if (urlUid && urlUid.startsWith("U")) {
     lineUid = urlUid;
-    await checkAutoLogin();
     hideLoading();
     return;
   }
@@ -895,7 +888,6 @@ async function initApp() {
     if (liff.isLoggedIn()) {
       const profile = await liff.getProfile();
       lineUid = profile.userId;
-      await checkAutoLogin();
     } else {
       lineUid = 'U_DEV_' + Date.now();
       document.getElementById('alertLiffError').style.display = 'flex';
@@ -908,31 +900,6 @@ async function initApp() {
   hideLoading();
 }
 
-async function checkAutoLogin() {
-  if (!lineUid || lineUid.startsWith('U_DEV_')) return;
-  try {
-    const res = await fetch(`${API_URL}?action=checkAuth&lineUid=${lineUid}`, { redirect: "follow" });
-    const auth = await res.json();
-    if (auth.found) {
-      userData = auth;
-      const fullName = auth.name || (auth.firstName + ' ' + auth.lastName);
-      document.getElementById('iName').textContent = fullName;
-      document.getElementById('iPos').textContent = auth.position;
-      document.getElementById('iDept').textContent = auth.department;
-      document.getElementById('iSite').textContent = auth.site;
-      document.getElementById('icInitials').textContent = getInitials(fullName);
-
-      document.getElementById('infoCard').classList.add('show');
-      document.getElementById('nextBtn1').style.display = 'flex';
-      document.getElementById('loginFormContainer').style.display = 'none';
-      document.getElementById('alertLineOALogin').style.display = 'flex';
-      document.getElementById('sec1Subtitle').textContent = 'เข้าสู่ระบบสำเร็จในฐานะผู้ใช้ LINE OA';
-    }
-  } catch (err) {
-    console.warn('Auto-login check failed:', err);
-  }
-}
-
 function getInitials(name) {
   if (!name) return 'NN';
   const parts = name.trim().split(' ');
@@ -942,19 +909,19 @@ function getInitials(name) {
 
 async function searchUser() {
   const id = document.getElementById('inputId').value.trim();
-  if (!id) return showAlert('alertSearch', '⚠ กรุณาระบุ Username');
+  if (!id) return showAlert('alertSearch', '⚠ กรุณาระบุรหัสพนักงาน');
 
   const btn = document.querySelector('#sec1 .search-row .btn');
   btn.innerHTML = '<div class="mini-loader"></div>';
   btn.disabled = true;
 
   try {
-    const response = await fetch(`${API_URL}?action=getUserByUsername&username=${encodeURIComponent(id)}`, { redirect: "follow" });
+    const response = await fetch(`${API_URL}?action=getUserById&id=${id}`, { redirect: "follow" });
     const res = await response.json();
 
     if (res.found) {
       userData = res;
-      const fullName = res.name || (res.firstName + ' ' + res.lastName);
+      const fullName = res.firstName + ' ' + res.lastName;
       document.getElementById('iName').textContent = fullName;
       document.getElementById('iPos').textContent = res.position;
       document.getElementById('iDept').textContent = res.department;
@@ -965,7 +932,7 @@ async function searchUser() {
       document.getElementById('nextBtn1').style.display = 'flex';
       document.getElementById('alertSearch').classList.remove('show');
     } else {
-      showAlert('alertSearch', '✕ ไม่พบข้อมูลผู้ใช้งาน กรุณาตรวจสอบ Username อีกครั้ง');
+      showAlert('alertSearch', '✕ ไม่พบข้อมูลพนักงาน กรุณาตรวจสอบรหัสอีกครั้ง');
       document.getElementById('infoCard').classList.remove('show');
       document.getElementById('nextBtn1').style.display = 'none';
     }
