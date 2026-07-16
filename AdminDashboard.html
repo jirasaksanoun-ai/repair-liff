@@ -984,6 +984,7 @@ tbody tr:hover td{background:var(--c-glass2);}
     <div class="field-group"><label>ชื่อช่าง</label><input id="acceptAdmin" type="text" placeholder="ชื่อช่างผู้รับผิดชอบ"></div>
     <div class="field-group"><label>วันนัดหมายเข้าซ่อม</label><input id="acceptAppoint" type="date"></div>
     <div class="field-group"><label>วันคาดว่าเสร็จสิ้น</label><input id="acceptExpect" type="date"></div>
+    <div class="field-group"><label>อาการที่ตรวจพบ</label><textarea id="acceptSymptom" placeholder="ระบุอาการจากการตรวจเช็คเบื้องต้น..."></textarea></div>
     <div class="modal-footer">
       <button class="mbtn mbtn-cancel" onclick="closeModal('modalAccept')">ยกเลิก</button>
       <button class="mbtn mbtn-confirm" onclick="confirmAccept()">บันทึกรับงาน</button>
@@ -1385,6 +1386,7 @@ function showDetail(id) {
     ['วันที่แจ้ง', isNaN(dt) ? '—' : dt.toLocaleDateString('th-TH')],
     ['ผู้แจ้ง', t['User_Name']], ['หน่วยงาน', t['Department']],
     ['ปัญหา', t['Issue']], ['ช่าง', t['Admin_Name']],
+    ['อาการที่ตรวจพบ', t['Diagnosed_Symptom']],
     ['รายละเอียดซ่อม', t['Fix_Detail']],
     ['ค่าใช้จ่าย', t['Cost'] ? '฿' + Number(t['Cost']).toLocaleString('th-TH') : null],
     ['ความพึงพอใจ', ratingClean === '— ' ? '—' : ratingClean], ['ความคิดเห็น', t['Feedback']]
@@ -1404,6 +1406,7 @@ function showDetail(id) {
 function openAccept(id) {
   document.getElementById('acceptTicketId').value = id;
   document.getElementById('acceptAdmin').value = adminData.name;
+  document.getElementById('acceptSymptom').value = '';
   document.getElementById('modalAccept').classList.add('show');
 }
 function openClose(id) {
@@ -1455,10 +1458,17 @@ function confirmAccept() {
   const admin = document.getElementById('acceptAdmin').value;
   const app = document.getElementById('acceptAppoint').value;
   const exp = document.getElementById('acceptExpect').value;
-  if (!admin || !app || !exp) return showToast('กรุณากรอกข้อมูลนัดหมายให้ครบถ้วน', 'warning');
+  const symptom = document.getElementById('acceptSymptom').value.trim();
+  if (!admin || !app || !exp || !symptom) return showToast('กรุณากรอกข้อมูลนัดหมายและอาการตรวจเช็คให้ครบถ้วน', 'warning');
   sendPost({
     action: 'acceptJob',
-    data: { ticketId: document.getElementById('acceptTicketId').value, adminName: admin, appointDate: app, expectDate: exp }
+    data: { 
+      ticketId: document.getElementById('acceptTicketId').value, 
+      adminName: admin, 
+      appointDate: app, 
+      expectDate: exp,
+      diagnosedSymptom: symptom
+    }
   }, 'modalAccept');
 }
 
