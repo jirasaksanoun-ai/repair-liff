@@ -1100,7 +1100,7 @@ async function sendHistory() {
 
     if (json.success) {
       if (json.count === 0) {
-        showHistoryStatus('empty', '📭 ยังไม่มีประวัติการแจ้งซ่อมของหน่วยงานนี้');
+        showHistoryStatus('empty', '📭 ยังไม่มีประวัติการแจ้งซ่อมของคุณ');
       } else {
         showHistoryStatus('success', `✅ ส่งประวัติ ${json.count} รายการไปที่ LINE แล้ว กรุณาตรวจสอบข้อความ`);
       }
