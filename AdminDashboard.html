@@ -1124,6 +1124,9 @@ async function fetchData() {
     const json = await res.json();
     allTickets = json.data || [];
 
+    // ── เรียงลำดับ: รายการล่าสุด (Created_Date ใหม่สุด) ไว้ด้านบนสุด ──
+    allTickets.sort((a, b) => new Date(b['Created_Date']) - new Date(a['Created_Date']));
+
     const years = [...new Set(allTickets.map(t => new Date(t['Created_Date']).getFullYear()))].filter(y => !isNaN(y)).sort();
     const depts = [...new Set(allTickets.map(t => t['Department']))].filter(Boolean).sort();
 
