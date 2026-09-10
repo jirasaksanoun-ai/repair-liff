@@ -1,622 +1,783 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>ประเมินงานซ่อม</title>
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --c-bg:#0A0E1A;
-  --c-surface:#111827;
-  --c-surface2:#1A2235;
-  --c-border:rgba(255,255,255,0.08);
-  --c-border2:rgba(255,255,255,0.14);
-  --c-accent:#3B82F6;
-  --c-accent2:#6366F1;
-  --c-green:#10B981;
-  --c-amber:#F59E0B;
-  --c-text:#F1F5F9;
-  --c-muted:#64748B;
-  --c-muted2:#94A3B8;
-  --c-glass:rgba(255,255,255,0.04);
-  --c-glass2:rgba(255,255,255,0.07);
-  --r:16px;--r2:24px;--r3:12px;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{
-  font-family:'Sarabun',sans-serif;
-  background:var(--c-bg);
-  color:var(--c-text);
-  min-height:100vh;
-  -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
-}
-body::before{
-  content:'';position:fixed;top:-200px;left:-200px;
-  width:500px;height:500px;
-  background:radial-gradient(circle,rgba(16,185,129,0.1) 0%,transparent 70%);
-  pointer-events:none;z-index:0;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <title>ประเมินความพึงพอใจงานซ่อม - Repair Review</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Prompt:wght@400;500;600&family=Sarabun:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --c-bg: #F8FAFC;
+            --c-surface: #FFFFFF;
+            --c-surface2: #F1F5F9;
+            --c-border: #E2E8F0;
+            --c-border2: #CBD5E1;
 
-/* ── LOADING ── */
-#loading{
-  position:fixed;inset:0;background:var(--c-bg);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  z-index:9999;transition:opacity 0.6s ease;
-}
-.loader-wrap{position:relative;width:64px;height:64px;margin-bottom:24px;}
-.loader-ring{
-  position:absolute;inset:0;
-  border:3px solid rgba(16,185,129,0.15);
-  border-top-color:var(--c-green);
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-}
-.loader-ring2{
-  position:absolute;inset:8px;
-  border:2px solid rgba(59,130,246,0.15);
-  border-bottom-color:var(--c-accent);
-  border-radius:50%;
-  animation:spin 1.5s linear infinite reverse;
-}
-@keyframes spin{to{transform:rotate(360deg);}}
-#loading p{
-  font-family:'Kanit',sans-serif;
-  font-size:0.8rem;color:var(--c-muted2);
-  letter-spacing:2px;text-transform:uppercase;
-  animation:pulse-text 2s ease infinite;
-}
-@keyframes pulse-text{0%,100%{opacity:0.5;}50%{opacity:1;}}
+            --c-primary: #2563EB;
+            --c-primary-light: #EFF6FF;
+            --c-success: #10B981;
+            --c-success-light: #ECFDF5;
+            --c-warning: #F59E0B;
+            --c-warning-light: #FFFBEB;
+            --c-danger: #EF4444;
+            --c-danger-light: #FEF2F2;
 
-/* ── HEADER ── */
-.app-header{
-  position:relative;padding:48px 24px 100px;
-  text-align:center;z-index:1;overflow:hidden;
-}
-.header-grid{
-  position:absolute;inset:0;
-  background-image:linear-gradient(rgba(16,185,129,0.05) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(16,185,129,0.05) 1px,transparent 1px);
-  background-size:40px 40px;
-  mask-image:linear-gradient(to bottom,transparent,black 30%,black 70%,transparent);
-}
-.badge-wrap{
-  display:inline-flex;align-items:center;gap:8px;
-  background:rgba(16,185,129,0.1);
-  border:1px solid rgba(16,185,129,0.25);
-  border-radius:999px;padding:6px 16px;
-  font-size:0.75rem;color:#6EE7B7;
-  font-family:'Kanit',sans-serif;letter-spacing:1px;text-transform:uppercase;
-  margin-bottom:20px;position:relative;z-index:1;
-}
-.badge-dot{
-  width:6px;height:6px;background:var(--c-green);border-radius:50%;
-  animation:pulse-dot 2s ease infinite;
-}
-@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.6);}50%{box-shadow:0 0 0 6px rgba(16,185,129,0);}}
-.app-header h1{
-  font-family:'Kanit',sans-serif;font-size:2rem;font-weight:600;
-  background:linear-gradient(135deg,#F1F5F9 0%,#6EE7B7 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  line-height:1.2;margin-bottom:8px;position:relative;z-index:1;
-}
-.app-header p{font-size:0.9rem;color:var(--c-muted2);font-weight:300;position:relative;z-index:1;}
+            --c-text: #0F172A;
+            --c-text-secondary: #475569;
+            --c-text-muted: #94A3B8;
 
-/* ── CONTAINER ── */
-.container{
-  position:relative;z-index:2;
-  padding:0 16px 48px;margin-top:-64px;
-  max-width:600px;margin-left:auto;margin-right:auto;
-}
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
 
-/* ── CARD ── */
-.card{
-  background:var(--c-surface);
-  border:1px solid var(--c-border);
-  border-radius:var(--r2);
-  padding:28px 24px;
-  position:relative;overflow:hidden;
-}
-.card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(16,185,129,0.5),rgba(59,130,246,0.5),transparent);
-}
+            --r-sm: 8px;
+            --r-md: 12px;
+            --r-lg: 16px;
+            --r-xl: 24px;
+            --r-full: 9999px;
+        }
 
-/* ── TICKET INFO CARD ── */
-.ticket-card{
-  background:var(--c-glass);
-  border:1px solid var(--c-border2);
-  border-radius:var(--r);
-  overflow:hidden;
-  margin-bottom:24px;
-}
-.ticket-card-header{
-  padding:14px 18px;
-  background:rgba(16,185,129,0.08);
-  border-bottom:1px solid var(--c-border);
-  display:flex;align-items:center;gap:10px;
-}
-.ticket-card-header span{font-size:16px;}
-.ticket-card-header h4{
-  font-family:'Kanit',sans-serif;font-size:0.9rem;font-weight:500;color:#6EE7B7;
-}
-.ticket-card-header .tid{
-  margin-left:auto;
-  font-family:'Kanit',sans-serif;font-size:0.95rem;font-weight:700;
-  color:var(--c-text);letter-spacing:1px;
-}
-.ticket-body{padding:16px 18px;}
-.ticket-row{
-  display:flex;gap:8px;font-size:0.88rem;
-  padding:8px 0;border-bottom:1px solid var(--c-border);
-}
-.ticket-row:last-child{border:none;padding-bottom:0;}
-.tr-label{color:var(--c-muted);flex-shrink:0;width:80px;}
-.tr-val{color:var(--c-text);font-weight:500;flex:1;word-break:break-word;}
-.img-after-wrap{margin-top:14px;padding-top:14px;border-top:1px solid var(--c-border);}
-.img-label{
-  font-size:0.72rem;color:var(--c-muted);
-  text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;
-  display:flex;align-items:center;gap:6px;
-}
-.img-label::before{content:'';display:inline-block;width:8px;height:8px;background:var(--c-accent);border-radius:2px;}
-#imgAfterView{width:100%;border-radius:var(--r3);border:1px solid var(--c-border2);}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Kanit', sans-serif !important;
+        }
 
-/* ── SECTION LABEL ── */
-.section-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
-.section-icon{
-  width:38px;height:38px;
-  background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);
-  border-radius:var(--r3);display:flex;align-items:center;justify-content:center;font-size:16px;
-  flex-shrink:0;
-}
-.section-head h3{font-family:'Kanit',sans-serif;font-size:0.95rem;font-weight:500;}
-.section-head p{font-size:0.8rem;color:var(--c-muted);}
+        body {
+            font-family: 'Kanit', sans-serif !important;
+            background: var(--c-bg);
+            color: var(--c-text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
 
-/* ── STAR RATING ── */
-.star-rating {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-.star-rating input { display: none; }
-.star-rating label {
-    font-size: 3rem;
-    color: var(--c-surface2);
-    cursor: pointer;
-    transition: color 0.2s, transform 0.2s;
-    -webkit-tap-highlight-color: transparent;
-}
-.star-rating label:hover,
-.star-rating label:hover ~ label,
-.star-rating input:checked ~ label,
-.star-rating input:checked + label {
-    color: var(--c-amber);
-}
-.star-rating input:checked + label {
-    transform: scale(1.15);
-}
-.rating-text {
-    text-align: center;
-    font-family: 'Kanit', sans-serif;
-    font-size: 1.05rem;
-    font-weight: 500;
-    color: var(--c-muted);
-    min-height: 24px;
-    margin-bottom: 24px;
-    transition: color 0.3s;
-}
+        /* ── LOADING ── */
+        #loading {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.4s ease;
+        }
 
-/* ── TEXTAREA ── */
-.field-group{margin-bottom:20px;}
-label{
-  display:block;font-size:0.78rem;font-weight:500;
-  color:var(--c-muted2);margin-bottom:8px;
-  letter-spacing:0.3px;text-transform:uppercase;
-}
-textarea{
-  width:100%;padding:14px 16px;
-  background:var(--c-surface2);border:1.5px solid var(--c-border2);
-  border-radius:var(--r3);font-size:0.95rem;
-  font-family:'Sarabun',sans-serif;color:var(--c-text);
-  min-height:110px;resize:none;line-height:1.6;
-  transition:all 0.25s;
-}
-textarea::placeholder{color:var(--c-muted);}
-textarea:focus{
-  outline:none;border-color:var(--c-green);
-  background:rgba(16,185,129,0.04);
-  box-shadow:0 0 0 4px rgba(16,185,129,0.1);
-}
+        .loader-spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid #E2E8F0;
+            border-top-color: var(--c-success);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 16px;
+        }
 
-/* ── BUTTON ── */
-.btn{
-  width:100%;padding:15px;border:none;
-  border-radius:var(--r3);
-  font-size:0.95rem;font-weight:600;
-  font-family:'Kanit',sans-serif;
-  cursor:pointer;transition:all 0.2s ease;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  letter-spacing:0.3px;
-}
-.btn-success{
-  background:linear-gradient(135deg,#059669 0%,#10B981 100%);
-  color:#fff;box-shadow:0 4px 20px rgba(16,185,129,0.35);
-}
-.btn-success:hover{box-shadow:0 6px 24px rgba(16,185,129,0.5);transform:translateY(-1px);}
-.btn-success:active{transform:scale(0.98);}
-.btn:disabled{opacity:0.45;cursor:not-allowed;transform:none !important;box-shadow:none !important;}
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
-.mini-loader{
-  width:18px;height:18px;
-  border:2.5px solid rgba(255,255,255,0.3);
-  border-top-color:#fff;border-radius:50%;
-  animation:spin 0.8s linear infinite;flex-shrink:0;
-}
+        #loading p {
+            font-family: 'Kanit', sans-serif;
+            font-size: 0.9rem;
+            color: var(--c-text-secondary);
+            font-weight: 500;
+        }
 
-/* ── DIVIDER ── */
-.divider{height:1px;background:var(--c-border);margin:20px 0;}
+        /* ── APP HEADER ── */
+        .app-header {
+            position: relative;
+            padding: 40px 20px 70px;
+            text-align: center;
+            background: linear-gradient(180deg, #ECFDF5 0%, #F8FAFC 100%);
+            border-bottom: 1px solid var(--c-border);
+        }
 
-/* ── SUCCESS SCREEN ── */
-.success-screen{
-  display:none;flex-direction:column;align-items:center;
-  padding:20px 0 8px;text-align:center;
-}
-.success-screen.show{display:flex;animation:fadeSlide 0.5s ease;}
-@keyframes fadeSlide{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+        .badge-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #FFFFFF;
+            border: 1px solid var(--c-border);
+            border-radius: var(--r-full);
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            color: var(--c-success);
+            font-family: 'Kanit', sans-serif;
+            font-weight: 600;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+        }
 
-.success-ring{position:relative;width:90px;height:90px;margin-bottom:28px;}
-.success-ring svg{width:90px;height:90px;transform:rotate(-90deg);}
-.sr-bg{fill:none;stroke:rgba(16,185,129,0.15);stroke-width:3;}
-.sr-fill{
-  fill:none;stroke:var(--c-green);stroke-width:3;
-  stroke-dasharray:251;stroke-dashoffset:251;stroke-linecap:round;
-  animation:draw-ring 1s 0.3s cubic-bezier(0.4,0,0.2,1) forwards;
-}
-@keyframes draw-ring{to{stroke-dashoffset:0;}}
-.success-check{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-size:32px;
-  animation:pop-in 0.4s 1s cubic-bezier(0.175,0.885,0.32,1.275) both;
-}
-@keyframes pop-in{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--c-success);
+            border-radius: 50%;
+        }
 
-.success-screen h2{font-family:'Kanit',sans-serif;font-size:1.5rem;font-weight:600;margin-bottom:10px;}
-.success-screen p{color:var(--c-muted2);font-size:0.9rem;line-height:1.7;margin-bottom:0;max-width:280px;}
+        .app-header h1 {
+            font-family: 'Kanit', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--c-text);
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
 
-/* ── ALREADY REVIEWED SCREEN ── */
-.reviewed-screen{
-  display:none;flex-direction:column;align-items:center;
-  padding:20px 0 8px;text-align:center;
-}
-.reviewed-screen.show{display:flex;animation:fadeSlide 0.4s ease;}
-.reviewed-icon{
-  width:72px;height:72px;
-  background:rgba(245,158,11,0.12);
-  border:2px solid rgba(245,158,11,0.3);
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:30px;margin-bottom:20px;
-}
-.reviewed-screen h2{
-  font-family:'Kanit',sans-serif;font-size:1.3rem;font-weight:600;
-  color:var(--c-text);margin-bottom:8px;
-}
-.reviewed-screen p{color:var(--c-muted2);font-size:0.88rem;line-height:1.7;max-width:260px;}
-.reviewed-result{
-  margin-top:20px;
-  background:var(--c-glass2);
-  border:1px solid var(--c-border2);
-  border-radius:var(--r);
-  padding:16px 24px;
-  display:flex;align-items:center;gap:12px;
-}
-.reviewed-result-label{font-size:0.78rem;color:var(--c-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
-.reviewed-result-val{font-family:'Kanit',sans-serif;font-size:1rem;font-weight:600;}
-.reviewed-result-val.good{color:#6EE7B7;}
-.reviewed-result-val.bad{color:#FCD34D;}
+        .app-header p {
+            font-size: 0.9rem;
+            color: var(--c-text-secondary);
+        }
 
-/* ── ERROR SCREEN ── */
-.error-screen{
-  display:none;flex-direction:column;align-items:center;
-  padding:20px 0 8px;text-align:center;
-}
-.error-screen.show{display:flex;animation:fadeSlide 0.4s ease;}
-.error-icon{
-  width:72px;height:72px;
-  background:rgba(248,113,113,0.1);
-  border:2px solid rgba(248,113,113,0.3);
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:30px;margin-bottom:20px;
-}
-.error-screen h2{font-family:'Kanit',sans-serif;font-size:1.2rem;font-weight:600;color:#FCA5A5;margin-bottom:8px;}
-.error-screen p{color:var(--c-muted2);font-size:0.88rem;line-height:1.7;max-width:260px;}
-</style>
+        /* ── MAIN CONTAINER ── */
+        .container {
+            max-width: 520px;
+            margin: -40px auto 40px;
+            padding: 0 16px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .card {
+            background: var(--c-surface);
+            border: 1px solid var(--c-border);
+            border-radius: var(--r-xl);
+            padding: 28px 24px;
+            box-shadow: var(--shadow-xl);
+        }
+
+        /* ── TICKET INFO BOX ── */
+        .ticket-info-box {
+            background: #F8FAFC;
+            border: 1px solid var(--c-border);
+            border-radius: var(--r-lg);
+            padding: 18px;
+            margin-bottom: 24px;
+        }
+
+        .tib-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--c-border);
+        }
+
+        .tib-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--c-text-muted);
+            text-transform: uppercase;
+        }
+
+        .tib-id {
+            font-family: 'Kanit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--c-primary);
+            background: var(--c-primary-light);
+            padding: 4px 12px;
+            border-radius: var(--r-full);
+        }
+
+        .info-row {
+            margin-bottom: 10px;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--c-text-muted);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .info-val {
+            font-size: 0.92rem;
+            color: var(--c-text);
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .img-after-box {
+            margin-top: 14px;
+            border-radius: var(--r-md);
+            overflow: hidden;
+            border: 1px solid var(--c-border);
+            display: none;
+        }
+
+        .img-after-box img {
+            width: 100%;
+            max-height: 220px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ── SECTION TITLE ── */
+        .section-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--c-warning-light);
+            border-radius: var(--r-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .section-head h3 {
+            font-family: 'Kanit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--c-text);
+        }
+
+        .section-head p {
+            font-size: 0.82rem;
+            color: var(--c-text-secondary);
+        }
+
+        /* ── STAR RATING CONTAINER ── */
+        .rating-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #F8FAFC;
+            border: 1px solid var(--c-border);
+            border-radius: var(--r-lg);
+            padding: 24px 16px;
+            margin-bottom: 24px;
+        }
+
+        .stars-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .star-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            outline: none;
+            padding: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #CBD5E1;
+        }
+
+        .star-btn svg {
+            width: 36px;
+            height: 36px;
+            fill: #E2E8F0;
+            stroke: #94A3B8;
+            stroke-width: 1.5;
+            transition: all 0.2s ease;
+        }
+
+        .star-btn:hover svg,
+        .star-btn.active svg {
+            fill: #F59E0B;
+            stroke: #D97706;
+            filter: drop-shadow(0 4px 6px rgba(245, 158, 11, 0.35));
+        }
+
+        .star-btn:hover,
+        .star-btn.active {
+            transform: scale(1.15);
+        }
+
+        .rating-text {
+            font-family: 'Kanit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--c-text-muted);
+            transition: color 0.2s;
+        }
+
+        /* ── FEEDBACK TEXTAREA ── */
+        .field-group {
+            margin-bottom: 24px;
+        }
+
+        .field-group label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--c-text-secondary);
+            margin-bottom: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: #F8FAFC;
+            border: 1px solid var(--c-border);
+            border-radius: var(--r-md);
+            font-family: 'Sarabun', sans-serif;
+            font-size: 0.95rem;
+            color: var(--c-text);
+            outline: none;
+            min-height: 100px;
+            resize: vertical;
+            transition: all 0.2s ease;
+        }
+
+        textarea:focus {
+            background: #FFFFFF;
+            border-color: var(--c-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        /* ── BUTTON ── */
+        .btn {
+            width: 100%;
+            padding: 14px 20px;
+            border: none;
+            border-radius: var(--r-md);
+            font-family: 'Kanit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-success:hover {
+            opacity: 0.95;
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* ── STATUS SCREENS (SUCCESS, REVIEWED, ERROR) ── */
+        .status-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 24px 12px 12px;
+        }
+
+        .status-screen.show {
+            display: flex;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-icon-wrap {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            margin-bottom: 20px;
+        }
+
+        .status-icon-success {
+            background: var(--c-success-light);
+            border: 2px solid #A7F3D0;
+            color: var(--c-success);
+        }
+
+        .status-icon-warning {
+            background: var(--c-warning-light);
+            border: 2px solid #FDE68A;
+            color: var(--c-warning);
+        }
+
+        .status-icon-lock {
+            background: #F1F5F9;
+            border: 2px solid var(--c-border);
+            color: var(--c-text-secondary);
+        }
+
+        .status-screen h2 {
+            font-family: 'Kanit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--c-text);
+            margin-bottom: 8px;
+        }
+
+        .status-screen p {
+            color: var(--c-text-secondary);
+            font-size: 0.92rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            max-width: 320px;
+        }
+
+        .reviewed-result-badge {
+            background: #F8FAFC;
+            border: 1px solid var(--c-border);
+            border-radius: var(--r-md);
+            padding: 12px 24px;
+            font-family: 'Kanit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--c-primary);
+        }
+
+        /* ── MINI LOADER ── */
+        .mini-loader {
+            width: 18px;
+            height: 18px;
+            border: 2.5px solid rgba(255, 255, 255, 0.4);
+            border-top-color: #FFFFFF;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+    </style>
 </head>
+
 <body>
 
-<div id="loading">
-  <div class="loader-wrap">
-    <div class="loader-ring"></div>
-    <div class="loader-ring2"></div>
-  </div>
-  <p>Loading Review</p>
-</div>
+    <div id="loading">
+        <div class="loader-spinner"></div>
+        <p>กำลังโหลดข้อมูลการแจ้งซ่อม...</p>
+    </div>
 
-<div class="app-header">
-  <div class="header-grid"></div>
-  <div class="badge-wrap"><div class="badge-dot"></div>Satisfaction Survey</div>
-  <h1>ประเมินงานซ่อม</h1>
-  <p>ความคิดเห็นของคุณช่วยพัฒนาการบริการ</p>
-</div>
-
-<div class="container">
-<div class="card">
-
-  <!-- ── แบบฟอร์มการประเมิน (กรุ๊ปรวมกันไว้เพื่อให้ซ่อน/แสดงง่ายขึ้น) ── -->
-  <div id="reviewFormContainer" style="display:none;">
-    <!-- Ticket Info -->
-    <div class="ticket-card" id="mainCard">
-      <div class="ticket-card-header">
-        <span>🎫</span>
-        <h4>รายละเอียดงานซ่อม</h4>
-        <span class="tid" id="ticketId">TK00000</span>
-      </div>
-      <div class="ticket-body">
-        <div class="ticket-row">
-          <span class="tr-label">ปัญหา</span>
-          <span class="tr-val" id="tIssue">—</span>
+    <!-- HEADER -->
+    <header class="app-header">
+        <div class="badge-wrap">
+            <div class="badge-dot"></div>
+            Customer Satisfaction Review
         </div>
-        <div class="ticket-row">
-          <span class="tr-label">การแก้ไข</span>
-          <span class="tr-val" id="tDetail">—</span>
+        <h1>ประเมินความพึงพอใจ</h1>
+        <p>ความคิดเห็นของคุณมีคุณค่า ช่วยให้เราพัฒนาบริการให้ดียิ่งขึ้น</p>
+    </header>
+
+    <!-- MAIN -->
+    <main class="container">
+        <div class="card">
+
+            <!-- ── FORM CONTAINER ── -->
+            <div id="reviewFormContainer">
+                
+                <!-- Ticket Info Summary -->
+                <div class="ticket-info-box">
+                    <div class="tib-header">
+                        <span class="tib-label">หมายเลขงานซ่อม</span>
+                        <span class="tib-id" id="ticketId">TK00000</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label">ปัญหาที่ได้รับแจ้ง</span>
+                        <div class="info-val" id="tIssue">—</div>
+                    </div>
+
+                    <div class="info-row" style="margin-top:10px;">
+                        <span class="info-label">การดำเนินการแก้ไขของช่าง</span>
+                        <div class="info-val" id="tDetail" style="color:var(--c-text-secondary);">—</div>
+                    </div>
+
+                    <div class="img-after-box" id="imgAfterContainer">
+                        <span class="info-label" style="padding:10px 12px 0;display:flex;align-items:center;gap:6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                            รูปภาพหลังดำเนินการซ่อมเสร็จสิ้น
+                        </span>
+                        <img id="imgAfterView" src="" alt="รูปถ่ายหลังซ่อม">
+                    </div>
+                </div>
+
+                <!-- Rating Section -->
+                <div class="section-head">
+                    <div class="section-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="#F59E0B" stroke="#D97706" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                    <div>
+                        <h3>ให้คะแนนการบริการ</h3>
+                        <p>แตะดาวเพื่อเลือกระดับความพึงพอใจ</p>
+                    </div>
+                </div>
+
+                <div class="rating-container">
+                    <div class="stars-row">
+                        <button type="button" class="star-btn" data-val="1" onclick="handleStarClick(1, 'ควรปรับปรุง')" aria-label="1 ดาว">
+                            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </button>
+                        <button type="button" class="star-btn" data-val="2" onclick="handleStarClick(2, 'พอใช้')" aria-label="2 ดาว">
+                            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </button>
+                        <button type="button" class="star-btn" data-val="3" onclick="handleStarClick(3, 'ปานกลาง')" aria-label="3 ดาว">
+                            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </button>
+                        <button type="button" class="star-btn" data-val="4" onclick="handleStarClick(4, 'ดี')" aria-label="4 ดาว">
+                            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </button>
+                        <button type="button" class="star-btn" data-val="5" onclick="handleStarClick(5, 'ดีมาก')" aria-label="5 ดาว">
+                            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </button>
+                    </div>
+                    <div class="rating-text" id="ratingText">กรุณาแตะเลือกดาว</div>
+                </div>
+
+                <!-- Feedback Section -->
+                <div class="field-group">
+                    <label for="txtFeedback">ข้อเสนอแนะเพิ่มเติม (ไม่บังคับ)</label>
+                    <textarea id="txtFeedback" placeholder="บอกความประทับใจ หรือสิ่งที่ต้องการให้ปรับปรุงเพิ่มเติม..."></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <button class="btn btn-success" id="btnSubmit" onclick="submitReview()">
+                    <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+                        <path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    ส่งแบบประเมิน
+                </button>
+
+            </div>
+
+            <!-- ── SUCCESS SCREEN ── -->
+            <div class="status-screen" id="successScreen">
+                <div class="status-icon-wrap status-icon-success">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                </div>
+                <h2>ขอบคุณสำหรับการประเมิน</h2>
+                <p>ระบบบันทึกคะแนนและความคิดเห็นของคุณเรียบร้อยแล้ว ข้อมูลทั้งหมดจะนำไปพัฒนาปรับปรุงบริการต่อไป</p>
+            </div>
+
+            <!-- ── ALREADY REVIEWED SCREEN ── -->
+            <div class="status-screen" id="reviewedScreen">
+                <div class="status-icon-wrap status-icon-lock">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <h2>ประเมินเรียบร้อยแล้ว</h2>
+                <p>Ticket นี้ได้รับการประเมินความพึงพอใจไปแล้ว<br>ไม่สามารถประเมินซ้ำได้</p>
+                <div id="reviewedResult">
+                    <div class="reviewed-result-badge" id="reviewedVal">—</div>
+                </div>
+            </div>
+
+            <!-- ── ERROR SCREEN ── -->
+            <div class="status-screen" id="errorScreen">
+                <div class="status-icon-wrap status-icon-warning">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <h2>ยังไม่สามารถประเมินได้</h2>
+                <p id="errorMsg">งานซ่อมนี้ยังอยู่ในระหว่างดำเนินการ กรุณารอให้ช่างดำเนินการและปิดงานก่อน</p>
+            </div>
+
         </div>
-        <div class="img-after-wrap" id="imgAfterContainer" style="display:none;">
-          <div class="img-label">รูปถ่ายหลังซ่อมเสร็จ</div>
-          <img id="imgAfterView" src="">
-        </div>
-      </div>
-    </div>
+    </main>
 
-    <!-- Rating Section (Stars) -->
-    <div class="section-head">
-      <div class="section-icon">⭐</div>
-      <div>
-        <h3>ความพึงพอใจโดยรวม</h3>
-        <p>กรุณาให้คะแนนการบริการ</p>
-      </div>
-    </div>
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8fhFOUdu9MHKnk23jnOhuKQ7sG_32FCEmu3mLgNPqiH_kp_Q/exec';
 
-    <div class="star-rating">
-      <input type="radio" id="star5" name="rating" value="5" onchange="selectRating(5, 'ดีมาก')">
-      <label for="star5" title="5 ดาว">★</label>
+        let ticketId = '';
+        let selectedRating = 0;
 
-      <input type="radio" id="star4" name="rating" value="4" onchange="selectRating(4, 'ดี')">
-      <label for="star4" title="4 ดาว">★</label>
+        function showScreen(screenId) {
+            ['reviewFormContainer', 'successScreen', 'reviewedScreen', 'errorScreen'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.display = 'none';
+                    el.classList.remove('show');
+                }
+            });
 
-      <input type="radio" id="star3" name="rating" value="3" onchange="selectRating(3, 'ปานกลาง')">
-      <label for="star3" title="3 ดาว">★</label>
+            if (screenId) {
+                const target = document.getElementById(screenId);
+                if (target) {
+                    target.style.display = screenId.endsWith('Screen') ? 'flex' : 'block';
+                    setTimeout(() => target.classList.add('show'), 10);
+                }
+            }
+        }
 
-      <input type="radio" id="star2" name="rating" value="2" onchange="selectRating(2, 'พอใช้')">
-      <label for="star2" title="2 ดาว">★</label>
+        async function initApp() {
+            const params = new URLSearchParams(location.search);
+            ticketId = params.get('tid') || 'TK00000';
+            document.getElementById('ticketId').textContent = ticketId;
 
-      <input type="radio" id="star1" name="rating" value="1" onchange="selectRating(1, 'ควรปรับปรุง')">
-      <label for="star1" title="1 ดาว">★</label>
-    </div>
-    <div class="rating-text" id="ratingText">กรุณาเลือกให้คะแนนดาว</div>
+            try {
+                const res = await fetch(`${API_URL}?action=getTicket&id=${ticketId}`, { redirect: "follow" });
+                const json = await res.json();
 
-    <div class="divider"></div>
+                if (!json.success || !json.data) {
+                    hideLoading();
+                    document.getElementById('errorMsg').textContent = 'ไม่พบ Ticket หมายเลขนี้ในระบบ';
+                    showScreen('errorScreen');
+                    return;
+                }
 
-    <!-- Feedback -->
-    <div class="section-head">
-      <div class="section-icon">💬</div>
-      <div>
-        <h3>ความคิดเห็น / ข้อเสนอแนะ</h3>
-        <p>ไม่บังคับกรอก</p>
-      </div>
-    </div>
+                const d = json.data;
 
-    <div class="field-group">
-      <textarea id="txtFeedback" placeholder="แสดงความคิดเห็นเพิ่มเติมเพื่อช่วยให้เราปรับปรุงบริการ..."></textarea>
-    </div>
+                // ตรวจสอบ: ประเมินแล้ว
+                if (d['Status'] === 'Completed' && d['Rating']) {
+                    hideLoading();
+                    const ratingStr = String(d['Rating']);
+                    const valEl = document.getElementById('reviewedVal');
+                    valEl.textContent = ratingStr;
+                    showScreen('reviewedScreen');
+                    return;
+                }
 
-    <button class="btn btn-success" id="btnSubmit" onclick="submitReview()">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      ส่งการประเมิน
-    </button>
-  </div>
-  <!-- ── จบส่วนแบบฟอร์มประเมิน ── -->
+                // ตรวจสอบ: ยังไม่พร้อมประเมิน
+                if (d['Status'] !== 'Waiting for Review' && d['Status'] !== 'Completed') {
+                    hideLoading();
+                    const statusTh = { 'Open': 'รอช่างรับงาน', 'In Progress': 'ช่างกำลังดำเนินการซ่อม' };
+                    document.getElementById('errorMsg').textContent =
+                        'สถานะปัจจุบัน: "' + (statusTh[d['Status']] || d['Status']) + '"\nกรุณารอให้ช่างดำเนินการปิดงานก่อนทำการประเมิน';
+                    showScreen('errorScreen');
+                    return;
+                }
 
-  <!-- ── หน้าจอสถานะต่างๆ ── -->
-  <!-- Success Screen -->
-  <div class="success-screen" id="successScreen">
-    <div class="success-ring">
-      <svg viewBox="0 0 90 90">
-        <circle class="sr-bg" cx="45" cy="45" r="40"/>
-        <circle class="sr-fill" cx="45" cy="45" r="40"/>
-      </svg>
-      <div class="success-check">🎉</div>
-    </div>
-    <h2>ขอบคุณสำหรับการประเมิน!</h2>
-    <p>ความคิดเห็นของคุณช่วยให้เราปรับปรุงการให้บริการได้ดียิ่งขึ้น</p>
-  </div>
+                // พร้อมประเมิน
+                document.getElementById('tIssue').textContent = d['Issue'] || '—';
+                document.getElementById('tDetail').textContent = d['Fix_Detail'] || 'ไม่มีรายละเอียดเพิ่มเติม';
+                if (d['Img_After'] && d['Img_After'].indexOf('https://') === 0) {
+                    document.getElementById('imgAfterView').src = d['Img_After'];
+                    document.getElementById('imgAfterContainer').style.display = 'block';
+                }
 
-  <!-- Already Reviewed Screen -->
-  <div class="reviewed-screen" id="reviewedScreen">
-    <div class="reviewed-icon">🔒</div>
-    <h2>ประเมินแล้ว</h2>
-    <p>Ticket นี้ได้รับการประเมินไปแล้ว<br>ไม่สามารถประเมินซ้ำได้</p>
-    <div class="reviewed-result" id="reviewedResult">
-      <div>
-        <div class="reviewed-result-label">ผลการประเมิน</div>
-        <div class="reviewed-result-val" id="reviewedVal">—</div>
-      </div>
-    </div>
-  </div>
+                showScreen('reviewFormContainer');
 
-  <!-- Error Screen -->
-  <div class="error-screen" id="errorScreen">
-    <div class="error-icon">⚠️</div>
-    <h2>ไม่สามารถประเมินได้</h2>
-    <p id="errorMsg">งานนี้ยังไม่พร้อมสำหรับการประเมิน<br>กรุณารอให้ช่างปิดงานก่อน</p>
-  </div>
+            } catch (e) {
+                hideLoading();
+                document.getElementById('errorMsg').textContent = 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาลองใหม่อีกครั้ง';
+                showScreen('errorScreen');
+                return;
+            }
 
-</div>
-</div>
+            hideLoading();
+        }
 
-<script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8fhFOUdu9MHKnk23jnOhuKQ7sG_32FCEmu3mLgNPqiH_kp_Q/exec';
+        function hideLoading() {
+            const el = document.getElementById('loading');
+            if (el) {
+                el.style.opacity = '0';
+                setTimeout(() => { el.style.display = 'none'; }, 400);
+            }
+        }
 
-let ticketId = '';
-let selectedRating = 0;
+        function handleStarClick(val, label) {
+            selectRating(val, label);
+        }
 
-// ฟังก์ชันสลับหน้าจอ รับประกันว่าจะโชว์แค่ 1 กรุ๊ปเสมอ (แก้ปัญหาข้อความค้าง)
-function showScreen(screenId) {
-  // 1. ซ่อนทุกอย่างก่อน
-  ['reviewFormContainer', 'successScreen', 'reviewedScreen', 'errorScreen'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.style.display = 'none';
-      el.classList.remove('show');
-    }
-  });
-  
-  // 2. แสดงเฉพาะสิ่งที่ต้องการ
-  if (screenId) {
-    const target = document.getElementById(screenId);
-    if (target) {
-      target.style.display = screenId.endsWith('Screen') ? 'flex' : 'block';
-      setTimeout(() => target.classList.add('show'), 10);
-    }
-  }
-}
+        function selectRating(val, label) {
+            selectedRating = val;
+            const ratingText = document.getElementById('ratingText');
+            ratingText.textContent = val + ' ดาว (' + label + ')';
+            
+            const colorMap = {
+                5: '#10B981',
+                4: '#10B981',
+                3: '#F59E0B',
+                2: '#EF4444',
+                1: '#EF4444'
+            };
+            ratingText.style.color = colorMap[val] || '#F59E0B';
 
-async function initApp() {
-  const params = new URLSearchParams(location.search);
-  ticketId = params.get('tid') || 'TK00000';
-  document.getElementById('ticketId').textContent = ticketId;
+            // Update star highlights
+            const buttons = document.querySelectorAll('.star-btn');
+            buttons.forEach(btn => {
+                const bVal = parseInt(btn.getAttribute('data-val'), 10);
+                if (bVal <= val) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
 
-  try {
-    const res  = await fetch(`${API_URL}?action=getTicket&id=${ticketId}`, { redirect: "follow" });
-    const json = await res.json();
+        async function submitReview() {
+            if (!selectedRating) return alert('กรุณาแตะเลือกดาวเพื่อให้คะแนนความพึงพอใจ');
+            const btn = document.getElementById('btnSubmit');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="mini-loader"></div> กำลังส่งแบบประเมิน...';
 
-    if (!json.success || !json.data) {
-      hideLoading();
-      document.getElementById('errorMsg').textContent = 'ไม่พบ Ticket นี้ในระบบ';
-      showScreen('errorScreen');
-      return;
-    }
+            const payload = {
+                action: 'submitReview',
+                data: {
+                    ticketId: ticketId,
+                    rating: selectedRating,
+                    feedback: document.getElementById('txtFeedback').value
+                }
+            };
 
-    const d = json.data;
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload),
+                    redirect: "follow"
+                });
+                const json = await res.json();
 
-    // ── ตรวจสอบ: ประเมินไปแล้ว ──
-    if (d['Status'] === 'Completed' && d['Rating']) {
-      hideLoading();
-      
-      const ratingStr = String(d['Rating']);
-      const isGood = ratingStr.match(/^[4-5]/); // ให้คะแนน 4-5 ดาว ถือว่าดี
-      
-      const valEl = document.getElementById('reviewedVal');
-      valEl.textContent = ratingStr;
-      valEl.className = 'reviewed-result-val ' + (isGood ? 'good' : 'bad');
-      
-      showScreen('reviewedScreen');
-      return;
-    }
+                if (json.success) {
+                    showScreen('successScreen');
+                } else if (json.error === 'ALREADY_REVIEWED') {
+                    document.getElementById('reviewedVal').textContent = 'ได้รับการประเมินแล้ว';
+                    showScreen('reviewedScreen');
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + (json.error || 'ไม่สามารถส่งการประเมินได้'));
+                    btn.disabled = false;
+                    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ส่งแบบประเมิน';
+                }
+            } catch (err) {
+                alert('การเชื่อมต่อขัดข้อง กรุณาลองใหม่อีกครั้ง');
+                btn.disabled = false;
+                btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ส่งแบบประเมิน';
+            }
+        }
 
-    // ── ตรวจสอบ: สถานะยังไม่พร้อมประเมิน ──
-    if (d['Status'] !== 'Waiting for Review' && d['Status'] !== 'Completed') {
-      hideLoading();
-      const statusTh = { 'Open':'รอช่างรับงาน', 'In Progress':'ช่างกำลังดำเนินการ' };
-      document.getElementById('errorMsg').textContent =
-        'ขณะนี้สถานะงาน: "' + (statusTh[d['Status']] || d['Status']) + '"\nกรุณารอให้ช่างดำเนินการเสร็จสิ้นก่อน';
-      showScreen('errorScreen');
-      return;
-    }
-
-    // ── พร้อมประเมิน: โหลดข้อมูล ──
-    document.getElementById('tIssue').textContent = d['Issue'] || '—';
-    document.getElementById('tDetail').textContent = d['Fix_Detail'] || '—';
-    if (d['Img_After'] && d['Img_After'].indexOf('https://') === 0) {
-      document.getElementById('imgAfterView').src = d['Img_After'];
-      document.getElementById('imgAfterContainer').style.display = 'block';
-    }
-
-    // แสดงฟอร์มประเมินอย่างเดียว
-    showScreen('reviewFormContainer');
-
-  } catch(e) {
-    hideLoading();
-    document.getElementById('errorMsg').textContent = 'ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่';
-    showScreen('errorScreen');
-    return;
-  }
-
-  hideLoading();
-}
-
-function hideLoading() {
-  const el = document.getElementById('loading');
-  if (el) { el.style.opacity = '0'; setTimeout(() => { el.style.display = 'none'; }, 600); }
-}
-
-function selectRating(val, label) {
-  selectedRating = val;
-  const ratingText = document.getElementById('ratingText');
-  ratingText.textContent = val + ' ดาว (' + label + ')';
-  ratingText.style.color = val >= 4 ? '#10B981' : val === 3 ? '#F59E0B' : '#EF4444';
-}
-
-async function submitReview() {
-  if (!selectedRating) return alert('กรุณาเลือกให้คะแนนความพึงพอใจ');
-  const btn = document.getElementById('btnSubmit');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="mini-loader"></div> กำลังส่ง...';
-
-  const payload = {
-    action: 'submitReview',
-    data: {
-      ticketId: ticketId,
-      rating: selectedRating, // ส่งตัวเลข 1-5 ไปยัง backend
-      feedback: document.getElementById('txtFeedback').value
-    }
-  };
-
-  try {
-    const res  = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload),
-      redirect: "follow"
-    });
-    const json = await res.json();
-
-    if (json.success) {
-      // เมื่อสำเร็จให้สลับหน้าจอไปที่หน้าขอบคุณ
-      showScreen('successScreen');
-    } else if (json.error === 'ALREADY_REVIEWED') {
-      document.getElementById('reviewedVal').textContent = 'ได้รับการประเมินแล้ว';
-      showScreen('reviewedScreen');
-    } else {
-      alert('เกิดข้อผิดพลาด: ' + json.error);
-      btn.disabled = false;
-      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ส่งการประเมิน';
-    }
-  } catch(err) {
-    alert('เชื่อมต่อขัดข้อง');
-    btn.disabled = false;
-    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> ส่งการประเมิน';
-  }
-}
-
-window.onload = initApp;
-</script>
+        window.onload = initApp;
+    </script>
 </body>
+
 </html>
