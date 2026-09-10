@@ -1,1489 +1,2581 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Admin Dashboard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --c-bg:#070C18;
-  --c-surface:#0F172A;
-  --c-surface2:#1A2235;
-  --c-surface3:#1E293B;
-  --c-border:rgba(255,255,255,0.07);
-  --c-border2:rgba(255,255,255,0.12);
-  --c-accent:#3B82F6;
-  --c-accent2:#6366F1;
-  --c-green:#10B981;
-  --c-amber:#F59E0B;
-  --c-red:#EF4444;
-  --c-purple:#8B5CF6;
-  --c-text:#F1F5F9;
-  --c-muted:#475569;
-  --c-muted2:#94A3B8;
-  --c-glass:rgba(255,255,255,0.03);
-  --c-glass2:rgba(255,255,255,0.06);
-  --sidebar-w:260px;
-  --r:12px;--r2:16px;--r3:10px;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;}
-body{
-  font-family:'Sarabun',sans-serif;
-  background:var(--c-bg);color:var(--c-text);
-  display:flex;min-height:100vh;
-  -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>ระบบบริหารจัดการงานซ่อมบำรุง - Admin Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --c-bg: #F8FAFC;
+            --c-surface: #FFFFFF;
+            --c-surface-muted: #F1F5F9;
+            --c-border: #E2E8F0;
+            --c-border-hover: #CBD5E1;
 
-/* ── LOGIN SCREEN ── */
-#loginScreen{
-  position:fixed;inset:0;
-  background:var(--c-bg);
-  display:flex;align-items:center;justify-content:center;
-  z-index:99999;
-}
-#loginScreen::before{
-  content:'';position:absolute;top:-200px;left:-200px;
-  width:600px;height:600px;
-  background:radial-gradient(circle,rgba(59,130,246,0.12) 0%,transparent 70%);
-  pointer-events:none;
-}
-#loginScreen::after{
-  content:'';position:absolute;bottom:-100px;right:-100px;
-  width:400px;height:400px;
-  background:radial-gradient(circle,rgba(99,102,241,0.1) 0%,transparent 70%);
-  pointer-events:none;
-}
+            --c-primary: #1E40AF;
+            --c-primary-accent: #2563EB;
+            --c-primary-light: #EFF6FF;
+            --c-primary-dark: #1E3A8A;
 
-.login-box{
-  background:var(--c-surface);
-  border:1px solid var(--c-border2);
-  border-radius:24px;
-  padding:40px 36px;
-  width:90%;max-width:400px;
-  position:relative;overflow:hidden;
-  animation:fadeSlide 0.5s ease;
-}
-.login-box::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(59,130,246,0.6),rgba(99,102,241,0.6),transparent);
-}
-.login-logo{
-  width:56px;height:56px;
-  background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));
-  border-radius:16px;display:flex;align-items:center;justify-content:center;
-  font-size:24px;margin:0 auto 20px;
-}
-.login-box h2{
-  font-family:'Kanit',sans-serif;font-size:1.4rem;font-weight:600;
-  text-align:center;margin-bottom:6px;
-}
-.login-box p{
-  font-size:0.85rem;color:var(--c-muted2);
-  text-align:center;margin-bottom:28px;
-}
-.login-error{
-  background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);
-  border-radius:var(--r3);padding:10px 14px;font-size:0.85rem;
-  color:#FCA5A5;margin-bottom:16px;display:none;
-}
-.login-input-wrap{position:relative;margin-bottom:16px;}
-.login-input-wrap svg{
-  position:absolute;left:14px;top:50%;transform:translateY(-50%);
-  color:var(--c-muted);pointer-events:none;
-}
-.login-input-wrap input{
-  width:100%;padding:14px 14px 14px 44px;
-  background:var(--c-surface2);border:1.5px solid var(--c-border2);
-  border-radius:var(--r);font-size:0.95rem;
-  font-family:'Sarabun',sans-serif;color:var(--c-text);
-  transition:all 0.2s;
-}
-.login-input-wrap input::placeholder{color:var(--c-muted);}
-.login-input-wrap input:focus{
-  outline:none;border-color:var(--c-accent);
-  background:rgba(59,130,246,0.05);
-  box-shadow:0 0 0 4px rgba(59,130,246,0.12);
-}
-.login-btn{
-  width:100%;padding:14px;border:none;border-radius:var(--r);
-  background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));
-  color:#fff;font-size:1rem;font-weight:600;
-  font-family:'Kanit',sans-serif;cursor:pointer;
-  box-shadow:0 4px 20px rgba(59,130,246,0.4);
-  transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;
-}
-.login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(59,130,246,0.5);}
+            --c-success: #059669;
+            --c-success-light: #ECFDF5;
+            --c-warning: #D97706;
+            --c-warning-light: #FFFBEB;
+            --c-danger: #DC2626;
+            --c-danger-light: #FEF2F2;
+            --c-purple: #6D28D9;
+            --c-purple-light: #F5F3FF;
+            --c-sky: #0284C7;
+            --c-sky-light: #F0F9FF;
 
-/* ── GLOBAL LOADING ── */
-#loading{
-  position:fixed;inset:0;
-  background:rgba(7,12,24,0.85);backdrop-filter:blur(4px);
-  display:none;flex-direction:column;align-items:center;justify-content:center;
-  z-index:9999;
-}
-.loader-wrap{position:relative;width:56px;height:56px;margin-bottom:16px;}
-.loader-ring{
-  position:absolute;inset:0;
-  border:3px solid rgba(59,130,246,0.15);
-  border-top-color:var(--c-accent);border-radius:50%;
-  animation:spin 0.9s linear infinite;
-}
-.loader-ring2{
-  position:absolute;inset:8px;
-  border:2px solid rgba(99,102,241,0.15);
-  border-bottom-color:var(--c-accent2);border-radius:50%;
-  animation:spin 1.4s linear infinite reverse;
-}
-@keyframes spin{to{transform:rotate(360deg);}}
-#loading p{font-family:'Kanit',sans-serif;font-size:0.78rem;color:var(--c-muted2);letter-spacing:2px;}
+            --c-text: #0F172A;
+            --c-text-secondary: #334155;
+            --c-text-muted: #64748B;
 
-/* ── SIDEBAR ── */
-.sidebar{
-  width:var(--sidebar-w);
-  background:var(--c-surface);
-  border-right:1px solid var(--c-border);
-  display:flex;flex-direction:column;
-  position:fixed;top:0;left:0;bottom:0;z-index:100;
-  transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.sidebar-logo{
-  padding:20px;
-  border-bottom:1px solid var(--c-border);
-  display:flex;align-items:center;gap:12px;
-}
-.logo-icon{
-  width:40px;height:40px;
-  background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));
-  border-radius:12px;display:flex;align-items:center;justify-content:center;
-  font-size:18px;flex-shrink:0;
-}
-.logo-text h2{font-family:'Kanit',sans-serif;font-size:0.95rem;font-weight:600;color:var(--c-text);}
-.logo-text p{font-size:0.7rem;color:var(--c-muted);margin-top:2px;}
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            --shadow-3d: 0 8px 20px -4px rgba(30, 64, 175, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
 
-.close-sidebar-btn {
-  display: none;
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 32px;
-  height: 32px;
-  background: var(--c-surface2);
-  border: 1px solid var(--c-border2);
-  border-radius: 50%;
-  color: var(--c-text);
-  font-size: 14px;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
+            --radius-full: 9999px;
+        }
 
-.nav{flex:1;padding:16px 12px;overflow-y:auto;}
-.nav-item{
-  display:flex;align-items:center;gap:10px;
-  padding:11px 14px;border-radius:var(--r3);
-  cursor:pointer;color:var(--c-muted2);
-  font-size:0.88rem;font-family:'Kanit',sans-serif;
-  font-weight:500;margin-bottom:4px;
-  transition:all 0.2s;
-  border:1px solid transparent;
-}
-.nav-item:hover{background:var(--c-glass2);color:var(--c-text);}
-.nav-item.active{
-  background:rgba(59,130,246,0.12);
-  border-color:rgba(59,130,246,0.2);
-  color:#93C5FD;
-}
-.nav-item svg{flex-shrink:0;opacity:0.7;}
-.nav-item.active svg{opacity:1;}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Kanit', sans-serif !important;
+        }
 
-.sidebar-footer{
-  padding:16px;
-  border-top:1px solid var(--c-border);
-}
-.site-badge{
-  background:var(--c-glass2);border:1px solid var(--c-border2);
-  border-radius:var(--r3);padding:10px 14px;margin-bottom:10px;
-}
-.site-badge span:first-child{font-size:0.72rem;color:var(--c-muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}
-.site-badge span:last-child{font-family:'Kanit',sans-serif;font-size:0.9rem;font-weight:600;color:var(--c-text);}
-.logout-btn{
-  width:100%;padding:9px;background:transparent;
-  border:1.5px solid var(--c-border2);border-radius:var(--r3);
-  color:var(--c-muted2);font-size:0.85rem;font-family:'Kanit',sans-serif;
-  cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;
-}
-.logout-btn:hover{border-color:var(--c-red);color:#FCA5A5;background:rgba(239,68,68,0.08);}
+        body {
+            font-family: 'Kanit', sans-serif !important;
+            background: var(--c-bg);
+            color: var(--c-text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
 
-.sidebar-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(4px);
-  z-index: 98;
-  display: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-.sidebar-backdrop.show {
-  display: block;
-  opacity: 1;
-}
+        /* ── LOADING OVERLAY ── */
+        #loading {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(6px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.3s ease;
+        }
 
-/* ── MAIN ── */
-.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;transition:margin-left 0.3s ease;}
-.topbar{
-  background:var(--c-surface);
-  border-bottom:1px solid var(--c-border);
-  padding:0 24px;height:64px;
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:50;
-}
-.topbar h1{font-family:'Kanit',sans-serif;font-size:1.1rem;font-weight:500;}
-.topbar-actions{display:flex;align-items:center;gap:10px;}
-.icon-btn{
-  width:38px;height:38px;
-  border:1.5px solid var(--c-border2);
-  border-radius:var(--r3);
-  background:transparent;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  font-size:14px;color:var(--c-muted2);
-  transition:all 0.2s;
-}
-.icon-btn:hover{border-color:var(--c-accent);color:var(--c-text);}
+        .loader-spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid #E2E8F0;
+            border-top-color: var(--c-primary-accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 14px;
+        }
 
-.mobile-menu-btn {
-  display: none;
-}
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
-.content{padding:24px;flex:1;}
+        #loading p {
+            font-size: 0.95rem;
+            color: var(--c-text-secondary);
+            font-weight: 500;
+        }
 
-.tab-view{display:none;animation:fadeSlide 0.35s ease;}
-.tab-view.active{display:block;}
-@keyframes fadeSlide{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+        /* ── LOGIN SCREEN ── */
+        #loginScreen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 20%, #F1F5F9 0%, #E2E8F0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99998;
+            padding: 20px;
+        }
 
-/* ── KPI GRID ── */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
-.kpi-card{
-  background:var(--c-surface);
-  border:1px solid var(--c-border);
-  border-radius:var(--r2);
-  padding:20px;position:relative;overflow:hidden;
-  transition:transform 0.2s;
-}
-.kpi-card:hover{transform:translateY(-2px);}
-.kpi-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  border-radius:var(--r2) var(--r2) 0 0;
-}
-.kpi-card.blue::before{background:linear-gradient(90deg,var(--c-accent),var(--c-accent2));}
-.kpi-card.green::before{background:linear-gradient(90deg,#059669,var(--c-green));}
-.kpi-card.amber::before{background:linear-gradient(90deg,#D97706,var(--c-amber));}
-.kpi-card.purple::before{background:linear-gradient(90deg,#7C3AED,var(--c-purple));}
-.kpi-icon{
-  width:38px;height:38px;border-radius:var(--r3);
-  display:flex;align-items:center;justify-content:center;
-  font-size:16px;margin-bottom:14px;
-}
-.kpi-card.blue .kpi-icon{background:rgba(59,130,246,0.12);}
-.kpi-card.green .kpi-icon{background:rgba(16,185,129,0.12);}
-.kpi-card.amber .kpi-icon{background:rgba(245,158,11,0.12);}
-.kpi-card.purple .kpi-icon{background:rgba(139,92,246,0.12);}
-.kpi-value{
-  font-family:'Kanit',sans-serif;
-  font-size:2rem;font-weight:700;line-height:1;
-  animation:count-up 0.5s ease;
-}
-.kpi-card.blue .kpi-value{color:#93C5FD;}
-.kpi-card.green .kpi-value{color:#6EE7B7;}
-.kpi-card.amber .kpi-value{color:#FCD34D;}
-.kpi-card.purple .kpi-value{color:#C4B5FD;}
-@keyframes count-up{from{opacity:0;transform:scale(0.8);}to{opacity:1;transform:scale(1);}}
-.kpi-label{font-size:0.78rem;color:var(--c-muted);margin-top:6px;text-transform:uppercase;letter-spacing:0.3px;}
+        .login-box {
+            background: var(--c-surface);
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-xl);
+            padding: 44px 36px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            animation: slideUp 0.35s ease;
+        }
 
-/* ── FILTER BAR ── */
-.filter-bar{
-  background:var(--c-surface);
-  border:1px solid var(--c-border);
-  border-radius:var(--r2);padding:14px;
-  margin-bottom:16px;display:flex;gap:10px;align-items:center;
-}
-.filter-bar input,.filter-bar select{
-  padding:10px 14px;
-  background:var(--c-surface2);
-  border:1.5px solid var(--c-border2);
-  border-radius:var(--r);
-  font-size:0.88rem;
-  font-family:'Sarabun',sans-serif;color:var(--c-text);
-  flex:1;transition:all 0.2s;
-  appearance:none;-webkit-appearance:none;
-}
-.filter-bar input::placeholder{color:var(--c-muted);}
-.filter-bar select{
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;
-}
-.filter-bar select option{background:#1A2235;}
-.filter-bar input:focus,.filter-bar select:focus{
-  outline:none;border-color:var(--c-accent);
-  box-shadow:0 0 0 3px rgba(59,130,246,0.1);
-}
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-/* ── TABLE ── */
-.table-wrap{
-  background:var(--c-surface);
-  border:1px solid var(--c-border);
-  border-radius:var(--r2);
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-}
-table{width:100%;border-collapse:collapse;}
-@media(min-width:769px){
-  table { min-width: 700px; }
-}
-thead{background:var(--c-surface2);}
-th{
-  padding:12px 16px;
-  font-size:0.72rem;color:var(--c-muted);
-  text-transform:uppercase;letter-spacing:0.5px;
-  font-family:'Kanit',sans-serif;font-weight:500;
-  text-align:left;white-space:nowrap;
-}
-td{padding:14px 16px;border-bottom:1px solid var(--c-border);font-size:0.875rem;}
-tr:last-child td{border-bottom:none;}
-tbody tr{transition:background 0.15s;}
-tbody tr:hover td{background:var(--c-glass2);}
+        .login-icon-wrap {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(145deg, #1E40AF, #1E3A8A);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            margin: 0 auto 20px;
+            box-shadow: 0 6px 14px rgba(30, 64, 175, 0.25);
+        }
 
-/* ── BADGES ── */
-.badge{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:600;
-  font-family:'Kanit',sans-serif;white-space:nowrap;
-}
-.badge::before{content:'';width:5px;height:5px;border-radius:50%;}
-.badge-open{background:rgba(59,130,246,0.12);color:#93C5FD;}
-.badge-open::before{background:#3B82F6;}
-.badge-inprogress{background:rgba(245,158,11,0.12);color:#FCD34D;}
-.badge-inprogress::before{background:#F59E0B;}
-.badge-waiting{background:rgba(139,92,246,0.12);color:#C4B5FD;}
-.badge-waiting::before{background:#8B5CF6;}
-.badge-completed{background:rgba(16,185,129,0.12);color:#6EE7B7;}
-.badge-completed::before{background:#10B981;}
+        .login-box h2 {
+            font-size: 1.45rem;
+            font-weight: 700;
+            text-align: center;
+            color: var(--c-text);
+            margin-bottom: 4px;
+            letter-spacing: -0.2px;
+        }
 
-/* ── ACTION BUTTONS ── */
-.action-btn{
-  padding:5px 12px;border-radius:6px;font-size:0.78rem;border:none;
-  cursor:pointer;font-family:'Kanit',sans-serif;font-weight:500;margin:2px;
-  transition:all 0.15s;
-}
-.action-btn.view{background:var(--c-glass2);color:var(--c-muted2);border:1px solid var(--c-border2);}
-.action-btn.view:hover{color:var(--c-text);}
-.action-btn.primary{background:rgba(59,130,246,0.12);color:#93C5FD;border:1px solid rgba(59,130,246,0.2);}
-.action-btn.primary:hover{background:rgba(59,130,246,0.2);}
-.action-btn.warning{background:rgba(245,158,11,0.12);color:#FCD34D;border:1px solid rgba(245,158,11,0.2);}
-.action-btn.warning:hover{background:rgba(245,158,11,0.2);}
+        .login-box p {
+            font-size: 0.88rem;
+            color: var(--c-text-muted);
+            text-align: center;
+            margin-bottom: 26px;
+        }
 
-/* ── PAGINATION ── */
-.pagination{
-  display:flex;justify-content:flex-end;align-items:center;
-  padding:14px 16px;gap:8px;
-  border-top:1px solid var(--c-border);
-}
-.page-info{font-size:0.82rem;color:var(--c-muted);margin-right:4px;}
-.page-btn{
-  padding:6px 14px;
-  background:var(--c-glass2);border:1.5px solid var(--c-border2);
-  border-radius:var(--r3);cursor:pointer;
-  font-size:0.82rem;font-family:'Kanit',sans-serif;
-  color:var(--c-muted2);transition:all 0.2s;
-}
-.page-btn:hover:not(:disabled){border-color:var(--c-accent);color:var(--c-text);}
-.page-btn:disabled{opacity:0.3;cursor:not-allowed;}
+        .login-error {
+            background: var(--c-danger-light);
+            border: 1px solid #FECACA;
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            font-size: 0.85rem;
+            color: var(--c-danger);
+            margin-bottom: 18px;
+            display: none;
+            text-align: center;
+            font-weight: 600;
+        }
 
-/* ── CHART GRID ── */
-.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;}
-.chart-card{
-  background:var(--c-surface);
-  border:1px solid var(--c-border);
-  border-radius:var(--r2);padding:24px;
-}
-.chart-card h3{
-  font-family:'Kanit',sans-serif;font-size:0.9rem;font-weight:500;
-  color:var(--c-muted2);margin-bottom:20px;
-  display:flex;align-items:center;gap:8px;
-}
+        .login-form .field-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--c-text-secondary);
+            margin-bottom: 8px;
+        }
 
-/* ── CHART WRAPPER (ป้องกันกราฟเลื่อนบีบขยายไม่หยุด) ── */
-.chart-wrapper {
-  position:relative;
-  height:240px; /* บังคับค่าความสูงให้คงที่สำหรับการคำนวณของ Chart.js */
-  width:100%;
-}
+        .login-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #F8FAFC;
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            color: var(--c-text);
+            outline: none;
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+        }
 
-/* ── KQI DASHBOARD EXTRAS ── */
-.kqi-summary-row{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;
-}
-.kqi-stat{
-  background:var(--c-surface);border:1px solid var(--c-border);
-  border-radius:var(--r2);padding:18px 20px;
-  display:flex;align-items:center;gap:14px;
-  position:relative;overflow:hidden;
-  transition:transform 0.2s;
-}
-.kqi-stat:hover{transform:translateY(-1px);}
-.kqi-stat::before{
-  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;
-}
-.kqi-stat.s-green::before{background:var(--c-green);}
-.kqi-stat.s-blue::before{background:var(--c-accent);}
-.kqi-stat.s-purple::before{background:var(--c-purple);}
-.kqi-stat-icon{
-  width:44px;height:44px;border-radius:var(--r3);
-  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
-}
-.kqi-stat.s-green .kqi-stat-icon{background:rgba(16,185,129,0.1);}
-.kqi-stat.s-blue  .kqi-stat-icon{background:rgba(59,130,246,0.1);}
-.kqi-stat.s-purple.kqi-stat-icon{background:rgba(139,92,246,0.1);}
-.kqi-stat-body{min-width:0;flex:1;}
-.kqi-stat-val{
-  font-family:'Kanit',sans-serif;font-size:1.7rem;font-weight:700;line-height:1;
-}
-.kqi-stat.s-green .kqi-stat-val{color:#6EE7B7;}
-.kqi-stat.s-blue  .kqi-stat-val{color:#93C5FD;}
-.kqi-stat.s-purple .kqi-stat-val{color:#C4B5FD;}
-.kqi-stat-label{font-size:0.75rem;color:var(--c-muted);margin-top:4px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.kqi-stat-sub{font-size:0.72rem;color:var(--c-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .login-input:focus {
+            background: #FFFFFF;
+            border-color: var(--c-primary-accent);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
 
-.kqi-main-row{display:grid;grid-template-columns:1fr 340px;gap:16px;margin-top:16px;}
-.kqi-trend{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r2);padding:24px;}
-.kqi-donut-wrap{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r2);padding:24px;display:flex;flex-direction:column;}
-.chart-title{
-  font-family:'Kanit',sans-serif;font-size:0.88rem;font-weight:500;
-  color:var(--c-muted2);margin-bottom:18px;
-  display:flex;align-items:center;gap:8px;
-}
-.donut-center-label{
-  text-align:center;margin-bottom:16px;
-}
-.donut-center-label .dcl-val{
-  font-family:'Kanit',sans-serif;font-size:2.2rem;font-weight:700;color:#6EE7B7;
-}
-.donut-center-label .dcl-sub{font-size:0.78rem;color:var(--c-muted);margin-top:2px;}
+        .btn-login-submit {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #1E40AF, #1E3A8A);
+            color: #FFFFFF;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
+            transition: all 0.2s ease;
+        }
 
-.kqi-dept-row{margin-top:16px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r2);overflow:hidden;}
-.kqi-dept-header{
-  padding:16px 20px;border-bottom:1px solid var(--c-border);
-  display:flex;align-items:center;justify-content:space-between;
-}
-.kqi-dept-header h4{font-family:'Kanit',sans-serif;font-size:0.88rem;font-weight:500;color:var(--c-muted2);display:flex;align-items:center;gap:8px;}
-.dept-table{width:100%;border-collapse:collapse;}
-.dept-table th{
-  padding:10px 20px;font-size:0.7rem;color:var(--c-muted);
-  text-transform:uppercase;text-align:left;background:var(--c-surface2);
-}
-.dept-table td{padding:12px 20px;border-bottom:1px solid var(--c-border);font-size:0.85rem;}
-.dept-table tr:last-child td{border:none;}
-.dept-table tbody tr:hover td{background:var(--c-glass2);}
-.dept-bar-wrap{display:flex;align-items:center;gap:10px;}
-.dept-bar-bg{flex:1;height:6px;background:var(--c-surface2);border-radius:3px;overflow:hidden;}
-.dept-bar-fill{height:100%;border-radius:3px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1);}
-.dept-bar-pct{font-size:0.75rem;color:var(--c-muted);min-width:36px;text-align:right;}
-.kqi-satis-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;}
+        .btn-login-submit:hover {
+            opacity: 0.95;
+            box-shadow: 0 6px 16px rgba(30, 64, 175, 0.35);
+        }
 
-/* ── CUSTOM TOAST NOTIFICATION ── */
-.custom-toast {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: #111827;
-  border: 1px solid var(--c-border2);
-  padding: 14px 20px;
-  border-radius: var(--r);
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  z-index: 99999;
-  transform: translateY(100px);
-  opacity: 0;
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
-  pointer-events: none;
-}
-.custom-toast.show {
-  transform: translateY(0);
-  opacity: 1;
-  pointer-events: auto;
-}
-.toast-icon {
-  font-size: 1.25rem;
-}
-.toast-msg {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--c-text);
-  font-family: 'Sarabun', sans-serif;
-}
+        /* ── MAIN APP LAYOUT (SINGLE-PAGE ALL-IN-ONE) ── */
+        #appContainer {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-@media(max-width:1100px){.kqi-main-row{grid-template-columns:1fr;}}
+        /* ── TOP HEADER / NAVBAR ── */
+        .top-navbar {
+            background: var(--c-surface);
+            border-bottom: 1px solid var(--c-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
 
-/* ── MODAL ── */
-.modal-backdrop{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);
-  z-index:200;display:none;align-items:center;justify-content:center;
-  padding:16px;
-}
-.modal-backdrop.show{display:flex;}
-.modal{
-  background:var(--c-surface);
-  border:1px solid var(--c-border2);
-  border-radius:var(--r2);
-  padding:28px;width:100%;max-width:500px;
-  max-height:90vh;overflow-y:auto;
-  position:relative;
-  animation:fadeSlide 0.3s ease;
-}
-.modal::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(59,130,246,0.5),rgba(99,102,241,0.5),transparent);
-}
-.modal h2{
-  font-family:'Kanit',sans-serif;font-size:1.15rem;font-weight:600;
-  margin-bottom:22px;display:flex;align-items:center;gap:10px;
-}
-.field-group{margin-bottom:16px;}
-.modal label{
-  display:block;font-size:0.78rem;font-weight:500;
-  color:var(--c-muted2);margin-bottom:7px;
-  text-transform:uppercase;letter-spacing:0.3px;
-}
-.modal input,.modal textarea,.modal select{
-  width:100%;padding:12px 14px;
-  background:var(--c-surface2);border:1.5px solid var(--c-border2);
-  border-radius:var(--r);font-size:0.9rem;
-  font-family:'Sarabun',sans-serif;color:var(--c-text);transition:all 0.2s;
-}
-.modal input:focus,.modal textarea:focus{
-  outline:none;border-color:var(--c-accent);
-  box-shadow:0 0 0 3px rgba(59,130,246,0.1);
-}
-.modal textarea{min-height:90px;resize:none;}
-.modal input[type="file"]{
-  padding:10px;font-size:0.85rem;cursor:pointer;
-}
-.modal-footer{display:flex;gap:12px;margin-top:22px;}
-.modal-footer .mbtn{
-  flex:1;padding:13px;border:none;border-radius:var(--r);
-  font-size:0.95rem;font-weight:600;font-family:'Kanit',sans-serif;cursor:pointer;transition:all 0.2s;
-}
-.mbtn-cancel{background:var(--c-glass2);color:var(--c-muted2);border:1.5px solid var(--c-border2);}
-.mbtn-cancel:hover{color:var(--c-text);}
-.mbtn-confirm{background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));color:#fff;box-shadow:0 4px 16px rgba(59,130,246,0.35);}
-.mbtn-confirm:hover{box-shadow:0 6px 20px rgba(59,130,246,0.5);}
-.mbtn-success{background:linear-gradient(135deg,#059669,var(--c-green));color:#fff;box-shadow:0 4px 16px rgba(16,185,129,0.35);}
+        .nav-inner {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
 
-/* ── DETAIL ROWS ── */
-.detail-row{
-  display:flex;justify-content:space-between;align-items:flex-start;
-  padding:10px 0;border-bottom:1px solid var(--c-border);font-size:0.9rem;
-}
-.detail-row:last-child{border:none;padding-bottom:0;}
-.detail-row span:first-child{color:var(--c-muted);flex-shrink:0;margin-right:12px;}
-.detail-row span:last-child{font-weight:500;text-align:right;max-width:65%;}
-.detail-img-wrap{padding:12px 0;border-bottom:1px solid var(--c-border);}
-.detail-img-label{font-size:0.78rem;color:var(--c-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
-.detail-img-wrap img{width:100%;border-radius:var(--r);border:1px solid var(--c-border2);}
+        .brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
 
-.img-preview{
-  margin-top:12px;border-radius:var(--r);
-  overflow:hidden;border:1px solid var(--c-border2);
-}
-.img-preview img{width:100%;display:block;}
+        .brand-logo {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #1E40AF, #2563EB);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            box-shadow: 0 3px 8px rgba(30, 64, 175, 0.2);
+        }
 
-/* ── RESPONSIVE ADAPTATIONS (MOBILE OPTIMIZED) ── */
-@media(max-width:768px){
-  .sidebar{
-    transform:translateX(-100%);
-    z-index:1000;
-    box-shadow:5px 0 25px rgba(0,0,0,0.5);
-  }
-  .sidebar.mobile-open{
-    transform:translateX(0);
-  }
-  .close-sidebar-btn {
-    display: flex;
-  }
-  .sidebar-backdrop {
-    display: block;
-    pointer-events: none;
-  }
-  .sidebar-backdrop.show {
-    pointer-events: auto;
-  }
-  .main{
-    margin-left:0;
-  }
-  .mobile-menu-btn {
-    display: flex !important;
-  }
-  .topbar {
-    padding: 0 16px;
-  }
-  .content {
-    padding: 16px;
-  }
-  .kpi-grid{
-    grid-template-columns:repeat(2,1fr);
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  .kpi-card {
-    padding: 14px;
-    max-width: 100%;
-  }
-  .kpi-value {
-    font-size: 1.6rem;
-  }
-  .kqi-summary-row {
-    grid-template-columns: 1fr;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  .kqi-stat {
-    max-width: 100%;
-    padding: 14px 16px;
-  }
-  .filter-bar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-    padding: 12px;
-    border-radius: var(--r);
-  }
-  .filter-bar input, .filter-bar select {
-    width: 100%;
-  }
-  .kqi-main-row {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-  .kqi-trend, .kqi-donut-wrap {
-    padding: 16px;
-    max-width: 100%;
-  }
-  .modal {
-    padding: 20px;
-    max-height: 85vh;
-    width: 95%;
-  }
-  .custom-toast {
-    left: 16px;
-    right: 16px;
-    bottom: 16px;
-    justify-content: center;
-  }
+        .brand-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--c-text);
+            line-height: 1.2;
+            letter-spacing: -0.3px;
+        }
 
-  /* ── ซ่อนคอลัมน์ที่ไม่จำเป็นบนโหมดมือถือ เหลือเพียง ID, สถานะ, และ จัดการ ── */
-  th:nth-child(2), td:nth-child(2), /* วันที่ */
-  th:nth-child(3), td:nth-child(3), /* ผู้แจ้ง */
-  th:nth-child(4), td:nth-child(4)  /* ปัญหา */ {
-    display: none !important;
-  }
-  table {
-    min-width: 100% !important;
-  }
-  th:first-child, td:first-child {
-    width: 30%;
-  }
-  th:nth-child(5), td:nth-child(5) {
-    width: 35%;
-  }
-  th:last-child, td:last-child {
-    width: 35%;
-    text-align: right;
-  }
-  td, th {
-    padding: 10px 8px !important;
-    font-size: 0.8rem !important;
-  }
-}
+        .brand-sub {
+            font-size: 0.75rem;
+            color: var(--c-text-muted);
+            font-weight: 500;
+        }
 
-@media(max-width:480px){
-  .kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .kpi-card {
-    padding: 12px 10px;
-  }
-  .kpi-value {
-    font-size: 1.4rem;
-  }
-  .kpi-label {
-    font-size: 0.7rem;
-  }
-}
-</style>
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .site-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #F1F5F9;
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-full);
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--c-text-secondary);
+        }
+
+        .site-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--c-success);
+            border-radius: 50%;
+        }
+
+        .btn-nav-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: #FFFFFF;
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--c-text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-nav-action:hover {
+            background: #F8FAFC;
+            border-color: var(--c-border-hover);
+            color: var(--c-text);
+        }
+
+        .btn-logout {
+            color: var(--c-danger);
+            border-color: #FEE2E2;
+            background: #FFF5F5;
+        }
+
+        .btn-logout:hover {
+            background: #FEE2E2;
+            color: #B91C1C;
+        }
+
+        /* ── DASHBOARD MAIN WRAPPER ── */
+        .dashboard-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* ── SECTION HEADINGS ── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--c-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.2px;
+        }
+
+        /* ── 1. KPI CARDS GRID (OVERVIEW STATS) ── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 14px;
+        }
+
+        .kpi-card {
+            background: var(--c-surface);
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-lg);
+            padding: 18px 20px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .kpi-icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .kpi-card.blue .kpi-icon-wrap { background: #EFF6FF; color: var(--c-primary); }
+        .kpi-card.amber .kpi-icon-wrap { background: #FFFBEB; color: var(--c-warning); }
+        .kpi-card.purple .kpi-icon-wrap { background: #F5F3FF; color: var(--c-purple); }
+        .kpi-card.green .kpi-icon-wrap { background: #ECFDF5; color: var(--c-success); }
+        .kpi-card.teal .kpi-icon-wrap { background: #F0FDFA; color: #0D9488; }
+        .kpi-card.rose .kpi-icon-wrap { background: #FFF1F2; color: #BE123C; }
+        .kpi-card.sky .kpi-icon-wrap { background: #F0F9FF; color: var(--c-sky); }
+
+        .kpi-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .kpi-value {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--c-text);
+            line-height: 1.1;
+        }
+
+        .kpi-compare-wrap {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            line-height: 1.1;
+        }
+
+        .kpi-compare-divider {
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: var(--c-text-muted);
+        }
+
+        .kpi-compare-completed {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--c-success);
+        }
+
+        .kpi-label {
+            font-size: 0.82rem;
+            color: var(--c-text-muted);
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .kpi-sub {
+            font-size: 0.72rem;
+            color: var(--c-text-muted);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ── 2. ANALYTICS & KQI (3D MODERN CHARTS) ── */
+        .analytics-card {
+            background: var(--c-surface);
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .select-custom {
+            background: #FFFFFF;
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-sm);
+            padding: 7px 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--c-text);
+            outline: none;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .select-custom:focus {
+            border-color: var(--c-primary-accent);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 20px;
+            margin-top: 18px;
+        }
+
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-box {
+            background: #FFFFFF;
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+        }
+
+        .chart-box-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--c-text);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 270px;
+        }
+
+        /* 3D Modern Center Gauge for Donut Chart */
+        .donut-center-wrap {
+            position: absolute;
+            top: 48%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            background: radial-gradient(circle, #FFFFFF 65%, #F8FAFC 100%);
+            border: 1px solid var(--c-border);
+            border-radius: 50%;
+            width: 110px;
+            height: 110px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05), 0 4px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        .donut-center-val {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: var(--c-text);
+            line-height: 1;
+        }
+
+        .donut-center-sub {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--c-text-muted);
+            margin-top: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── DEPARTMENT TABLE SUMMARY ── */
+        .dept-summary-wrap {
+            margin-top: 20px;
+            background: #F8FAFC;
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-lg);
+            padding: 18px 20px;
+        }
+
+        .dept-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .dept-table th {
+            text-align: left;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--c-text-muted);
+            text-transform: uppercase;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--c-border);
+        }
+
+        .dept-table td {
+            padding: 10px 12px;
+            font-size: 0.88rem;
+            border-bottom: 1px solid #F1F5F9;
+            vertical-align: middle;
+        }
+
+        .dept-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .progress-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-bg {
+            flex: 1;
+            height: 7px;
+            background: #E2E8F0;
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: var(--radius-full);
+            transition: width 0.4s ease;
+        }
+
+        .progress-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            min-width: 36px;
+            color: var(--c-text-secondary);
+        }
+
+        /* ── 3. TICKETS MANAGEMENT (DATA TABLE) ── */
+        .tickets-card {
+            background: var(--c-surface);
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .table-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 360px;
+            min-width: 220px;
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--c-text-muted);
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 9px 14px 9px 36px;
+            background: #F8FAFC;
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            color: var(--c-text);
+            outline: none;
+            transition: all 0.15s ease;
+        }
+
+        .search-input:focus {
+            background: #FFFFFF;
+            border-color: var(--c-primary-accent);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-md);
+            background: #FFFFFF;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 800px;
+        }
+
+        .data-table th {
+            background: #F8FAFC;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--c-text-muted);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--c-border);
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            font-size: 0.88rem;
+            color: var(--c-text);
+            border-bottom: 1px solid #F1F5F9;
+            vertical-align: middle;
+        }
+
+        .data-table tr:hover td {
+            background: #F8FAFC;
+        }
+
+        .ticket-id-pill {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--c-primary);
+            background: var(--c-primary-light);
+            padding: 3px 9px;
+            border-radius: var(--radius-full);
+            display: inline-block;
+            border: 1px solid #DBEAFE;
+        }
+
+        /* ── BADGES ── */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: var(--radius-full);
+            font-size: 0.78rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-open {
+            background: #FEF3C7;
+            color: #92400E;
+            border: 1px solid #FDE68A;
+        }
+
+        .badge-inprogress {
+            background: #DBEAFE;
+            color: #1E40AF;
+            border: 1px solid #BFDBFE;
+        }
+
+        .badge-waiting {
+            background: #EDE9FE;
+            color: #5B21B6;
+            border: 1px solid #DDD6FE;
+        }
+
+        .badge-completed {
+            background: #D1FAE5;
+            color: #065F46;
+            border: 1px solid #A7F3D0;
+        }
+
+        /* ── ACTION BUTTONS IN TABLE ── */
+        .action-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: nowrap;
+        }
+
+        .btn-table-action {
+            padding: 5px 11px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-view {
+            background: #F1F5F9;
+            color: var(--c-text-secondary);
+            border-color: var(--c-border);
+        }
+
+        .btn-view:hover {
+            background: #E2E8F0;
+            color: var(--c-text);
+        }
+
+        .btn-accept {
+            background: var(--c-primary-light);
+            color: var(--c-primary);
+            border-color: #BFDBFE;
+        }
+
+        .btn-accept:hover {
+            background: var(--c-primary);
+            color: #FFFFFF;
+        }
+
+        .btn-close {
+            background: var(--c-success-light);
+            color: var(--c-success);
+            border-color: #A7F3D0;
+        }
+
+        .btn-close:hover {
+            background: var(--c-success);
+            color: #FFFFFF;
+        }
+
+        /* ── PAGINATION ── */
+        .pagination-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-info {
+            font-size: 0.82rem;
+            color: var(--c-text-muted);
+            font-weight: 600;
+        }
+
+        .pagination-btns {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-page {
+            padding: 5px 12px;
+            background: #FFFFFF;
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--c-text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-page:hover:not(:disabled) {
+            background: #F8FAFC;
+            border-color: var(--c-border-hover);
+            color: var(--c-text);
+        }
+
+        .btn-page:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        /* ── DESKTOP VS MOBILE DISPLAY HELPERS ── */
+        .desktop-only {
+            display: block;
+        }
+
+        .mobile-only {
+            display: none !important;
+        }
+
+        /* ── MOBILE TICKET CARDS STYLING ── */
+        .mobile-ticket-list {
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .mobile-ticket-card {
+            background: #FFFFFF;
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+
+        .mobile-ticket-card:active {
+            background: #F8FAFC;
+            transform: scale(0.99);
+        }
+
+        .mcard-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .mcard-id-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mcard-date {
+            font-size: 0.78rem;
+            color: var(--c-text-muted);
+            font-weight: 500;
+        }
+
+        .mcard-content {
+            padding: 4px 0 10px;
+            border-bottom: 1px solid #F1F5F9;
+            margin-bottom: 10px;
+        }
+
+        .mcard-user {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.88rem;
+            color: var(--c-text);
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+
+        .mcard-dept {
+            font-size: 0.75rem;
+            color: var(--c-text-secondary);
+            background: #F1F5F9;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .mcard-issue {
+            font-size: 0.85rem;
+            color: var(--c-text-secondary);
+            line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .mcard-bottom {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-mcard {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: 1px solid transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-mcard-view {
+            background: #F8FAFC;
+            color: var(--c-text-secondary);
+            border-color: var(--c-border);
+        }
+
+        .btn-mcard-view:hover {
+            background: #F1F5F9;
+            color: var(--c-text);
+        }
+
+        .btn-mcard-accept {
+            background: var(--c-primary-light);
+            color: var(--c-primary);
+            border-color: #BFDBFE;
+        }
+
+        .btn-mcard-accept:hover {
+            background: var(--c-primary);
+            color: #FFFFFF;
+        }
+
+        .btn-mcard-close {
+            background: var(--c-success-light);
+            color: var(--c-success);
+            border-color: #A7F3D0;
+        }
+
+        .btn-mcard-close:hover {
+            background: var(--c-success);
+            color: #FFFFFF;
+        }
+
+        .mobile-empty-state {
+            text-align: center;
+            padding: 32px 16px;
+            color: var(--c-text-muted);
+            font-size: 0.88rem;
+            background: #FFFFFF;
+            border: 1px dashed var(--c-border);
+            border-radius: var(--radius-md);
+        }
+
+        /* ── MODALS (FORMAL ENTERPRISE LIGHT THEME) ── */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-backdrop.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-dialog {
+            background: #FFFFFF;
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 520px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            padding: 24px;
+            transform: translateY(12px);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-backdrop.show .modal-dialog {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--c-border);
+        }
+
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--c-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--c-text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 9px 12px;
+            background: #F8FAFC;
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            color: var(--c-text);
+            outline: none;
+            transition: all 0.15s ease;
+        }
+
+        .form-control:focus {
+            background: #FFFFFF;
+            border-color: var(--c-primary-accent);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 85px;
+        }
+
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 14px;
+            border-top: 1px solid var(--c-border);
+        }
+
+        .btn-modal {
+            padding: 9px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+        }
+
+        .btn-modal-cancel {
+            background: #F1F5F9;
+            color: var(--c-text-secondary);
+            border-color: var(--c-border);
+        }
+
+        .btn-modal-cancel:hover {
+            background: #E2E8F0;
+        }
+
+        .btn-modal-primary {
+            background: var(--c-primary);
+            color: #FFFFFF;
+        }
+
+        .btn-modal-primary:hover {
+            background: var(--c-primary-dark);
+        }
+
+        .btn-modal-success {
+            background: var(--c-success);
+            color: #FFFFFF;
+        }
+
+        .btn-modal-success:hover {
+            background: #047857;
+        }
+
+        /* ── DETAIL ROWS IN MODAL ── */
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #F1F5F9;
+            font-size: 0.88rem;
+        }
+
+        .detail-row span:first-child {
+            color: var(--c-text-muted);
+            font-weight: 500;
+            width: 38%;
+        }
+
+        .detail-row span:last-child {
+            color: var(--c-text);
+            font-weight: 600;
+            width: 62%;
+            text-align: right;
+            word-break: break-word;
+        }
+
+        .detail-img-wrap {
+            margin-top: 14px;
+            background: #F8FAFC;
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            text-align: center;
+        }
+
+        .detail-img-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--c-text-secondary);
+            margin-bottom: 6px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .detail-img-wrap img {
+            max-width: 100%;
+            max-height: 220px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+        }
+
+        /* ── TOAST NOTIFICATION ── */
+        .toast-popup {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #FFFFFF;
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-md);
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow-lg);
+            z-index: 99999;
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.25s ease;
+        }
+
+        .toast-popup.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toast-message {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--c-text);
+        }
+
+        /* ── RESPONSIVE MOBILE MEDIA QUERIES (<= 768px) ── */
+        @media (max-width: 768px) {
+            .desktop-only {
+                display: none !important;
+            }
+
+            .mobile-only {
+                display: flex !important;
+            }
+
+            .nav-inner {
+                padding: 10px 14px;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+
+            .brand-logo {
+                width: 32px;
+                height: 32px;
+            }
+
+            .brand-title {
+                font-size: 0.98rem;
+            }
+
+            .brand-sub {
+                display: none;
+            }
+
+            .site-badge {
+                padding: 4px 10px;
+                font-size: 0.75rem;
+            }
+
+            .btn-nav-action {
+                padding: 5px 10px;
+                font-size: 0.78rem;
+            }
+
+            .dashboard-content {
+                padding: 14px 12px;
+                gap: 16px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .kpi-card {
+                padding: 12px 14px;
+                border-radius: var(--radius-md);
+                gap: 10px;
+            }
+
+            .kpi-icon-wrap {
+                width: 36px;
+                height: 36px;
+            }
+
+            .kpi-value {
+                font-size: 1.35rem;
+            }
+
+            .kpi-label {
+                font-size: 0.75rem;
+                margin-top: 1px;
+            }
+
+            .kpi-sub {
+                display: none;
+            }
+
+            .analytics-card {
+                padding: 16px 14px;
+                border-radius: var(--radius-lg);
+            }
+
+            .filter-toolbar {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                width: 100%;
+            }
+
+            .filter-toolbar select {
+                width: 100%;
+                font-size: 0.82rem;
+            }
+
+            #kDept {
+                grid-column: span 2;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+                margin-top: 12px;
+            }
+
+            .chart-box {
+                padding: 14px;
+                border-radius: var(--radius-md);
+            }
+
+            .chart-wrapper {
+                height: 220px;
+            }
+
+            .donut-center-wrap {
+                width: 95px;
+                height: 95px;
+            }
+
+            .donut-center-val {
+                font-size: 1.5rem;
+            }
+
+            .donut-center-sub {
+                font-size: 0.65rem;
+            }
+
+            .dept-summary-wrap {
+                margin-top: 12px;
+                padding: 12px;
+            }
+
+            .dept-table th, .dept-table td {
+                padding: 6px 4px;
+                font-size: 0.78rem;
+            }
+
+            .tickets-card {
+                padding: 16px 14px;
+                border-radius: var(--radius-lg);
+            }
+
+            .table-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .search-box {
+                max-width: 100%;
+                width: 100%;
+            }
+
+            .search-input {
+                font-size: 16px;
+            }
+
+            #filterStatus {
+                width: 100%;
+                font-size: 16px;
+            }
+
+            .pagination-bar {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .pagination-btns {
+                width: 100%;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .btn-page {
+                flex: 1;
+                text-align: center;
+                padding: 8px 12px;
+            }
+
+            .modal-backdrop {
+                padding: 10px;
+                align-items: flex-end;
+            }
+
+            .modal-dialog {
+                border-radius: var(--radius-lg);
+                padding: 18px 16px;
+                max-height: 88vh;
+            }
+
+            .form-control {
+                font-size: 16px;
+            }
+
+            .toast-popup {
+                bottom: 16px;
+                right: 16px;
+                left: 16px;
+                justify-content: center;
+            }
+        }
+
+        /* ── HIDDEN COMPATIBILITY CONTAINERS ── */
+        .tab-view, .nav-item {
+            display: none !important;
+        }
+    </style>
 </head>
+
 <body>
 
-<!-- SIDEBAR BACKDROP -->
-<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
-
-<!-- CUSTOM TOAST -->
-<div id="customToast" class="custom-toast">
-  <span class="toast-icon" id="toastIcon"></span>
-  <span class="toast-msg" id="toastMessage"></span>
-</div>
-
-<!-- LOGIN SCREEN -->
-<div id="loginScreen">
-  <div class="login-box">
-    <div class="login-logo">🔧</div>
-    <h2>Admin Dashboard</h2>
-    <p>เข้าสู่ระบบจัดการงานซ่อม</p>
-    <div class="login-error" id="loginError"></div>
-    <div class="login-input-wrap">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a4 4 0 0 1 4 4c0 2.5-1.5 4.5-4 5-2.5-.5-4-2.5-4-5a4 4 0 0 1 4-4z" stroke="currentColor" stroke-width="1.5"/><path d="M2 15c0-3 1.5-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-      <input type="password" id="adminIdInput" placeholder="รหัสผ่าน Admin" onkeydown="if(event.key==='Enter')login()">
+    <!-- ── LOADING SPINNER OVERLAY ── -->
+    <div id="loading">
+        <div class="loader-spinner"></div>
+        <p>กำลังประมวลผลข้อมูล...</p>
     </div>
-    <button class="login-btn" onclick="login()">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 8H2m0 0l3-3M2 8l3 3M14 1v14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      เข้าสู่ระบบ
-    </button>
-  </div>
-</div>
 
-<!-- LOADING -->
-<div id="loading">
-  <div class="loader-wrap">
-    <div class="loader-ring"></div>
-    <div class="loader-ring2"></div>
-  </div>
-  <p>Processing...</p>
-</div>
+    <!-- ── 1. LOGIN SCREEN ── -->
+    <div id="loginScreen">
+        <div class="login-box">
+            <div class="login-icon-wrap">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+            </div>
+            <h2>ระบบบริหารจัดการงานซ่อม</h2>
+            <p>Admin & Maintenance Management System</p>
 
-<!-- SIDEBAR -->
-<nav class="sidebar" id="sidebar" style="display:none;">
-  <button class="close-sidebar-btn" onclick="toggleSidebar()">✕</button>
-  <div class="sidebar-logo">
-    <div class="logo-icon">🔧</div>
-    <div class="logo-text"><h2>RepairSys</h2><p>Admin Panel v4.0</p></div>
-  </div>
-  <div class="nav">
-    <div class="nav-item active" onclick="switchTab('tasks')" id="nav-tasks">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M4 8h8M4 5h5M4 11h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-      Task Management
-    </div>
-    <div class="nav-item" onclick="switchTab('kqi')" id="nav-kqi">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 12l4-4 3 3 4-5 3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      KQI &amp; Cost Dashboard
-    </div>
-  </div>
-  <div class="sidebar-footer">
-    <div class="site-badge">
-      <span>Site ปัจจุบัน</span>
-      <span id="displaySite">—</span>
-    </div>
-    <button class="logout-btn" onclick="logout()">
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 8H2m0 0l3-3M2 8l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 4V3a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-      ออกจากระบบ
-    </button>
-  </div>
-</nav>
+            <div class="login-error" id="loginError">รหัสแอดมินไม่ถูกต้อง</div>
 
-<!-- MAIN CONTENT -->
-<div class="main" id="mainContent" style="display:none;">
-  <div class="topbar">
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <button class="icon-btn mobile-menu-btn" onclick="toggleSidebar()" title="เปิดเมนู">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-      </button>
-      <h1>ระบบจัดการงานซ่อม</h1>
-    </div>
-    <div class="topbar-actions">
-      <button class="icon-btn" onclick="fetchData()" title="รีเฟรช">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M1 8a7 7 0 1 0 1.5-4.3M1 1v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-    </div>
-  </div>
-
-  <div class="content">
-
-    <!-- ── TAB: TASKS ── -->
-    <div class="tab-view active" id="tab-tasks">
-      <div class="kpi-grid">
-        <div class="kpi-card blue"><div class="kpi-icon">📝</div><div class="kpi-value" id="kTotal">—</div><div class="kpi-label">Tickets ทั้งหมด</div></div>
-        <div class="kpi-card amber"><div class="kpi-icon">⏳</div><div class="kpi-value" id="kWait">—</div><div class="kpi-label">รอดำเนินการ</div></div>
-        <div class="kpi-card purple"><div class="kpi-icon">🔧</div><div class="kpi-value" id="kProg">—</div><div class="kpi-label">กำลังซ่อม</div></div>
-        <div class="kpi-card green"><div class="kpi-icon">✅</div><div class="kpi-value" id="kComp">—</div><div class="kpi-label">เสร็จสิ้น</div></div>
-      </div>
-
-      <div class="filter-bar">
-        <input id="searchInput" type="text" placeholder="🔍  ค้นหา Ticket / ผู้แจ้ง..." oninput="currentPage=1;renderTable();">
-        <select id="filterStatus" onchange="currentPage=1;renderTable();">
-          <option value="All">ทุกสถานะ</option>
-          <option value="Open">Open</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Waiting for Review">Waiting for Review</option>
-          <option value="Completed">Completed</option>
-        </select>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Ticket ID</th><th>วันที่</th><th>ผู้แจ้ง</th>
-              <th>ปัญหา</th><th>สถานะ</th><th>จัดการ</th>
-            </tr>
-          </thead>
-          <tbody id="ticketTable"></tbody>
-        </table>
-        <div class="pagination">
-          <span class="page-info" id="pageInfo">หน้า 1 / 1</span>
-          <button class="page-btn" id="btnPrev" onclick="changePage(-1)">ก่อนหน้า</button>
-          <button class="page-btn" id="btnNext" onclick="changePage(1)">ถัดไป</button>
+            <form class="login-form" onsubmit="event.preventDefault(); login();">
+                <label class="field-label" for="adminIdInput">รหัสประจำตัวผู้ดูแลระบบ (Admin ID)</label>
+                <input type="text" id="adminIdInput" class="login-input" placeholder="ระบุรหัสแอดมิน เช่น AD01" autofocus required>
+                <button type="submit" class="btn-login-submit">เข้าสู่ระบบ</button>
+            </form>
         </div>
-      </div>
     </div>
 
-    <!-- ── TAB: KQI & COST ── -->
-    <div class="tab-view" id="tab-kqi">
+    <!-- ── 2. MAIN ALL-IN-ONE DASHBOARD APP ── -->
+    <div id="appContainer">
 
-      <!-- Filter Bar -->
-      <div class="filter-bar">
-        <select id="kYear" onchange="renderCharts()"><option value="All">ทุกปี</option></select>
-        <select id="kMonth" onchange="renderCharts()">
-          <option value="All">ทุกเดือน</option>
-          <option value="0">มกราคม</option><option value="1">กุมภาพันธ์</option><option value="2">มีนาคม</option>
-          <option value="3">เมษายน</option><option value="4">พฤษภาคม</option><option value="5">มิถุนายน</option>
-          <option value="6">กรกฎาคม</option><option value="7">สิงหาคม</option><option value="8">กันยายน</option>
-          <option value="9">ตุลาคม</option><option value="10">พฤศจิกายน</option><option value="11">ธันวาคม</option>
-        </select>
-        <select id="kDept" onchange="renderCharts()"><option value="All">ทุกหน่วยงาน</option></select>
-      </div>
+        <!-- Compatibility containers for existing scripts -->
+        <div id="sidebar" style="display:none;"></div>
+        <div id="sidebarBackdrop" style="display:none;"></div>
+        <div class="tab-view" id="tab-tickets"></div>
+        <div class="tab-view" id="tab-kqi"></div>
+        <div class="nav-item" id="nav-tickets"></div>
+        <div class="nav-item" id="nav-kqi"></div>
 
-      <!-- Summary Stats Row -->
-      <div class="kqi-summary-row">
-        <div class="kqi-stat s-green">
-          <div class="kqi-stat-icon">🎯</div>
-          <div class="kqi-stat-body">
-            <div class="kqi-stat-val" id="dKqi">—</div>
-            <div class="kqi-stat-label">KQI ความพึงพอใจ</div>
-            <div class="kqi-stat-sub">เป้าหมาย 100% (5 ดาว)</div>
-          </div>
-        </div>
-        <div class="kqi-stat s-blue">
-          <div class="kqi-stat-icon">💰</div>
-          <div class="kqi-stat-body">
-            <div class="kqi-stat-val" id="dCost">—</div>
-            <div class="kqi-stat-label">ค่าใช้จ่ายรวม</div>
-            <div class="kqi-stat-sub" id="dCostAvg">เฉลี่ยต่องาน: —</div>
-          </div>
-        </div>
-        <div class="kqi-stat s-purple">
-          <div class="kqi-stat-icon">📋</div>
-          <div class="kqi-stat-body">
-            <div class="kqi-stat-val" id="dTotalTicket">—</div>
-            <div class="kqi-stat-label">งานที่เสร็จสิ้น</div>
-            <div class="kqi-stat-sub" id="dSatisCount">มีผู้ประเมิน: — งาน</div>
-          </div>
-        </div>
-      </div>
+        <!-- ── TOP NAVIGATION BAR ── -->
+        <header class="top-navbar">
+            <div class="nav-inner">
+                <div class="brand-wrap">
+                    <div class="brand-logo">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                            <line x1="8" y1="21" x2="16" y2="21"/>
+                            <line x1="12" y1="17" x2="12" y2="21"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="brand-title">ระบบบริหารจัดการงานซ่อมบำรุง</div>
+                        <div class="brand-sub">Executive Maintenance Dashboard</div>
+                    </div>
+                </div>
 
-      <!-- Main Row: Trend Chart + Donut -->
-      <div class="kqi-main-row">
+                <div class="nav-actions">
+                    <div class="site-badge">
+                        <span class="site-dot"></span>
+                        <span>สาขา:</span>
+                        <span id="displaySite" style="color:var(--c-primary);">สำนักงานใหญ่</span>
+                    </div>
 
-        <!-- Trend / Bar Chart -->
-        <div class="kqi-trend">
-          <div class="chart-title">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="7" width="3" height="8" rx="1" fill="#3B82F6"/><rect x="6" y="4" width="3" height="11" rx="1" fill="#6366F1"/><rect x="11" y="1" width="3" height="14" rx="1" fill="#8B5CF6"/></svg>
-            ค่าใช้จ่ายแยกตามหน่วยงาน (บาท)
-          </div>
-          <div class="chart-wrapper">
-            <canvas id="costChart"></canvas>
-          </div>
-        </div>
+                    <button class="btn-nav-action" onclick="fetchData();">
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                            <path d="M14 8A6 6 0 1 1 8 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M14 2v6h-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        รีเฟรช
+                    </button>
 
-        <!-- Donut KQI -->
-        <div class="kqi-donut-wrap">
-          <div class="chart-title">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#10B981" stroke-width="1.5"/><circle cx="8" cy="8" r="3" stroke="#EF4444" stroke-width="1.5"/></svg>
-            สัดส่วนการให้คะแนนดาว
-          </div>
-          <div class="donut-center-label">
-            <div class="dcl-val" id="dKqiDonut">—</div>
-            <div class="dcl-sub">ความพึงพอใจ</div>
-          </div>
-          <div class="chart-wrapper">
-            <canvas id="kqiChart"></canvas>
-          </div>
-        </div>
-      </div>
+                    <button class="btn-nav-action btn-logout" onclick="logout();">
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                            <path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        ออกจากระบบ
+                    </button>
+                </div>
+            </div>
+        </header>
 
-      <!-- Department Breakdown Table -->
-      <div class="kqi-dept-row">
-        <div class="kqi-dept-header">
-          <h4>
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h9M2 12h6" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/></svg>
-            สรุปแยกตามหน่วยงาน
-          </h4>
-          <span style="font-size:0.75rem;color:var(--c-muted);">เฉพาะงานที่เสร็จสิ้นและมีการประเมิน</span>
-        </div>
-        <div class="table-wrap">
-          <table class="dept-table">
-            <thead>
-              <tr>
-                <th>หน่วยงาน</th>
-                <th style="text-align:right;">งานซ่อม</th>
-                <th style="text-align:right;">ค่าใช้จ่าย</th>
-                <th style="min-width:160px;">ความพึงพอใจโดยรวม</th>
-                <th style="text-align:right;">KQI %</th>
-              </tr>
-            </thead>
-            <tbody id="deptTableBody">
-              <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--c-muted);">ไม่มีข้อมูล</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+        <!-- ── UNIFIED ALL-IN-ONE CONTENT ── -->
+        <main class="dashboard-content" id="mainContent">
 
+            <!-- ── ROW 1: OVERVIEW KPI STAT CARDS ── -->
+            <section>
+                <div class="kpi-grid">
+                    <div class="kpi-card blue">
+                        <div class="kpi-icon-wrap">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                        </div>
+                        <div class="kpi-body">
+                            <div class="kpi-compare-wrap">
+                                <span class="kpi-value" id="kTotal">—</span>
+                                <span class="kpi-compare-divider">/</span>
+                                <span class="kpi-compare-completed" id="kCompVal" title="งานเสร็จสมบูรณ์">—</span>
+                            </div>
+                            <div class="kpi-label">Tickets ทั้งหมด (ทั้งหมด / เสร็จ)</div>
+                            <div class="kpi-sub" id="kCompPctBadge">เสร็จสิ้น —</div>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card amber">
+                        <div class="kpi-icon-wrap">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <div class="kpi-body">
+                            <div class="kpi-value" id="kWait">—</div>
+                            <div class="kpi-label">รอดำเนินการ (Open)</div>
+                            <div class="kpi-sub">รอช่างเข้าตรวจสอบ</div>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card purple">
+                        <div class="kpi-icon-wrap">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                            </svg>
+                        </div>
+                        <div class="kpi-body">
+                            <div class="kpi-value" id="kProg">—</div>
+                            <div class="kpi-label">กำลังดำเนินการ</div>
+                            <div class="kpi-sub">อยู่ระหว่างซ่อมบำรุง</div>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card teal">
+                        <div class="kpi-icon-wrap">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                        </div>
+                        <div class="kpi-body">
+                            <div class="kpi-value" id="kReview">—</div>
+                            <div class="kpi-label">รอการประเมิน (Review)</div>
+                            <div class="kpi-sub" id="dReviewSub">รอผู้แจ้งให้คะแนนบริการ</div>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card rose">
+                        <div class="kpi-icon-wrap">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <circle cx="12" cy="12" r="6"/>
+                                <circle cx="12" cy="12" r="2"/>
+                            </svg>
+                        </div>
+                        <div class="kpi-body">
+                            <div class="kpi-value" id="dKqi">—</div>
+                            <div class="kpi-label">ดัชนีคุณภาพ (KQI)</div>
+                            <div class="kpi-sub" id="dSatisCount">สัดส่วนความพึงพอใจ</div>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card sky">
+                        <div class="kpi-icon-wrap">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                                <line x1="2" y1="10" x2="22" y2="10"/>
+                            </svg>
+                        </div>
+                        <div class="kpi-body">
+                            <div class="kpi-value" id="dCost">—</div>
+                            <div class="kpi-label">งบประมาณรวม</div>
+                            <div class="kpi-sub" id="dCostAvg">เฉลี่ยต่องาน: —</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── ROW 2: ANALYTICS & KQI (3D MODERN CHARTS) ── -->
+            <section class="analytics-card">
+                <div class="section-header">
+                    <div class="section-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--c-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"/>
+                            <line x1="12" y1="20" x2="12" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="14"/>
+                        </svg>
+                        การวิเคราะห์งบประมาณและดัชนีคุณภาพ (Analytics & KQI)
+                    </div>
+
+                    <!-- Filter Toolbar -->
+                    <div class="filter-toolbar">
+                        <select id="kYear" class="select-custom" onchange="renderCharts()">
+                            <option value="All">ทุกปีปฏิทิน</option>
+                        </select>
+                        <select id="kMonth" class="select-custom" onchange="renderCharts()">
+                            <option value="All">ทุกช่วงเดือน</option>
+                            <option value="0">มกราคม</option>
+                            <option value="1">กุมภาพันธ์</option>
+                            <option value="2">มีนาคม</option>
+                            <option value="3">เมษายน</option>
+                            <option value="4">พฤษภาคม</option>
+                            <option value="5">มิถุนายน</option>
+                            <option value="6">กรกฎาคม</option>
+                            <option value="7">สิงหาคม</option>
+                            <option value="8">กันยายน</option>
+                            <option value="9">ตุลาคม</option>
+                            <option value="10">พฤศจิกายน</option>
+                            <option value="11">ธันวาคม</option>
+                        </select>
+                        <select id="kDept" class="select-custom" onchange="renderCharts()">
+                            <option value="All">ทุกหน่วยงาน</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <!-- 3D Donut Chart (KQI Satisfaction) -->
+                    <div class="chart-box">
+                        <div class="chart-box-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-primary-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 2a10 10 0 0 1 10 10"/>
+                            </svg>
+                            <span>สัดส่วนผลการประเมินคุณภาพบริการ (KQI)</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <div class="donut-center-wrap">
+                                <div class="donut-center-val" id="dKqiDonut">—</div>
+                                <div class="donut-center-sub">KQI SCORE</div>
+                            </div>
+                            <canvas id="kqiChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 3D Bar Chart (Cost by Department) -->
+                    <div class="chart-box">
+                        <div class="chart-box-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-primary-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <line x1="3" y1="9" x2="21" y2="9"/>
+                                <line x1="9" y1="21" x2="9" y2="9"/>
+                            </svg>
+                            <span>งบประมาณค่าใช้จ่ายแยกตามหน่วยงาน (3D Bar Chart)</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="costChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Department Summary Table -->
+                <div class="dept-summary-wrap">
+                    <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
+                        <h4 style="font-size:0.92rem;font-weight:700;color:var(--c-text);display:flex;align-items:center;gap:6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                <polyline points="9 22 9 12 15 12 15 22"/>
+                            </svg>
+                            สรุปภาพรวมแยกรายหน่วยงาน (งานที่เสร็จสิ้นและการประเมิน)
+                        </h4>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="dept-table">
+                            <thead>
+                                <tr>
+                                    <th>หน่วยงาน</th>
+                                    <th style="text-align:right;">จำนวนงาน</th>
+                                    <th style="text-align:right;">งบประมาณรวม</th>
+                                    <th style="min-width:180px;">สัดส่วนงบประมาณ</th>
+                                    <th style="text-align:right;">ดัชนี KQI</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deptTableBody">
+                                <tr><td colspan="5" style="text-align:center;color:var(--c-text-muted);padding:16px;">ไม่มีข้อมูลงานที่เสร็จสิ้นในช่วงเวลานี้</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── ROW 3: TICKETS MANAGEMENT (DATA TABLE & MOBILE CARDS) ── -->
+            <section class="tickets-card">
+                <div class="section-header">
+                    <div class="section-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--c-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                        ทะเบียนรายการแจ้งซ่อมทั้งหมด (Maintenance Tickets)
+                    </div>
+
+                    <!-- Search & Filter Controls -->
+                    <div class="table-toolbar">
+                        <div class="search-box">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"/>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                            <input id="searchInput" type="text" class="search-input" placeholder="ค้นหา Ticket ID, ชื่อผู้แจ้ง, แผนก..." oninput="currentPage=1;renderTable();">
+                        </div>
+
+                        <select id="filterMonth" class="select-custom" onchange="currentPage=1;renderTable();">
+                            <option value="All">ทุกเดือน (Created Month)</option>
+                            <option value="0">มกราคม</option>
+                            <option value="1">กุมภาพันธ์</option>
+                            <option value="2">มีนาคม</option>
+                            <option value="3">เมษายน</option>
+                            <option value="4">พฤษภาคม</option>
+                            <option value="5">มิถุนายน</option>
+                            <option value="6">กรกฎาคม</option>
+                            <option value="7">สิงหาคม</option>
+                            <option value="8">กันยายน</option>
+                            <option value="9">ตุลาคม</option>
+                            <option value="10">พฤศจิกายน</option>
+                            <option value="11">ธันวาคม</option>
+                        </select>
+
+                        <select id="filterStatus" class="select-custom" onchange="currentPage=1;renderTable();">
+                            <option value="All">ทุกสถานะการดำเนินงาน</option>
+                            <option value="Open">รอรับงาน (Open)</option>
+                            <option value="In Progress">กำลังดำเนินการ (In Progress)</option>
+                            <option value="Waiting for Review">รอการประเมิน (Waiting for Review)</option>
+                            <option value="Completed">เสร็จสมบูรณ์ (Completed)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Table Content (Desktop View) -->
+                <div class="table-responsive desktop-only">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Ticket ID</th>
+                                <th>วันที่บันทึก</th>
+                                <th>ผู้แจ้ง / หน่วยงาน</th>
+                                <th>อาการ / ปัญหา</th>
+                                <th>สถานะ</th>
+                                <th style="text-align:right;">การดำเนินงาน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ticketTable">
+                            <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--c-text-muted);">กำลังโหลดข้อมูล...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Ticket Cards (Mobile View) -->
+                <div class="mobile-ticket-list mobile-only" id="mobileTicketList">
+                    <div style="text-align:center;padding:32px;color:var(--c-text-muted);">กำลังโหลดข้อมูล...</div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination-bar">
+                    <span class="page-info" id="pageInfo">หน้า 1 / 1</span>
+                    <div class="pagination-btns">
+                        <button class="btn-page" id="btnPrev" onclick="changePage(-1)">ก่อนหน้า</button>
+                        <button class="btn-page" id="btnNext" onclick="changePage(1)">ถัดไป</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
     </div>
 
-  </div>
-</div>
-
-<!-- MODAL: Detail -->
-<div class="modal-backdrop" id="modalDetail">
-  <div class="modal">
-    <h2>
-      <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#93C5FD" stroke-width="1.5"/><path d="M8 7v5M8 5v.5" stroke="#93C5FD" stroke-width="1.5" stroke-linecap="round"/></svg>
-      รายละเอียด Ticket
-    </h2>
-    <div id="detailContent"></div>
-    <div class="modal-footer">
-      <button class="mbtn mbtn-cancel" onclick="closeModal('modalDetail')">ปิด</button>
+    <!-- ── MODAL: DETAIL ── -->
+    <div class="modal-backdrop" id="modalDetail">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                    <span>รายละเอียดบันทึกงานซ่อม</span>
+                </div>
+                <button class="btn-table-action btn-view" onclick="closeModal('modalDetail')">ปิด</button>
+            </div>
+            <div id="detailContent"></div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-modal-cancel" onclick="closeModal('modalDetail')">ปิดหน้าต่าง</button>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<!-- MODAL: Accept Job -->
-<div class="modal-backdrop" id="modalAccept">
-  <div class="modal">
-    <h2>
-      <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M8 1v7l4 2" stroke="#FCD34D" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="8" r="7" stroke="#FCD34D" stroke-width="1.5"/></svg>
-      รับงานซ่อม
-    </h2>
-    <input type="hidden" id="acceptTicketId">
-    <div class="field-group"><label>ชื่อช่าง</label><input id="acceptAdmin" type="text" placeholder="ชื่อช่างผู้รับผิดชอบ"></div>
-    <div class="field-group"><label>วันนัดหมายเข้าซ่อม</label><input id="acceptAppoint" type="date"></div>
-    <div class="field-group"><label>วันคาดว่าเสร็จสิ้น</label><input id="acceptExpect" type="date"></div>
-    <div class="field-group"><label>อาการที่ตรวจพบ</label><textarea id="acceptSymptom" placeholder="ระบุอาการจากการตรวจเช็คเบื้องต้น..."></textarea></div>
-    <div class="modal-footer">
-      <button class="mbtn mbtn-cancel" onclick="closeModal('modalAccept')">ยกเลิก</button>
-      <button class="mbtn mbtn-confirm" onclick="confirmAccept()">บันทึกรับงาน</button>
+    <!-- ── MODAL: ACCEPT JOB ── -->
+    <div class="modal-backdrop" id="modalAccept">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="8.5" cy="7" r="4"/>
+                        <polyline points="17 11 19 13 23 9"/>
+                    </svg>
+                    <span>บันทึกมอบหมายงานซ่อม</span>
+                </div>
+                <button class="btn-table-action btn-view" onclick="closeModal('modalAccept')">ยกเลิก</button>
+            </div>
+            <input type="hidden" id="acceptTicketId">
+            <div class="form-group">
+                <label>ชื่อช่าง / วิศวกรผู้รับผิดชอบ</label>
+                <input id="acceptAdmin" type="text" class="form-control" placeholder="ชื่อ-นามสกุล ผู้ดำเนินการ">
+            </div>
+            <div class="form-group">
+                <label>วันนัดหมายเข้าตรวจสอบ</label>
+                <input id="acceptAppoint" type="date" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>วันประมาณการแล้วเสร็จ</label>
+                <input id="acceptExpect" type="date" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>ผลการวินิจฉัยอาการเบื้องต้น</label>
+                <textarea id="acceptSymptom" class="form-control" placeholder="ระบุผลการตรวจสอบและแนวทางแก้ไข..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-modal-cancel" onclick="closeModal('modalAccept')">ยกเลิก</button>
+                <button class="btn-modal btn-modal-primary" onclick="confirmAccept()">ยืนยันรับงาน</button>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<!-- MODAL: Close Job -->
-<div class="modal-backdrop" id="modalClose">
-  <div class="modal">
-    <h2>
-      <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="#6EE7B7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      ปิดงานซ่อม
-    </h2>
-    <input type="hidden" id="closeTicketId">
-    <div class="field-group"><label>รายละเอียดการซ่อม</label><textarea id="closeDetail" placeholder="อธิบายสิ่งที่ดำเนินการซ่อม..."></textarea></div>
-    <div class="field-group"><label>ค่าใช้จ่าย (บาท)</label><input id="closeCost" type="number" value="0" placeholder="0"></div>
-    <div class="field-group">
-      <label>รูปถ่ายหลังซ่อม (ถ้ามี)</label>
-      <input type="file" id="closeImgInput" accept="image/*" onchange="previewCloseImg(this)">
-      <div class="img-preview" id="closeImgPreviewWrap" style="display:none;">
-        <img id="closeImgPreview" src="">
-      </div>
+    <!-- ── MODAL: CLOSE JOB ── -->
+    <div class="modal-backdrop" id="modalClose">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    <span>บันทึกปิดงานซ่อมแซม</span>
+                </div>
+                <button class="btn-table-action btn-view" onclick="closeModal('modalClose')">ยกเลิก</button>
+            </div>
+            <input type="hidden" id="closeTicketId">
+            <div class="form-group">
+                <label>รายงานผลการปฏิบัติงานซ่อมแซม</label>
+                <textarea id="closeDetail" class="form-control" placeholder="ระบุขั้นตอนการแก้ไข อะไหล่ที่เปลี่ยน และผลการทดสอบ..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>ค่าใช้จ่ายรวม (บาท)</label>
+                <input id="closeCost" type="number" class="form-control" value="0" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>ภาพถ่ายหลักฐานหลังดำเนินการ (ถ้ามี)</label>
+                <input type="file" id="closeImgInput" accept="image/*" class="form-control" onchange="previewCloseImg(this)">
+                <div class="detail-img-wrap" id="closeImgPreviewWrap" style="display:none;margin-top:10px;">
+                    <img id="closeImgPreview" src="" alt="ภาพถ่ายหลังซ่อม">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-modal-cancel" onclick="closeModal('modalClose')">ยกเลิก</button>
+                <button class="btn-modal btn-modal-success" onclick="confirmClose()">ยืนยันปิดงาน</button>
+            </div>
+        </div>
     </div>
-    <div class="modal-footer">
-      <button class="mbtn mbtn-cancel" onclick="closeModal('modalClose')">ยกเลิก</button>
-      <button class="mbtn mbtn-success" onclick="confirmClose()">ปิดงาน</button>
+
+    <!-- ── TOAST NOTIFICATION ── -->
+    <div class="toast-popup" id="customToast">
+        <span class="toast-icon" id="toastIcon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+        </span>
+        <span class="toast-message" id="toastMessage">ดำเนินการเรียบร้อย</span>
     </div>
-  </div>
-</div>
 
-<script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8fhFOUdu9MHKnk23jnOhuKQ7sG_32FCEmu3mLgNPqiH_kp_Q/exec';
-const ITEMS_PER_PAGE = 8;
+    <!-- ── JAVASCRIPT LOGIC ── -->
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxvTT31CljbM8wIKi2jbm8fhFOUdu9MHKnk23jnOhuKQ7sG_32FCEmu3mLgNPqiH_kp_Q/exec';
+        const ITEMS_PER_PAGE = 10;
 
-let adminData = null;
-let allTickets = [];
-let closeImgBase64 = '';
-let costChartInst, kqiChartInst;
-let currentPage = 1;
+        let adminData = null;
+        let allTickets = [];
+        let closeImgBase64 = '';
+        let costChartInst = null;
+        let kqiChartInst = null;
+        let currentPage = 1;
 
-window.onload = () => {
-  const saved = sessionStorage.getItem('adminData');
-  if (saved) { adminData = JSON.parse(saved); showDashboard(); fetchData(); }
-};
+        window.onload = () => {
+            showLoading(false);
+            const saved = sessionStorage.getItem('adminData');
+            if (saved) {
+                try {
+                    adminData = JSON.parse(saved);
+                    showDashboard();
+                    fetchData();
+                } catch (e) {
+                    sessionStorage.removeItem('adminData');
+                }
+            }
+        };
 
-function showLoading(show) {
-  document.getElementById('loading').style.display = show ? 'flex' : 'none';
-}
-
-// ── CUSTOM TOAST HELPER ──
-function showToast(message, type = 'success') {
-  const toast = document.getElementById('customToast');
-  const icon = document.getElementById('toastIcon');
-  const msg = document.getElementById('toastMessage');
-  
-  msg.textContent = message;
-  if (type === 'success') {
-    icon.innerHTML = '✅';
-    toast.style.borderColor = 'rgba(16, 185, 129, 0.3)';
-  } else if (type === 'error') {
-    icon.innerHTML = '❌';
-    toast.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-  } else {
-    icon.innerHTML = '⚠️';
-    toast.style.borderColor = 'rgba(245, 158, 11, 0.3)';
-  }
-  
-  toast.classList.add('show');
-  setTimeout(() => {
-    toast.classList.remove('show');
-  }, 3500);
-}
-
-// ── TOGGLE SIDEBAR (MOBILE COLLAPSIBLE) ──
-function toggleSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const backdrop = document.getElementById('sidebarBackdrop');
-  sidebar.classList.toggle('mobile-open');
-  backdrop.classList.toggle('show');
-}
-
-async function login() {
-  const id = document.getElementById('adminIdInput').value.trim();
-  if (!id) return;
-  showLoading(true);
-  try {
-    const res = await fetch(`${API_URL}?action=loginAdmin&id=${id}`, { redirect: "follow" });
-    const json = await res.json();
-    if (json.success) {
-      adminData = json;
-      sessionStorage.setItem('adminData', JSON.stringify(adminData));
-      showDashboard();
-      fetchData();
-      showToast('เข้าสู่ระบบสำเร็จแล้ว!');
-    } else {
-      const errEl = document.getElementById('loginError');
-      errEl.textContent = json.error;
-      errEl.style.display = 'block';
-    }
-  } catch(e) { 
-    showToast('ระบบเซิร์ฟเวอร์ขัดข้อง กรุณาลองใหม่', 'error'); 
-  }
-  showLoading(false);
-}
-
-function showDashboard() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('sidebar').style.display = 'flex';
-  document.getElementById('mainContent').style.display = 'flex';
-  document.getElementById('displaySite').textContent = adminData.site;
-}
-
-function logout() {
-  sessionStorage.removeItem('adminData');
-  location.reload();
-}
-
-function switchTab(tab) {
-  document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  document.getElementById('nav-' + tab).classList.add('active');
-  
-  const sidebar = document.getElementById('sidebar');
-  if (sidebar.classList.contains('mobile-open')) {
-    toggleSidebar();
-  }
-  
-  if (tab === 'kqi') renderCharts();
-}
-
-async function fetchData() {
-  showLoading(true);
-  try {
-    const res = await fetch(`${API_URL}?action=getTickets&site=${adminData.site}`, { redirect: "follow" });
-    const json = await res.json();
-    allTickets = json.data || [];
-
-    // ── เรียงลำดับ: รายการล่าสุด (Created_Date ใหม่สุด) ไว้ด้านบนสุด ──
-    allTickets.sort((a, b) => new Date(b['Created_Date']) - new Date(a['Created_Date']));
-
-    const years = [...new Set(allTickets.map(t => new Date(t['Created_Date']).getFullYear()))].filter(y => !isNaN(y)).sort();
-    const depts = [...new Set(allTickets.map(t => t['Department']))].filter(Boolean).sort();
-
-    let yrHtml = '<option value="All">ทุกปี</option>';
-    years.forEach(y => yrHtml += `<option value="${y}">${y}</option>`);
-    document.getElementById('kYear').innerHTML = yrHtml;
-
-    let dpHtml = '<option value="All">ทุกหน่วยงาน</option>';
-    depts.forEach(d => dpHtml += `<option value="${d}">${d}</option>`);
-    document.getElementById('kDept').innerHTML = dpHtml;
-
-    renderTable();
-  } catch(e) { 
-    showToast('ดึงข้อมูลผิดพลาด กรุณากดปุ่มรีเฟรช', 'error');
-  }
-  showLoading(false);
-}
-
-function renderTable() {
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const status = document.getElementById('filterStatus').value;
-
-  const filtered = allTickets.filter(t => {
-    return (status === 'All' || t['Status'] === status) &&
-      (!search || String(t['Ticket_ID'] || '').toLowerCase().includes(search) || String(t['User_Name'] || '').toLowerCase().includes(search));
-  });
-
-  document.getElementById('kTotal').textContent = allTickets.length;
-  document.getElementById('kWait').textContent = allTickets.filter(t => t['Status'] === 'Open').length;
-  document.getElementById('kProg').textContent = allTickets.filter(t => t['Status'] === 'In Progress').length;
-  document.getElementById('kComp').textContent = allTickets.filter(t => t['Status'] === 'Completed').length;
-
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
-  if (currentPage > totalPages) currentPage = totalPages;
-  if (currentPage < 1) currentPage = 1;
-
-  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginated = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
-
-  document.getElementById('pageInfo').textContent = `หน้า ${currentPage} / ${totalPages}`;
-  document.getElementById('btnPrev').disabled = currentPage === 1;
-  document.getElementById('btnNext').disabled = currentPage === totalPages;
-
-  const tbody = document.getElementById('ticketTable');
-  tbody.innerHTML = paginated.map(t => {
-    const s = t['Status'];
-    const badgeKey = s === 'Waiting for Review' ? 'waiting' : s.replace(/ /g, '').toLowerCase();
-    const badgeText = s === 'Waiting for Review' ? 'รอประเมิน' : s;
-    const badge = `<span class="badge badge-${badgeKey}">${badgeText}</span>`;
-
-    let actions = `<button class="action-btn view" onclick="showDetail('${t['Ticket_ID']}')">รายละเอียด</button>`;
-    if (s === 'Open') actions += `<button class="action-btn primary" onclick="openAccept('${t['Ticket_ID']}')">รับงาน</button>`;
-    if (s === 'In Progress') actions += `<button class="action-btn warning" onclick="openClose('${t['Ticket_ID']}')">ปิดงาน</button>`;
-
-    const dt = new Date(t['Created_Date']);
-    const dateStr = isNaN(dt) ? '—' : dt.toLocaleDateString('th-TH');
-
-    return `<tr>
-      <td><span style="font-family:'Kanit',sans-serif;font-weight:600;color:#93C5FD;">${t['Ticket_ID']}</span></td>
-      <td><span style="color:var(--c-muted2);font-size:0.82rem;">${dateStr}</span></td>
-      <td>
-        <span style="font-weight:500;">${t['User_Name'] || '—'}</span><br>
-        <span style="font-size:0.78rem;color:var(--c-muted);">${t['Department'] || '—'}</span>
-      </td>
-      <td style="max-width:200px;color:var(--c-muted2);font-size:0.85rem;">${(t['Issue'] || '—').substring(0, 50)}${(t['Issue'] || '').length > 50 ? '...' : ''}</td>
-      <td>${badge}</td>
-      <td>${actions}</td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--c-muted);">ไม่พบข้อมูล</td></tr>';
-}
-
-function changePage(dir) { currentPage += dir; renderTable(); }
-
-function renderCharts() {
-  const fYear  = document.getElementById('kYear').value;
-  const fMonth = document.getElementById('kMonth').value;
-  const fDept  = document.getElementById('kDept').value;
-
-  const data = allTickets.filter(t => {
-    if (t['Status'] !== 'Completed') return false;
-    const d = new Date(t['Closed_Date'] || t['Created_Date']);
-    if (isNaN(d)) return false;
-    const matchY = fYear  === 'All' || d.getFullYear().toString() === fYear;
-    const matchM = fMonth === 'All' || d.getMonth().toString()    === fMonth;
-    const matchD = fDept  === 'All' || t['Department']            === fDept;
-    return matchY && matchM && matchD;
-  });
-
-  // ── Compute totals (พร้อม Backward Compatibility ของข้อมูลเก่า) ──
-  let totalScore = 0;
-  let reviewCount = 0;
-  const starCounts = [0, 0, 0, 0, 0]; // 1ดาว, 2ดาว, 3ดาว, 4ดาว, 5ดาว
-  let totalCost = 0;
-  const deptMap = {}; 
-
-  data.forEach(t => {
-    const ratingStr = String(t['Rating'] || '');
-    let score = 0;
-    
-    const match = ratingStr.match(/^(\d)/); 
-    if (match) {
-      score = parseInt(match[1], 10);
-    } 
-    else if (ratingStr.includes('พึงพอใจ')) {
-      score = 5;
-    } else if (ratingStr.includes('ควรปรับปรุง')) {
-      score = 1;
-    }
-
-    if(score >= 1 && score <= 5) {
-        totalScore += score;
-        reviewCount++;
-        starCounts[score - 1]++;
-    }
-
-    const c   = Number(t['Cost']) || 0;
-    const dep = t['Department'] || 'อื่นๆ';
-    totalCost += c;
-
-    if (!deptMap[dep]) deptMap[dep] = { count: 0, cost: 0, totalScore: 0, reviewCount: 0 };
-    deptMap[dep].count++;
-    deptMap[dep].cost += c;
-    if (score > 0) {
-      deptMap[dep].totalScore += score;
-      deptMap[dep].reviewCount++;
-    }
-  });
-
-  // % KQI = ((คะแนนรวมดาวทั้งหมด / จำนวนคนที่รีวิว) / 5 ดาว) * 100
-  const kqiPct = reviewCount > 0 ? Math.round(((totalScore / reviewCount) / 5) * 100) : 0;
-  const avgCost = data.length ? Math.round(totalCost / data.length) : 0;
-  const avgScore = reviewCount > 0 ? (totalScore / reviewCount).toFixed(1) : "0.0";
-
-  // ── Update summary stats ──
-  document.getElementById('dKqi').textContent          = kqiPct + '%';
-  document.getElementById('dKqiDonut').textContent     = kqiPct + '%';
-  document.getElementById('dCost').textContent         = '฿' + totalCost.toLocaleString('th-TH');
-  document.getElementById('dCostAvg').textContent      = 'เฉลี่ยต่องาน: ฿' + avgCost.toLocaleString('th-TH');
-  document.getElementById('dTotalTicket').textContent  = data.length;
-  document.getElementById('dSatisCount').textContent   = `รีวิว ${reviewCount} งาน (เฉลี่ย ${avgScore} ดาว)`;
-
-  // ── Dept breakdown table ──
-  const sortedDepts = Object.keys(deptMap).sort((a,b) => deptMap[b].cost - deptMap[a].cost);
-  const maxCost = sortedDepts.length ? deptMap[sortedDepts[0]].cost : 1;
-
-  const tbody = document.getElementById('deptTableBody');
-  if (sortedDepts.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--c-muted);">ไม่มีข้อมูล</td></tr>';
-  } else {
-    tbody.innerHTML = sortedDepts.map(dep => {
-      const d     = deptMap[dep];
-      const dKqi  = d.reviewCount > 0 ? Math.round(((d.totalScore / d.reviewCount) / 5) * 100) : 0;
-      const barW  = maxCost ? Math.round((d.cost  / maxCost)  * 100) : 0;
-      
-      const barColor = dKqi >= 80 ? '#10B981' : dKqi >= 60 ? '#F59E0B' : '#EF4444';
-      const dotColor = dKqi >= 80 ? '#10B981' : dKqi >= 60 ? '#F59E0B' : '#EF4444';
-      
-      return `<tr>
-        <td style="font-weight:500;">${dep}</td>
-        <td style="text-align:right;color:var(--c-muted2);">${d.count}</td>
-        <td style="text-align:right;font-family:'Kanit',sans-serif;font-weight:600;color:#93C5FD;">฿${d.cost.toLocaleString('th-TH')}</td>
-        <td>
-          <div class="dept-bar-wrap">
-            <div class="dept-bar-bg"><div class="dept-bar-fill" style="width:${barW}%;background:${barColor};"></div></div>
-            <span class="dept-bar-pct">${barW}%</span>
-          </div>
-        </td>
-        <td style="text-align:right;">
-          <span class="kqi-satis-dot" style="background:${dotColor};"></span>
-          <span style="font-family:'Kanit',sans-serif;font-weight:600;color:${dotColor};">${dKqi}%</span>
-        </td>
-      </tr>`;
-    }).join('');
-  }
-
-  // ── Chart defaults ──
-  Chart.defaults.color = '#64748B';
-  Chart.defaults.font  = { family: "'Sarabun', sans-serif", size: 12 };
-
-  // ── Bar Chart: Cost by dept (ตั้งค่า maintainAspectRatio: false) ──
-  if (costChartInst) costChartInst.destroy();
-  costChartInst = new Chart(document.getElementById('costChart'), {
-    type: 'bar',
-    data: {
-      labels: sortedDepts,
-      datasets: [{
-        label: 'ค่าใช้จ่าย (฿)',
-        data: sortedDepts.map(d => deptMap[d].cost),
-        backgroundColor: sortedDepts.map((_, i) => `rgba(${59+i*15},${130-i*8},246,0.75)`),
-        borderColor: '#3B82F6',
-        borderWidth: 0,
-        borderRadius: 6,
-        borderSkipped: false
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false, // สำคัญที่สุด! เพื่อบังคับกราฟให้อยู่ในกรอบ .chart-wrapper ไม่ขยายตัวไร้ขีดจำกัด
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: { label: ctx => ' ฿' + ctx.parsed.y.toLocaleString('th-TH') }
+        function showLoading(show) {
+            const el = document.getElementById('loading');
+            if (el) el.style.display = show ? 'flex' : 'none';
         }
-      },
-      scales: {
-        x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#64748B', maxRotation: 30 } },
-        y: {
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: '#64748B', callback: v => '฿' + (v >= 1000 ? (v/1000).toFixed(0)+'k' : v) }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('customToast');
+            const icon = document.getElementById('toastIcon');
+            const msg = document.getElementById('toastMessage');
+
+            msg.textContent = message;
+            if (type === 'success') {
+                icon.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+                toast.style.borderColor = '#A7F3D0';
+            } else if (type === 'error') {
+                icon.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+                toast.style.borderColor = '#FECACA';
+            } else {
+                icon.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+                toast.style.borderColor = '#FDE68A';
+            }
+
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3500);
         }
-      }
-    }
-  });
 
-  // ── Donut Chart: KQI (5 Levels) (ตั้งค่า maintainAspectRatio: false) ──
-  if (kqiChartInst) kqiChartInst.destroy();
-  kqiChartInst = new Chart(document.getElementById('kqiChart'), {
-    type: 'doughnut',
-    data: {
-      labels: ['5 ดาว (ดีมาก)', '4 ดาว (ดี)', '3 ดาว (ปานกลาง)', '2 ดาว (พอใช้)', '1 ดาว (ควรปรับปรุง)'],
-      datasets: [{
-        data: [starCounts[4], starCounts[3], starCounts[2], starCounts[1], starCounts[0]],
-        backgroundColor: ['#10B981', '#34D399', '#FCD34D', '#F87171', '#EF4444'],
-        borderColor: ['#065F46', '#064E3B', '#B45309', '#991B1B', '#7F1D1D'],
-        borderWidth: 1,
-        hoverOffset: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false, // บังคับโครงสร้างกราฟให้อยู่ในกรอบ CSS ไม่เติบโตล้นช่องมือถือ
-      cutout: '68%',
-      plugins: {
-        legend: {
-          position: window.innerWidth < 768 ? 'bottom' : 'right',
-          labels: { padding: 8, usePointStyle: true, pointStyle: 'circle', color: '#94A3B8', font: { size: 10 } }
-        },
-        tooltip: {
-          callbacks: {
-            label: ctx => ' ' + ctx.label + ': ' + ctx.parsed + ' งาน'
-          }
+        async function login() {
+            const id = document.getElementById('adminIdInput').value.trim();
+            if (!id) return;
+            showLoading(true);
+            try {
+                const res = await fetch(`${API_URL}?action=loginAdmin&id=${id}`, { redirect: "follow" });
+                const json = await res.json();
+                if (json.success) {
+                    adminData = json;
+                    sessionStorage.setItem('adminData', JSON.stringify(adminData));
+                    showDashboard();
+                    await fetchData();
+                    showToast('เข้าสู่ระบบเรียบร้อย');
+                } else {
+                    const errEl = document.getElementById('loginError');
+                    errEl.textContent = json.error || 'ไม่พบรหัสแอดมินในระบบ';
+                    errEl.style.display = 'block';
+                }
+            } catch (e) {
+                showToast('การเชื่อมต่อขัดข้อง กรุณาลองใหม่อีกครั้ง', 'error');
+            }
+            showLoading(false);
         }
-      }
-    }
-  });
-}
 
-function showDetail(id) {
-  const t = allTickets.find(x => x['Ticket_ID'] === id);
-  if (!t) return;
-  const dt = new Date(t['Created_Date']);
-  
-  let ratingClean = String(t['Rating'] || '—');
-  if (ratingClean.match(/^\d/)) {
-    ratingClean = ratingClean.split('(')[0].trim() + ' ' + (ratingClean.match(/\(([^)]+)\)/)?.[1] || '');
-  }
-  
-  const fields = [
-    ['Ticket ID', t['Ticket_ID']], ['สถานะ', t['Status']],
-    ['วันที่แจ้ง', isNaN(dt) ? '—' : dt.toLocaleDateString('th-TH')],
-    ['ผู้แจ้ง', t['User_Name']], ['หน่วยงาน', t['Department']],
-    ['ปัญหา', t['Issue']], ['ช่าง', t['Admin_Name']],
-    ['อาการที่ตรวจพบ', t['Diagnosed_Symptom']],
-    ['รายละเอียดซ่อม', t['Fix_Detail']],
-    ['ค่าใช้จ่าย', t['Cost'] ? '฿' + Number(t['Cost']).toLocaleString('th-TH') : null],
-    ['ความพึงพอใจ', ratingClean === '— ' ? '—' : ratingClean], ['ความคิดเห็น', t['Feedback']]
-  ];
+        function showDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'flex';
+            document.getElementById('displaySite').textContent = adminData.site || 'สำนักงานใหญ่';
+        }
 
-  let html = fields.filter(([, v]) => v && v !== '—' && v !== 'undefined')
-    .map(([l, v]) => `<div class="detail-row"><span>${l}</span><span>${v}</span></div>`)
-    .join('');
+        function logout() {
+            sessionStorage.removeItem('adminData');
+            location.reload();
+        }
 
-  if (t['Img_Before']) html += `<div class="detail-img-wrap"><div class="detail-img-label">รูปก่อนซ่อม</div><img src="${t['Img_Before']}"></div>`;
-  if (t['Img_After']) html += `<div class="detail-img-wrap"><div class="detail-img-label">รูปหลังซ่อม</div><img src="${t['Img_After']}"></div>`;
+        function switchTab(tab) {
+            if (tab === 'kqi') renderCharts();
+        }
 
-  document.getElementById('detailContent').innerHTML = html;
-  document.getElementById('modalDetail').classList.add('show');
-}
+        async function fetchData() {
+            showLoading(true);
+            try {
+                const res = await fetch(`${API_URL}?action=getTickets&site=${encodeURIComponent(adminData.site)}`, { redirect: "follow" });
+                const json = await res.json();
+                allTickets = json.data || [];
 
-function openAccept(id) {
-  document.getElementById('acceptTicketId').value = id;
-  document.getElementById('acceptAdmin').value = adminData.name;
-  document.getElementById('acceptSymptom').value = '';
-  document.getElementById('modalAccept').classList.add('show');
-}
-function openClose(id) {
-  document.getElementById('closeTicketId').value = id;
-  document.getElementById('closeDetail').value = '';
-  document.getElementById('closeCost').value = '0';
-  closeImgBase64 = '';
-  document.getElementById('closeImgPreviewWrap').style.display = 'none';
-  document.getElementById('modalClose').classList.add('show');
-}
-function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+                allTickets.sort((a, b) => new Date(b['Created_Date']) - new Date(a['Created_Date']));
 
-function previewCloseImg(input) {
-  if (!input.files[0]) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    closeImgBase64 = e.target.result;
-    document.getElementById('closeImgPreview').src = closeImgBase64;
-    document.getElementById('closeImgPreviewWrap').style.display = 'block';
-  };
-  reader.readAsDataURL(input.files[0]);
-}
+                const years = [...new Set(allTickets.map(t => new Date(t['Created_Date']).getFullYear()))].filter(y => !isNaN(y)).sort();
+                const depts = [...new Set(allTickets.map(t => t['Department']))].filter(Boolean).sort();
 
-async function sendPost(payload, modalId) {
-  showLoading(true);
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload),
-      redirect: "follow"
-    });
-    const json = await res.json();
-    if (json.success) { 
-      closeModal(modalId); 
-      fetchData(); 
-      showToast('บันทึกข้อมูลเรียบร้อยแล้ว!');
-    }
-    else { 
-      showToast('เกิดข้อผิดพลาด: ' + json.error, 'error'); 
-    }
-  } catch(err) { 
-    showToast('การเชื่อมต่อเซิร์ฟเวอร์ขัดข้อง', 'error'); 
-  }
-  showLoading(false);
-}
+                let yrHtml = '<option value="All">ทุกปีปฏิทิน</option>';
+                years.forEach(y => yrHtml += `<option value="${y}">${y}</option>`);
+                document.getElementById('kYear').innerHTML = yrHtml;
 
-function confirmAccept() {
-  const admin = document.getElementById('acceptAdmin').value;
-  const app = document.getElementById('acceptAppoint').value;
-  const exp = document.getElementById('acceptExpect').value;
-  const symptom = document.getElementById('acceptSymptom').value.trim();
-  if (!admin || !app || !exp || !symptom) return showToast('กรุณากรอกข้อมูลนัดหมายและอาการตรวจเช็คให้ครบถ้วน', 'warning');
-  sendPost({
-    action: 'acceptJob',
-    data: { 
-      ticketId: document.getElementById('acceptTicketId').value, 
-      adminName: admin, 
-      appointDate: app, 
-      expectDate: exp,
-      diagnosedSymptom: symptom
-    }
-  }, 'modalAccept');
-}
+                let dpHtml = '<option value="All">ทุกหน่วยงาน</option>';
+                depts.forEach(d => dpHtml += `<option value="${d}">${d}</option>`);
+                document.getElementById('kDept').innerHTML = dpHtml;
 
-function confirmClose() {
-  const detail = document.getElementById('closeDetail').value;
-  const cost = document.getElementById('closeCost').value;
-  if (!detail) return showToast('กรุณาระบุรายละเอียดการแก้ไขปัญหา', 'warning');
-  sendPost({
-    action: 'closeJob',
-    data: { ticketId: document.getElementById('closeTicketId').value, fixDetail: detail, cost: cost, imgAfter: closeImgBase64 }
-  }, 'modalClose');
-}
-</script>
+                renderTable();
+                renderCharts();
+            } catch (e) {
+                showToast('ดึงข้อมูลผิดพลาด กรุณากดรีเฟรช', 'error');
+            }
+            showLoading(false);
+        }
+
+        function renderTable() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('filterStatus').value;
+            const monthVal = document.getElementById('filterMonth') ? document.getElementById('filterMonth').value : 'All';
+
+            const filtered = allTickets.filter(t => {
+                const matchStatus = (status === 'All' || t['Status'] === status);
+                
+                let matchMonth = true;
+                if (monthVal !== 'All') {
+                    const d = new Date(t['Created_Date']);
+                    matchMonth = !isNaN(d) && d.getMonth().toString() === monthVal;
+                }
+
+                const matchSearch = !search || 
+                     String(t['Ticket_ID'] || '').toLowerCase().includes(search) || 
+                     String(t['User_Name'] || '').toLowerCase().includes(search) ||
+                     String(t['Department'] || '').toLowerCase().includes(search) ||
+                     String(t['Issue'] || '').toLowerCase().includes(search);
+
+                return matchStatus && matchMonth && matchSearch;
+            });
+
+            // KPI overview cards are controlled dynamically by the filter toolbar (renderCharts/updateOverviewKPIs)
+
+            const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+            const paginated = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+            document.getElementById('pageInfo').textContent = `หน้า ${currentPage} จาก ${totalPages} (${filtered.length} รายการ)`;
+            document.getElementById('btnPrev').disabled = currentPage === 1;
+            document.getElementById('btnNext').disabled = currentPage === totalPages;
+
+            const tbody = document.getElementById('ticketTable');
+            if (tbody) {
+                tbody.innerHTML = paginated.map(t => {
+                    const s = t['Status'];
+                    let badgeClass = 'badge-open';
+                    let badgeText = s;
+                    if (s === 'Open') { badgeClass = 'badge-open'; badgeText = 'รอรับงาน'; }
+                    else if (s === 'In Progress') { badgeClass = 'badge-inprogress'; badgeText = 'กำลังดำเนินการ'; }
+                    else if (s === 'Waiting for Review') { badgeClass = 'badge-waiting'; badgeText = 'รอการประเมิน'; }
+                    else if (s === 'Completed') { badgeClass = 'badge-completed'; badgeText = 'เสร็จสมบูรณ์'; }
+
+                    const badge = `<span class="status-badge ${badgeClass}">${badgeText}</span>`;
+
+                    let actions = `<button class="btn-table-action btn-view" onclick="showDetail('${t['Ticket_ID']}')">รายละเอียด</button>`;
+                    if (s === 'Open') actions += `<button class="btn-table-action btn-accept" onclick="openAccept('${t['Ticket_ID']}')">รับงาน</button>`;
+                    if (s === 'In Progress') actions += `<button class="btn-table-action btn-close" onclick="openClose('${t['Ticket_ID']}')">ปิดงาน</button>`;
+
+                    const dt = new Date(t['Created_Date']);
+                    const dateStr = isNaN(dt) ? '—' : dt.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+
+                    return `<tr>
+                        <td><span class="ticket-id-pill">${t['Ticket_ID']}</span></td>
+                        <td style="color:var(--c-text-secondary);font-size:0.85rem;">${dateStr}</td>
+                        <td>
+                            <div style="font-weight:600;color:var(--c-text);">${t['User_Name'] || '—'}</div>
+                            <div style="font-size:0.8rem;color:var(--c-text-muted);">${t['Department'] || '—'}</div>
+                        </td>
+                        <td style="max-width:240px;color:var(--c-text-secondary);font-size:0.85rem;">
+                            ${(t['Issue'] || '—').substring(0, 55)}${(t['Issue'] || '').length > 55 ? '...' : ''}
+                        </td>
+                        <td>${badge}</td>
+                        <td style="text-align:right;">
+                            <div class="action-group" style="justify-content:flex-end;">${actions}</div>
+                        </td>
+                    </tr>`;
+                }).join('') || '<tr><td colspan="6" style="text-align:center;padding:36px;color:var(--c-text-muted);">ไม่พบข้อมูลที่ตรงกับการค้นหา</td></tr>';
+            }
+
+            // Render Mobile Cards View
+            const mobileList = document.getElementById('mobileTicketList');
+            if (mobileList) {
+                if (paginated.length === 0) {
+                    mobileList.innerHTML = '<div class="mobile-empty-state">ไม่พบข้อมูลที่ตรงกับการค้นหา</div>';
+                } else {
+                    mobileList.innerHTML = paginated.map(t => {
+                        const s = t['Status'];
+                        let badgeClass = 'badge-open';
+                        let badgeText = s;
+                        if (s === 'Open') { badgeClass = 'badge-open'; badgeText = 'รอรับงาน'; }
+                        else if (s === 'In Progress') { badgeClass = 'badge-inprogress'; badgeText = 'กำลังดำเนินการ'; }
+                        else if (s === 'Waiting for Review') { badgeClass = 'badge-waiting'; badgeText = 'รอการประเมิน'; }
+                        else if (s === 'Completed') { badgeClass = 'badge-completed'; badgeText = 'เสร็จสมบูรณ์'; }
+
+                        let quickActions = '';
+                        if (s === 'Open') {
+                            quickActions = `<button class="btn-mcard btn-mcard-accept" onclick="event.stopPropagation(); openAccept('${t['Ticket_ID']}')">รับงาน</button>`;
+                        } else if (s === 'In Progress') {
+                            quickActions = `<button class="btn-mcard btn-mcard-close" onclick="event.stopPropagation(); openClose('${t['Ticket_ID']}')">ปิดงาน</button>`;
+                        }
+
+                        const dt = new Date(t['Created_Date']);
+                        const dateStr = isNaN(dt) ? '—' : dt.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
+
+                        return `
+                        <div class="mobile-ticket-card" onclick="showDetail('${t['Ticket_ID']}')">
+                            <div class="mcard-top">
+                                <div class="mcard-id-row">
+                                    <span class="ticket-id-pill">${t['Ticket_ID']}</span>
+                                    <span class="mcard-date">${dateStr}</span>
+                                </div>
+                                <span class="status-badge ${badgeClass}">${badgeText}</span>
+                            </div>
+                            <div class="mcard-content">
+                                <div class="mcard-user">
+                                    <strong>${t['User_Name'] || '—'}</strong>
+                                    <span class="mcard-dept">${t['Department'] || '—'}</span>
+                                </div>
+                                <div class="mcard-issue">
+                                    ${(t['Issue'] || '—').substring(0, 65)}${(t['Issue'] || '').length > 65 ? '...' : ''}
+                                </div>
+                            </div>
+                            <div class="mcard-bottom" onclick="event.stopPropagation()">
+                                <button class="btn-mcard btn-mcard-view" onclick="showDetail('${t['Ticket_ID']}')">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="11" cy="11" r="8"/>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                    </svg>
+                                    ดูรายละเอียด
+                                </button>
+                                ${quickActions}
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
+            }
+        }
+
+        function changePage(dir) {
+            currentPage += dir;
+            renderTable();
+        }
+
+        function renderCharts() {
+            const fYear = document.getElementById('kYear').value;
+            const fMonth = document.getElementById('kMonth').value;
+            const fDept = document.getElementById('kDept').value;
+
+            // ── Update Overview KPI Cards (Cards 1 to 4) based on the filter ──
+            const filteredOverview = allTickets.filter(t => {
+                const d = new Date(t['Created_Date']);
+                if (isNaN(d)) return false;
+                const matchY = fYear === 'All' || d.getFullYear().toString() === fYear;
+                const matchM = fMonth === 'All' || d.getMonth().toString() === fMonth;
+                const matchD = fDept === 'All' || t['Department'] === fDept;
+                return matchY && matchM && matchD;
+            });
+
+            const totalCount = filteredOverview.length;
+            const completedCount = filteredOverview.filter(t => t['Status'] === 'Completed').length;
+            const completedPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+            const openCount = filteredOverview.filter(t => t['Status'] === 'Open').length;
+            const progCount = filteredOverview.filter(t => t['Status'] === 'In Progress').length;
+            const reviewCountTickets = filteredOverview.filter(t => t['Status'] === 'Waiting for Review').length;
+
+            const kTotalEl = document.getElementById('kTotal');
+            if (kTotalEl) kTotalEl.textContent = totalCount;
+            const kCompEl = document.getElementById('kCompVal');
+            if (kCompEl) kCompEl.textContent = completedCount;
+            const kCompPctEl = document.getElementById('kCompPctBadge');
+            if (kCompPctEl) kCompPctEl.textContent = `เสร็จสิ้น ${completedCount} งาน (${completedPct}%)`;
+
+            const kWaitEl = document.getElementById('kWait');
+            if (kWaitEl) kWaitEl.textContent = openCount;
+            const kProgEl = document.getElementById('kProg');
+            if (kProgEl) kProgEl.textContent = progCount;
+            const kRevEl = document.getElementById('kReview');
+            if (kRevEl) kRevEl.textContent = reviewCountTickets;
+            const dRevSubEl = document.getElementById('dReviewSub');
+            if (dRevSubEl) dRevSubEl.textContent = `รอผู้แจ้งประเมิน ${reviewCountTickets} งาน`;
+
+            // ── Filter Completed Tickets for Analytics, KQI & Budget (Cards 5 & 6) ──
+            const data = allTickets.filter(t => {
+                if (t['Status'] !== 'Completed') return false;
+                const d = new Date(t['Closed_Date'] || t['Created_Date']);
+                if (isNaN(d)) return false;
+                const matchY = fYear === 'All' || d.getFullYear().toString() === fYear;
+                const matchM = fMonth === 'All' || d.getMonth().toString() === fMonth;
+                const matchD = fDept === 'All' || t['Department'] === fDept;
+                return matchY && matchM && matchD;
+            });
+
+            let totalScore = 0;
+            let reviewCount = 0;
+            const starCounts = [0, 0, 0, 0, 0];
+            let totalCost = 0;
+            const deptMap = {};
+
+            data.forEach(t => {
+                const ratingStr = String(t['Rating'] || '');
+                let score = 0;
+
+                const match = ratingStr.match(/^(\d)/);
+                if (match) {
+                    score = parseInt(match[1], 10);
+                } else if (ratingStr.includes('พึงพอใจ')) {
+                    score = 5;
+                } else if (ratingStr.includes('ควรปรับปรุง')) {
+                    score = 1;
+                }
+
+                if (score >= 1 && score <= 5) {
+                    totalScore += score;
+                    reviewCount++;
+                    starCounts[score - 1]++;
+                }
+
+                const c = Number(t['Cost']) || 0;
+                const dep = t['Department'] || 'อื่นๆ';
+                totalCost += c;
+
+                if (!deptMap[dep]) deptMap[dep] = { count: 0, cost: 0, totalScore: 0, reviewCount: 0 };
+                deptMap[dep].count++;
+                deptMap[dep].cost += c;
+                if (score > 0) {
+                    deptMap[dep].totalScore += score;
+                    deptMap[dep].reviewCount++;
+                }
+            });
+
+            const kqiPct = reviewCount > 0 ? Math.round(((totalScore / reviewCount) / 5) * 100) : 0;
+            const avgCost = data.length ? Math.round(totalCost / data.length) : 0;
+            const avgScore = reviewCount > 0 ? (totalScore / reviewCount).toFixed(1) : "0.0";
+
+            document.getElementById('dKqi').textContent = kqiPct + '%';
+            document.getElementById('dKqiDonut').textContent = kqiPct + '%';
+            document.getElementById('dCost').textContent = '฿' + totalCost.toLocaleString('th-TH');
+            document.getElementById('dCostAvg').textContent = 'เฉลี่ยต่องาน: ฿' + avgCost.toLocaleString('th-TH');
+            const dtEl = document.getElementById('dTotalTicket');
+            if (dtEl) dtEl.textContent = data.length + ' งานเสร็จสมบูรณ์';
+            document.getElementById('dSatisCount').textContent = `ประเมินแล้ว ${reviewCount} งาน (เฉลี่ย ${avgScore}/5)`;
+
+            // ── Department Breakdown Table ──
+            const sortedDepts = Object.keys(deptMap).sort((a, b) => deptMap[b].cost - deptMap[a].cost);
+            const maxCost = sortedDepts.length ? deptMap[sortedDepts[0]].cost : 1;
+
+            const tbody = document.getElementById('deptTableBody');
+            if (sortedDepts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--c-text-muted);">ไม่มีข้อมูลงานที่เสร็จสิ้นในช่วงเวลานี้</td></tr>';
+            } else {
+                tbody.innerHTML = sortedDepts.map(dep => {
+                    const d = deptMap[dep];
+                    const dKqi = d.reviewCount > 0 ? Math.round(((d.totalScore / d.reviewCount) / 5) * 100) : 0;
+                    const barW = maxCost ? Math.round((d.cost / maxCost) * 100) : 0;
+                    const barColor = dKqi >= 80 ? '#059669' : dKqi >= 60 ? '#D97706' : '#DC2626';
+
+                    return `<tr>
+                        <td style="font-weight:600;color:var(--c-text);">${dep}</td>
+                        <td style="text-align:right;color:var(--c-text-secondary);font-weight:600;">${d.count}</td>
+                        <td style="text-align:right;font-weight:700;color:var(--c-primary);">฿${d.cost.toLocaleString('th-TH')}</td>
+                        <td>
+                            <div class="progress-bar-wrap">
+                                <div class="progress-bg">
+                                    <div class="progress-fill" style="width:${barW}%;background:${barColor};"></div>
+                                </div>
+                                <span class="progress-label">${barW}%</span>
+                            </div>
+                        </td>
+                        <td style="text-align:right;font-weight:700;color:${barColor};">
+                            ${dKqi}%
+                        </td>
+                    </tr>`;
+                }).join('');
+            }
+
+            // ── Chart.js Global Settings ──
+            Chart.defaults.color = '#64748B';
+            Chart.defaults.font = { family: "'Kanit', sans-serif", size: 12 };
+
+            // ── 3D Effect Plugin for Bar Chart ──
+            const bar3DPlugin = {
+                id: 'bar3DPlugin',
+                beforeDatasetsDraw(chart) {
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.shadowColor = 'rgba(30, 64, 175, 0.22)';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 6;
+                },
+                afterDatasetsDraw(chart) {
+                    chart.ctx.restore();
+                }
+            };
+
+            // ── 3D Modern Bar Chart: Expenses by Department ──
+            if (costChartInst) costChartInst.destroy();
+            const barCanvas = document.getElementById('costChart');
+            const barCtx = barCanvas.getContext('2d');
+
+            // Create vertical 3D pillar gradient
+            const barGradient = barCtx.createLinearGradient(0, 0, 0, 260);
+            barGradient.addColorStop(0, '#3B82F6');
+            barGradient.addColorStop(0.5, '#1E40AF');
+            barGradient.addColorStop(1, '#1E3A8A');
+
+            costChartInst = new Chart(barCtx, {
+                type: 'bar',
+                plugins: [bar3DPlugin],
+                data: {
+                    labels: sortedDepts,
+                    datasets: [{
+                        label: 'งบประมาณ (บาท)',
+                        data: sortedDepts.map(d => deptMap[d].cost),
+                        backgroundColor: barGradient,
+                        borderRadius: 8,
+                        maxBarThickness: 34
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0F172A',
+                            padding: 10,
+                            titleFont: { family: "'Kanit', sans-serif", size: 13, weight: 'bold' },
+                            bodyFont: { family: "'Kanit', sans-serif", size: 12 },
+                            callbacks: { label: ctx => ' งบประมาณ: ฿' + ctx.parsed.y.toLocaleString('th-TH') }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748B', maxRotation: 25 } },
+                        y: {
+                            grid: { color: '#F1F5F9' },
+                            ticks: { color: '#64748B', callback: v => '฿' + (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v) }
+                        }
+                    }
+                }
+            });
+
+            // ── 3D Effect Plugin for Donut Chart ──
+            const donut3DPlugin = {
+                id: 'donut3DPlugin',
+                beforeDatasetsDraw(chart) {
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+                    ctx.shadowBlur = 12;
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 6;
+                },
+                afterDatasetsDraw(chart) {
+                    chart.ctx.restore();
+                }
+            };
+
+            // ── 3D Donut Chart: Satisfaction KQI (Professional Levels) ──
+            if (kqiChartInst) kqiChartInst.destroy();
+            const donutCanvas = document.getElementById('kqiChart');
+            const donutCtx = donutCanvas.getContext('2d');
+
+            kqiChartInst = new Chart(donutCtx, {
+                type: 'doughnut',
+                plugins: [donut3DPlugin],
+                data: {
+                    labels: ['ระดับ 5 (ดีมาก)', 'ระดับ 4 (ดี)', 'ระดับ 3 (ปานกลาง)', 'ระดับ 2 (พอใช้)', 'ระดับ 1 (ต้องปรับปรุง)'],
+                    datasets: [{
+                        data: [starCounts[4], starCounts[3], starCounts[2], starCounts[1], starCounts[0]],
+                        backgroundColor: ['#059669', '#10B981', '#F59E0B', '#EF4444', '#DC2626'],
+                        borderWidth: 2,
+                        borderColor: '#FFFFFF',
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 12,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                color: '#475569',
+                                font: { size: 11, family: "'Kanit', sans-serif" }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#0F172A',
+                            padding: 10,
+                            callbacks: {
+                                label: ctx => ' ' + ctx.label + ': ' + ctx.parsed + ' รายการ'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function showDetail(id) {
+            const t = allTickets.find(x => x['Ticket_ID'] === id);
+            if (!t) return;
+            const dt = new Date(t['Created_Date']);
+
+            let ratingClean = String(t['Rating'] || '—');
+            if (ratingClean.match(/^\d/)) {
+                ratingClean = ratingClean.split('(')[0].trim() + ' ' + (ratingClean.match(/\(([^)]+)\)/)?.[1] || '');
+            }
+
+            const fields = [
+                ['รหัสงาน (Ticket ID)', t['Ticket_ID']],
+                ['สถานะการดำเนินงาน', t['Status']],
+                ['วันและเวลาที่บันทึก', isNaN(dt) ? '—' : dt.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })],
+                ['ผู้แจ้งเรื่อง', t['User_Name']],
+                ['หน่วยงาน / แผนก', t['Department']],
+                ['สถานที่ / สาขา', t['Site']],
+                ['อาการหรือปัญหาที่พบ', t['Issue']],
+                ['ผู้รับผิดชอบการซ่อม', t['Admin_Name']],
+                ['ผลการวินิจฉัยอาการ', t['Diagnosed_Symptom']],
+                ['รายงานผลการแก้ไข', t['Fix_Detail']],
+                ['งบประมาณค่าใช้จ่าย', t['Cost'] ? '฿' + Number(t['Cost']).toLocaleString('th-TH') : null],
+                ['ผลการประเมินคุณภาพ', ratingClean === '— ' ? '—' : ratingClean],
+                ['ข้อเสนอแนะเพิ่มเติม', t['Feedback']]
+            ];
+
+            let html = fields.filter(([, v]) => v && v !== '—' && v !== 'undefined')
+                .map(([l, v]) => `<div class="detail-row"><span>${l}</span><span>${v}</span></div>`)
+                .join('');
+
+            if (t['Img_Before']) {
+                html += `<div class="detail-img-wrap"><div class="detail-img-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> ภาพถ่ายก่อนการซ่อม</div><img src="${t['Img_Before']}" alt="ก่อนการซ่อม"></div>`;
+            }
+            if (t['Img_After']) {
+                html += `<div class="detail-img-wrap"><div class="detail-img-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> ภาพถ่ายหลังการซ่อมแล้วเสร็จ</div><img src="${t['Img_After']}" alt="หลังการซ่อม"></div>`;
+            }
+
+            document.getElementById('detailContent').innerHTML = html;
+            document.getElementById('modalDetail').classList.add('show');
+        }
+
+        function openAccept(id) {
+            document.getElementById('acceptTicketId').value = id;
+            document.getElementById('acceptAdmin').value = adminData.name || '';
+            document.getElementById('acceptAppoint').value = new Date().toISOString().split('T')[0];
+            document.getElementById('acceptExpect').value = new Date().toISOString().split('T')[0];
+            document.getElementById('acceptSymptom').value = '';
+            document.getElementById('modalAccept').classList.add('show');
+        }
+
+        function openClose(id) {
+            document.getElementById('closeTicketId').value = id;
+            document.getElementById('closeDetail').value = '';
+            document.getElementById('closeCost').value = '0';
+            closeImgBase64 = '';
+            document.getElementById('closeImgPreviewWrap').style.display = 'none';
+            document.getElementById('closeImgInput').value = '';
+            document.getElementById('modalClose').classList.add('show');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        function previewCloseImg(input) {
+            if (!input.files[0]) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                closeImgBase64 = e.target.result;
+                document.getElementById('closeImgPreview').src = closeImgBase64;
+                document.getElementById('closeImgPreviewWrap').style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        async function sendPost(payload, modalId) {
+            showLoading(true);
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload),
+                    redirect: "follow"
+                });
+                const json = await res.json();
+                if (json.success) {
+                    closeModal(modalId);
+                    fetchData();
+                    showToast('บันทึกข้อมูลเรียบร้อย');
+                } else {
+                    showToast('เกิดข้อผิดพลาด: ' + (json.error || 'ไม่สามารถบันทึกได้'), 'error');
+                }
+            } catch (err) {
+                showToast('การเชื่อมต่อขัดข้อง กรุณาลองใหม่อีกครั้ง', 'error');
+            }
+            showLoading(false);
+        }
+
+        function confirmAccept() {
+            const admin = document.getElementById('acceptAdmin').value.trim();
+            const app = document.getElementById('acceptAppoint').value;
+            const exp = document.getElementById('acceptExpect').value;
+            const symptom = document.getElementById('acceptSymptom').value.trim();
+            if (!admin || !app || !exp || !symptom) return showToast('กรุณากรอกข้อมูลนัดหมายและอาการตรวจเช็คให้ครบถ้วน', 'warning');
+            sendPost({
+                action: 'acceptJob',
+                data: {
+                    ticketId: document.getElementById('acceptTicketId').value,
+                    adminName: admin,
+                    appointDate: app,
+                    expectDate: exp,
+                    diagnosedSymptom: symptom
+                }
+            }, 'modalAccept');
+        }
+
+        function confirmClose() {
+            const detail = document.getElementById('closeDetail').value.trim();
+            const cost = document.getElementById('closeCost').value;
+            if (!detail) return showToast('กรุณาระบุรายละเอียดการแก้ไขปัญหา', 'warning');
+            sendPost({
+                action: 'closeJob',
+                data: {
+                    ticketId: document.getElementById('closeTicketId').value,
+                    fixDetail: detail,
+                    cost: cost,
+                    imgAfter: closeImgBase64
+                }
+            }, 'modalClose');
+        }
+    </script>
 </body>
+
 </html>
