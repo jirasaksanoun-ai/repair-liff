@@ -1676,7 +1676,7 @@
                                 <circle cx="12" cy="12" r="10"/>
                                 <path d="M12 2a10 10 0 0 1 10 10"/>
                             </svg>
-                            <span>สัดส่วนผลการประเมินคุณภาพบริการ (KQI)</span>
+                            <span>สัดส่วนผลการประเมินคุณภาพบริการ (KQI 3D Gauge)</span>
                         </div>
                         <div class="chart-wrapper">
                             <div class="donut-center-wrap">
@@ -2449,6 +2449,16 @@
             const t = allTickets.find(x => x['Ticket_ID'] === id);
             if (!t) return;
             const dt = new Date(t['Created_Date']);
+            const dtAppoint = t['Appoint_Date'] ? new Date(t['Appoint_Date']) : null;
+            const dtExpect = t['Expect_Date'] ? new Date(t['Expect_Date']) : null;
+            const dtClosed = t['Closed_Date'] ? new Date(t['Closed_Date']) : null;
+
+            const formatDt = (d, withTime = false) => {
+                if (!d || isNaN(d)) return null;
+                const opt = { year: 'numeric', month: 'short', day: 'numeric' };
+                if (withTime) { opt.hour = '2-digit'; opt.minute = '2-digit'; }
+                return d.toLocaleDateString('th-TH', opt);
+            };
 
             let ratingClean = String(t['Rating'] || '—');
             if (ratingClean.match(/^\d/)) {
@@ -2464,8 +2474,11 @@
                 ['สถานที่ / สาขา', t['Site']],
                 ['อาการหรือปัญหาที่พบ', t['Issue']],
                 ['ผู้รับผิดชอบการซ่อม', t['Admin_Name']],
+                ['วันที่นัดหมายเข้าตรวจสอบ (Appoint Date)', formatDt(dtAppoint)],
+                ['วันที่คาดว่าจะแล้วเสร็จ (Expect Date)', formatDt(dtExpect)],
                 ['ผลการวินิจฉัยอาการ', t['Diagnosed_Symptom']],
                 ['รายงานผลการแก้ไข', t['Fix_Detail']],
+                ['วันที่ปิดงานและประเมิน (Closed Date)', formatDt(dtClosed, true)],
                 ['งบประมาณค่าใช้จ่าย', t['Cost'] ? '฿' + Number(t['Cost']).toLocaleString('th-TH') : null],
                 ['ผลการประเมินคุณภาพ', ratingClean === '— ' ? '—' : ratingClean],
                 ['ข้อเสนอแนะเพิ่มเติม', t['Feedback']]
